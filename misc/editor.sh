@@ -22,4 +22,5 @@ elif [[ "$Split" == "v" ]]; then
 elif [[ "$Split" == "h" ]]; then
     tmux split-window -v
 fi
+
 tmux attach -t "$SessionName"
