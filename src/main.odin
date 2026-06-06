@@ -1,27 +1,11 @@
 package main
 
-import "core:fmt"
 import "vendor:sdl3"
 
-Cat :: struct {
-	age: i32,
-	gay: bool,
-	name: f32,
-	ars: i64,
-}
-
 main :: proc() {
-    cat: Cat = {
-        name = 32,
-        gay = false,
-        ars = 32,
-        age = 34,
-    }
-
-    new: ^i16 = cast(^i16)&cat;
-    fmt.print(new^)
-
 	window: ^sdl3.Window = sdl3.CreateWindow("HMH-Odin", 800, 600, {.RESIZABLE})
+	sdl3.SetHint(sdl3.HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0")
+
 	defer sdl3.DestroyWindow(window)
 
 	renderer := sdl3.CreateRenderer(window, nil)
