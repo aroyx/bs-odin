@@ -1,11 +1,12 @@
 package client
 
 import "core:fmt"
+import "src:common"
 
 quit := false
+input: common.PlayerInput = {}
 
 runLoop :: proc() {
-
 	for !quit {
 		getDataFromServer()
 		render()

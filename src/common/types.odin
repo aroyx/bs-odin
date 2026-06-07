@@ -1,29 +1,31 @@
 package types
 
-// always output the player positions each second
-// the user needs to know the map beforehand, if smth happens like wall breaking 
-// - we will notify the player about the wall break as a change input, only when applicable
-
-@(private)
-buttons :: enum u8 {
-	RightClick,
-	LeftClick,
-	MiddleClick,
+PacketType :: enum u8 {
+	NEW_JOIN,
+	PLAYER_INPUT,
+	SERVER_OUTPUT,
 }
 
-Button :: bit_set[buttons]
+NewJoin :: struct {
+	type: PacketType,
+	id:   uintptr,
+}
 
 PlayerInput :: struct {
-	button: Button,
-	id:     u32,
+	type:   PacketType,
 	x_axis: f32,
 	y_axis: f32,
 }
 
-ServerOutput :: struct {
-	x:  f32,
-	y:  f32,
-	id: u32,
+PlayerState :: struct {
+	id:   uintptr,
+	x:    f32,
+	y:    f32,
 }
 
-ServerOutputs: [dynamic]ServerOutput
+MAX_PLAYERS :: 2
+ServerOutput :: struct {
+    type: PacketType,
+    player_count: u8,
+	states: [MAX_PLAYERS]PlayerState,
+}

@@ -1,6 +1,7 @@
 package client
 
 import "core:fmt"
+import "src:common"
 import enet "vendor:ENet"
 
 connected := false
@@ -15,12 +16,13 @@ client: ^enet.Host = nil
 @(private = "file")
 net_event: enet.Event = {}
 
+my_id: uintptr = 0
+
 establishConnectionWithServer :: proc() -> int {
 	if enet.initialize() != 0 {
-		fmt.println("Unable to Initialize enet, Stopping the client")
+		fmt.println("Unable to Initialise enet, Stopping the client")
 		return 1
 	}
-
 
 	client = enet.host_create(nil, 1, 2, 0, 0)
 
@@ -44,6 +46,16 @@ getDataFromServer :: proc() {
 }
 
 sendDataToServer :: proc() {
+	if !connected || peer == nil {
+		return
+	}
+
+	if input.x_axis == 0.0 && input.y_axis == 0.0 {
+		return
+	}
+
+	packet := enet.packet_create(&input, size_of(input), {.UNSEQUENCED})
+	enet.peer_send(peer = peer, channelID = 0, packet = packet)
 }
 
 handleNetworkEvents :: proc() {
@@ -55,11 +67,25 @@ handleNetworkEvents :: proc() {
 			connecting = false
 			break
 		case .RECEIVE:
-			enet.packet_destroy(net_event.packet)
+			defer enet.packet_destroy(net_event.packet)
+
+			packet_type := (cast(^common.PacketType)net_event.packet.data)^
+
+			if packet_type == .NEW_JOIN {
+				new_join := cast(^common.NewJoin)net_event.packet.data
+				my_id = new_join.id
+			} else if packet_type == .SERVER_OUTPUT {
+				server_out := cast(^common.ServerOutput)net_event.packet.data
+				render_state = server_out^
+			}
+
 			break
 		case .DISCONNECT:
 			fmt.println("Disconnection succeeded.")
 			connected = false
+			peer = nil
+            render_state = {}
+            my_id = 0
 			break
 		}
 	}
@@ -76,7 +102,6 @@ toggleConnection :: proc() {
 			fmt.println("No available peers for initiating an ENet connection.")
 			return
 		}
-
 		connecting = true
 	}
 
