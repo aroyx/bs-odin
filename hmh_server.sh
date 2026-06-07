@@ -1,19 +1,19 @@
 #!/bin/bash
 
 # Usage: 
-# `./hmh.sh` - run the proj
+# `./hmh_server.sh` - run the proj
 #
-# `./hmh.sh run` - run (same as `./hmh.sh`)
-# `./hmh.sh run release` - run in release mode
-# `./hmh.sh run debug` - run in debug mode
+# `./hmh_server.sh run` - run (same as `./hmh.sh`)
+# `./hmh_server.sh run release` - run in release mode
+# `./hmh_server.sh run debug` - run in debug mode
 #
-# `./hmh.sh build` - build (files are inside bin dir)
-# `./hmh.sh build release` - build in release mode
-# `./hmh.sh build debug` - build in debug mode
+# `./hmh_server.sh build` - build (files are inside bin dir)
+# `./hmh_server.sh build release` - build in release mode
+# `./hmh_server.sh build debug` - build in debug mode
 #
 # `Alternatively shortcuts can be used - run (r), build (b), debug (d), release (r), 
-# `./hmh.sh r r` - run in release
-# `./hmh.sh b d` - build in debug
+# `./hmh_server.sh r r` - run in release
+# `./hmh_server.sh b d` - build in debug
 #
 # Heads up: "release" takes time to build due to `-o:speed`. In my device it it 5x slower.
 
@@ -38,4 +38,4 @@ fi
 
 OUT_DIR+="hmh"
 
-odin $MODE src/client/ -collection:src=./src/ $FLAGS -out:$OUT_DIR
+odin $MODE src/server/ -collection:src=./src/ $FLAGS -out:$OUT_DIR

@@ -21,6 +21,9 @@ elif [[ "$Split" == "v" ]]; then
     tmux split-window -h
 elif [[ "$Split" == "h" ]]; then
     tmux split-window -v
+elif [[ "$Split" == "n" ]]; then
+    tmux new-window -n "Build"
 fi
 
+tmux select-window -t "$SessionName:Neovim"
 tmux attach -t "$SessionName"
