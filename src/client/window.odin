@@ -3,9 +3,7 @@ package client
 import "core:fmt"
 import sdl "vendor:sdl3"
 
-@(private = "file")
 window: ^sdl.Window
-
 renderer: ^sdl.Renderer
 
 @(private = "file")
@@ -31,10 +29,17 @@ initWindow :: proc() -> int {
 		sdl.DestroyWindow(window)
 		return 1
 	}
+
+	if initFonts() != 0 {
+		fmt.println("Failed to initialise fonts!")
+		return 1
+	}
+
 	return 0
 }
 
 destroyWindow :: proc() {
+	closeFont()
 	sdl.DestroyRenderer(renderer)
 	sdl.DestroyWindow(window)
 }
@@ -43,9 +48,32 @@ handleInputs :: proc() {
 	for (sdl.PollEvent(&event)) {
 		if event.type == .QUIT {
 			quit = true
-			break
-		} else if event.type == .KEY_DOWN && event.key.scancode == .C {
-			toggleConnection()
+		} else if event.type == .KEY_DOWN {
+			#partial switch event.key.scancode {
+			case .C:
+				{
+					if client_state != .MAIN_MENU && client_state != .MATCH_MAKING do break
+
+					if client_state == .MAIN_MENU do client_state = .MATCH_MAKING
+					else if client_state == .MATCH_MAKING do client_state = .MAIN_MENU
+
+					toggleConnection()
+					break
+				}
+			case .Q:
+				{
+					if client_state == .MAIN_MENU do quit = true
+					// esle
+					// pop-up: "Are You sure?"
+					break
+				}
+			case .R:
+				{
+					if client_state == .END_SCREEN do client_state = .MAIN_MENU
+					break
+				}
+
+			}
 		}
 	}
 

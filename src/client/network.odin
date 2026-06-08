@@ -41,10 +41,6 @@ rewokeConnectionWithServer :: proc() {
 	enet.deinitialize()
 }
 
-getDataFromServer :: proc() {
-
-}
-
 sendDataToServer :: proc() {
 	if !connected || peer == nil {
 		return
@@ -77,15 +73,24 @@ handleNetworkEvents :: proc() {
 			} else if packet_type == .SERVER_OUTPUT {
 				server_out := cast(^common.ServerOutput)net_event.packet.data
 				render_state = server_out^
+			} else if packet_type == .MATCH_MAKING_OUTPUT {
+				match_making_output := cast(^common.MatchMakingOutput)net_event.packet.data
+				render_state.player_count = match_making_output.player_count
+			} else if packet_type == .COUNTDOWN_OUTPUT {
+				countdown_output := (cast(^common.CountDownOutput)net_event.packet.data)^
+				countdown = countdown_output
+			}else if packet_type == .MATCH_START {
+                client_state = .PLAYING
 			}
+
 
 			break
 		case .DISCONNECT:
 			fmt.println("Disconnection succeeded.")
 			connected = false
 			peer = nil
-            render_state = {}
-            my_id = 0
+			render_state = {}
+			my_id = 0
 			break
 		}
 	}

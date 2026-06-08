@@ -1,18 +1,18 @@
 package client
 
+import "core:time"
 import "core:fmt"
-import "src:common"
-
-quit := false
-input: common.PlayerInput = {}
 
 runLoop :: proc() {
 	for !quit {
-		getDataFromServer()
+        initTimer()
+        defer stopTimer()
+
 		render()
 		handleInputs()
 		sendDataToServer()
 		handleNetworkEvents()
+		time.sleep(16 * time.Millisecond)// make new func fpsCapper
 	}
 }
 

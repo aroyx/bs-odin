@@ -1,12 +1,66 @@
 package client
 
+import "core:fmt"
 import "src:common"
 import sdl "vendor:sdl3"
-
-render_state: common.ServerOutput = {}
+import "vendor:sdl3/ttf"
 
 render :: proc() {
+	switch client_state {
+	case .MAIN_MENU:
+		render_main_menu()
+		break
+	case .MATCH_MAKING:
+		render_match_making()
+		break
+	case .PLAYING:
+		render_playing()
+		break
+	case .END_SCREEN:
+		render_end_screen()
+		break
+	}
+
+	render_fps()
+
+	sdl.RenderPresent(renderer)
+}
+
+render_main_menu :: proc() {
 	sdl.SetRenderDrawColor(renderer, 200, 100, 240, 255)
+	sdl.RenderClear(renderer)
+
+	draw_centered_text(welcome_text)
+}
+
+render_match_making :: proc() {
+	sdl.SetRenderDrawColor(renderer, 10, 200, 120, 255)
+	sdl.RenderClear(renderer)
+
+	// render "Match-Making!" in the center
+	draw_centered_text(match_making_text, y_offset = -60.0)
+
+	// render "Total players: 1/2" in the center slightly lower
+	text := fmt.ctprintf("Total Players: %d/%d", render_state.player_count, common.MAX_PLAYERS)
+	players_text := ttf.CreateText(engine, font, text, 0)
+	ttf.SetTextColor(players_text, 255, 255, 255, 255)
+
+	draw_centered_text(players_text)
+
+	ttf.DestroyText(players_text)
+
+	if countdown.show {
+		// render "Total players: 1/2" in the center slightly lower
+		text := fmt.ctprintf("Match Starts in: %ds", countdown.time)
+		cnt_text := ttf.CreateText(engine, font, text, 0)
+		ttf.SetTextColor(cnt_text, 255, 255, 255, 255)
+		draw_centered_text(cnt_text, y_offset = 30.0)
+		ttf.DestroyText(cnt_text)
+	}
+}
+
+render_playing :: proc() {
+	sdl.SetRenderDrawColor(renderer, 10, 200, 120, 255)
 	sdl.RenderClear(renderer)
 
 	green: sdl.Color
@@ -41,7 +95,36 @@ render :: proc() {
 
 		sdl.RenderFillRect(renderer, &rect)
 	}
+}
 
-	sdl.RenderPresent(renderer)
-	sdl.Delay(16) // make new func fpsCapper
+render_end_screen :: proc() {
+	sdl.SetRenderDrawColor(renderer, 80, 30, 80, 255)
+	sdl.RenderClear(renderer)
+
+	draw_centered_text(end_screen_text)
+}
+
+render_fps :: proc() {
+	if !show_fps do return
+
+	text := fmt.ctprintf("FPS: %f", fps)
+	fps_text := ttf.CreateText(engine, font, text, 0)
+	ttf.SetTextColor(fps_text, 10, 10, 10, 255)
+
+	ttf.DrawRendererText(fps_text, 0, 0)
+
+	ttf.DestroyText(fps_text)
+}
+
+draw_centered_text :: proc(text: ^ttf.Text, x_offset: f32 = 0.0, y_offset: f32 = 0.0) {
+	if text == nil do return
+
+	w, h, tw, th: i32
+	sdl.GetWindowSize(window, &w, &h)
+	ttf.GetTextSize(text, &tw, &th)
+
+	x := (f32(w - tw) * 0.5) + x_offset
+	y := (f32(h - th) * 0.5) + y_offset
+
+	ttf.DrawRendererText(text, x, y)
 }

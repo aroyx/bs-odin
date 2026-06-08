@@ -1,10 +1,12 @@
 package server
 
-import "src:common"
 import "core:fmt"
+import "core:math/rand"
+import "src:common"
 import enet "vendor:ENet"
 
 server: ^enet.Host
+event: enet.Event
 
 initialiseNetwork :: proc() -> int {
 	if enet.initialize() != 0 {
@@ -23,13 +25,163 @@ initialiseNetwork :: proc() -> int {
 		fmt.println("Unable to create the server!")
 		return 1
 	}
-
-	fmt.println("Server Started successfully!")
-
 	return 0
 }
 
 stopNetwork :: proc() {
-    enet.host_destroy(server)
+	enet.host_destroy(server)
 	enet.deinitialize()
+}
+
+pollEvents :: proc() {
+	for enet.host_service(server, &event, 16) > 0 {
+		switch event.type {
+		case enet.EventType.CONNECT:
+			{
+				handleConnect()
+				break
+			}
+		case enet.EventType.DISCONNECT:
+			{
+				handleDisconnect()
+				break
+			}
+		case enet.EventType.RECEIVE:
+			{
+				handleRecieve()
+				break
+			}
+		case enet.EventType.NONE:
+			{
+				fmt.printf("Whar are you upto mate\n")
+				break
+			}
+		}
+	}
+}
+
+sendDataToClients :: proc() {
+	if server_state == .COUNTDOWN do updateCountdown()
+    else if server_state == .MATCH_RUNNING do broadcastData()
+}
+
+handleConnect :: proc() {
+	id := uintptr(client_id_counter)
+	client_id_counter += 1
+
+	fmt.printf("A new client connected with id: %d\n", id)
+	event.peer.data = rawptr(id)
+
+	players[id] = common.PlayerState {
+		id = id,
+		x  = f32(rand.int31() % 800),
+		y  = f32(rand.int31() % 600),
+	}
+
+	newJoin: common.NewJoin = {
+		type = .NEW_JOIN,
+		id   = id,
+	}
+
+	packet := enet.packet_create(&newJoin, size_of(newJoin), {.RELIABLE})
+	enet.peer_send(event.peer, 0, packet)
+
+	if server_state == .MATCH_MAKING {
+		broadcastPlayerCount()
+	}
+
+	if len(players) == common.MAX_PLAYERS {
+		startCountdown()
+	}
+}
+
+handleDisconnect :: proc() {
+	id := uintptr(event.peer.data)
+	fmt.printf("A connection was disconnected with id: %d\n", id)
+	event.peer.data = nil
+	delete_key(&players, id)
+
+	if server_state == .MATCH_MAKING {
+		broadcastPlayerCount()
+	}
+
+	if server_state == .COUNTDOWN {
+		server_state = .MATCH_MAKING
+		sendCountDown(0, false)
+		broadcastPlayerCount()
+	}
+}
+
+handleRecieve :: proc() {
+	defer enet.packet_destroy(event.packet)
+
+	packet_type := cast(^common.PacketType)event.packet.data
+	id := uintptr(event.peer.data)
+
+	if packet_type^ != .PLAYER_INPUT {
+		return
+	}
+
+	// if event.packet.dataLength != size_of(common.PlayerInput) {
+	// 	break
+	// }
+
+	if !(id in players) {
+		return
+	}
+
+	input := cast(^common.PlayerInput)event.packet.data
+	state := &players[id]
+
+	speed: f32 = 5.0
+	state.x += input.x_axis * speed
+	state.y += input.y_axis * speed
+}
+
+broadcastData :: proc() {
+	if len(players) == common.MAX_PLAYERS {
+		server_output: common.ServerOutput = {
+			type         = .SERVER_OUTPUT,
+			player_count = u8(len(players)),
+		}
+
+		i := 0
+		for _, player in players {
+			server_output.states[i] = player
+			i += 1
+		}
+
+		packet := enet.packet_create(&server_output, size_of(server_output), {.UNSEQUENCED})
+		enet.host_broadcast(server, 0, packet)
+	}
+}
+
+broadcastPlayerCount :: proc() {
+	match_making_output: common.MatchMakingOutput = {
+		type         = .MATCH_MAKING_OUTPUT,
+		player_count = u8(len(players)),
+	}
+
+	packet := enet.packet_create(&match_making_output, size_of(match_making_output), {.RELIABLE})
+	enet.host_broadcast(server, 0, packet)
+}
+
+sendCountDown :: proc(time: u8, show: bool = true) {
+	countdown_output: common.CountDownOutput = {
+		type = .COUNTDOWN_OUTPUT,
+		time = time,
+		show = show,
+	}
+
+	packet := enet.packet_create(&countdown_output, size_of(countdown_output), {.RELIABLE})
+	enet.host_broadcast(server, 0, packet)
+}
+
+sendMatchStartSignal :: proc() {
+	match_start: common.MatchStartOutput = {
+		type = .MATCH_START,
+	}
+
+	packet := enet.packet_create(&match_start, size_of(match_start), {.RELIABLE})
+	enet.host_broadcast(server, 0, packet)
 }
