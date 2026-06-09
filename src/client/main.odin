@@ -1,6 +1,5 @@
 package client
 
-import "core:time"
 import "core:fmt"
 
 runLoop :: proc() {
@@ -12,7 +11,6 @@ runLoop :: proc() {
 		handleInputs()
 		sendDataToServer()
 		handleNetworkEvents()
-		time.sleep(16 * time.Millisecond)// make new func fpsCapper
 	}
 }
 

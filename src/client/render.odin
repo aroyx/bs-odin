@@ -41,7 +41,12 @@ render_match_making :: proc() {
 	draw_centered_text(match_making_text, y_offset = -60.0)
 
 	// render "Total players: 1/2" in the center slightly lower
-	text := fmt.ctprintf("Total Players: %d/%d", render_state.player_count, common.MAX_PLAYERS)
+	text: cstring = "Unable to connect to any server!\nMaybe the server is down?\n\nPlease Exit and try again later"
+
+	if connected {
+		text = fmt.ctprintf("Total Players: %d/%d", render_state.player_count, common.MAX_PLAYERS)
+	}
+
 	players_text := ttf.CreateText(engine, font, text, 0)
 	ttf.SetTextColor(players_text, 255, 255, 255, 255)
 
@@ -104,16 +109,31 @@ render_end_screen :: proc() {
 	draw_centered_text(end_screen_text)
 }
 
+@(private = "file")
+cfps := 60.0 // cumulative fps
+@(private = "file")
+cft := 16.0
+@(private = "file")
+alpha :: 2.0 / (20.0 + 1.0)
+
 render_fps :: proc() {
 	if !show_fps do return
 
-	text := fmt.ctprintf("FPS: %f", fps)
+	cfps = cfps + alpha * (fps - cfps) // exponential moving avg
+	cft = cft + alpha * (frame_time - cft) // exponential moving avg
+
+	// cfps = cfps + (fps - cfps) / counter // moving avg, hard to detech changes when counter gets too big
+	// counter += 1
+
+	ttf.SetFontWrapAlignment(font, .LEFT)
+
+	text := fmt.ctprintf("FPS: %d\nFrame Time: %fms", u32(cfps), cft)
 	fps_text := ttf.CreateText(engine, font, text, 0)
 	ttf.SetTextColor(fps_text, 10, 10, 10, 255)
-
 	ttf.DrawRendererText(fps_text, 0, 0)
-
 	ttf.DestroyText(fps_text)
+
+	ttf.SetFontWrapAlignment(font, .CENTER)
 }
 
 draw_centered_text :: proc(text: ^ttf.Text, x_offset: f32 = 0.0, y_offset: f32 = 0.0) {

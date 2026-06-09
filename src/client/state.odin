@@ -21,3 +21,4 @@ client_state: ClientState = .MAIN_MENU
 render_state: common.ServerOutput = {}
 countdown: common.CountDownOutput = {}
 fps: f64 = 0
+frame_time: f64 = 0
