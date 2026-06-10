@@ -2,6 +2,6 @@
 	"$schema": "https://raw.githubusercontent.com/DanielGavin/ols/master/misc/ols.schema.json",
 	"collections": [
 		{ "name": "src", "path": "./src/" },
-        { "name": "tracy", "path": "./thirdparty/tracy/" }
+        { "name": "thirdparty", "path": "./thirdparty/" }
 	],
 }

@@ -2,28 +2,40 @@ package client
 
 import "core:fmt"
 import "src:common"
+import "thirdparty:tracy"
 import sdl "vendor:sdl3"
 import "vendor:sdl3/ttf"
 
 render :: proc() {
-	switch client_state {
-	case .MAIN_MENU:
-		render_main_menu()
-		break
-	case .MATCH_MAKING:
-		render_match_making()
-		break
-	case .PLAYING:
-		render_playing()
-		break
-	case .END_SCREEN:
-		render_end_screen()
-		break
+	tracy.ZoneN("Render")
+
+	{
+		tracy.ZoneN("Render Screen")
+		switch client_state {
+		case .MAIN_MENU:
+			render_main_menu()
+			break
+		case .MATCH_MAKING:
+			render_match_making()
+			break
+		case .PLAYING:
+			render_playing()
+			break
+		case .END_SCREEN:
+			render_end_screen()
+			break
+		}
 	}
 
-	render_fps()
+	{
+		tracy.ZoneN("FPS")
+		render_fps()
+	}
 
-	sdl.RenderPresent(renderer)
+	{
+		tracy.ZoneN("Render Present")
+		sdl.RenderPresent(renderer)
+	}
 }
 
 render_main_menu :: proc() {

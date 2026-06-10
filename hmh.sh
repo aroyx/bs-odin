@@ -18,7 +18,7 @@
 # Heads up: "release" takes time to build due to `-o:speed`. In my device it it 5x slower.
 
 MODE="run"
-FLAGS="-show-timings"
+FLAGS="-show-timings -define:TRACY_ENABLE=true"
 OUT_DIR="bin/" # no output when running
 
 if [[ "$1" == "run" || "$1" == "r" ]]; then
@@ -46,4 +46,4 @@ else
     echo "Tracy Already Built"
 fi
 
-odin $MODE src/client/ -collection:src=./src/ -collection:./thirdparty/tracy/ $FLAGS -out:$OUT_DIR
+odin $MODE src/client/ -collection:src=./src/ -collection:thirdparty=./thirdparty/ $FLAGS -out:$OUT_DIR

@@ -1,11 +1,14 @@
 package client
 
 import "core:fmt"
+import "thirdparty:tracy"
 
 runLoop :: proc() {
 	for !quit {
-        initTimer()
-        defer stopTimer()
+        defer tracy.FrameMark()
+
+		initTimer()
+		defer stopTimer()
 
 		render()
 		handleInputs()
