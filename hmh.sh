@@ -38,4 +38,12 @@ fi
 
 OUT_DIR+="hmh"
 
-odin $MODE src/client/ -collection:src=./src/ $FLAGS -out:$OUT_DIR
+# Build Tracy
+if [ ! -f "thirdparty/tracy/tracy.so" ]; then
+    echo "Building Tracy library"
+    (cd "thirdparty/tracy/" && c++ -DTRACY_ENABLE -O2 tracy/public/TracyClient.cpp -shared -fPIC -o tracy.so)
+else
+    echo "Tracy Already Built"
+fi
+
+odin $MODE src/client/ -collection:src=./src/ -collection:./thirdparty/tracy/ $FLAGS -out:$OUT_DIR
