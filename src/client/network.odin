@@ -1,5 +1,6 @@
 package client
 
+import "thirdparty:tracy"
 import "core:fmt"
 import "src:common"
 import enet "vendor:ENet"
@@ -42,6 +43,7 @@ rewokeConnectionWithServer :: proc() {
 }
 
 sendDataToServer :: proc() {
+    tracy.Zone()
 	if !connected || peer == nil {
 		return
 	}
@@ -55,6 +57,7 @@ sendDataToServer :: proc() {
 }
 
 handleNetworkEvents :: proc() {
+    tracy.Zone()
 	for enet.host_service(client, &net_event, 0) > 0 {
 		#partial switch (net_event.type) {
 		case .CONNECT:
@@ -82,7 +85,6 @@ handleNetworkEvents :: proc() {
 			}else if packet_type == .MATCH_START {
                 client_state = .PLAYING
 			}
-
 
 			break
 		case .DISCONNECT:

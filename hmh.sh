@@ -46,4 +46,7 @@ else
     echo "Tracy Already Built"
 fi
 
-odin $MODE src/client/ -collection:src=./src/ -collection:thirdparty=./thirdparty/ $FLAGS -out:$OUT_DIR
+COLLECTION="-collection:src=./src/"
+COLLECTION+=" -collection:thirdparty=./thirdparty/"
+
+odin $MODE src/client/ $COLLECTION $FLAGS -out:$OUT_DIR

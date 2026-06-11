@@ -7,7 +7,7 @@ import sdl "vendor:sdl3"
 import "vendor:sdl3/ttf"
 
 render :: proc() {
-	tracy.ZoneN("Render")
+	tracy.Zone()
 
 	{
 		tracy.ZoneN("Render Screen")
@@ -27,10 +27,7 @@ render :: proc() {
 		}
 	}
 
-	{
-		tracy.ZoneN("FPS")
-		render_fps()
-	}
+	render_fps()
 
 	{
 		tracy.ZoneN("Render Present")
@@ -129,6 +126,7 @@ cft := 16.0
 alpha :: 2.0 / (20.0 + 1.0)
 
 render_fps :: proc() {
+	tracy.Zone()
 	if !show_fps do return
 
 	cfps = cfps + alpha * (fps - cfps) // exponential moving avg
