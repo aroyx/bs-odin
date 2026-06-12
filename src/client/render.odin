@@ -147,6 +147,7 @@ render_fps :: proc() {
 }
 
 draw_centered_text :: proc(text: ^ttf.Text, x_offset: f32 = 0.0, y_offset: f32 = 0.0) {
+    tracy.Zone()
 	if text == nil do return
 
 	w, h, tw, th: i32
