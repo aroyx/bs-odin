@@ -1,50 +1,23 @@
 package client
 
-import "thirdparty:tracy"
 import "core:fmt"
+import "src:client/network"
 import "src:common"
-import enet "vendor:ENet"
-
-connected := false
-connecting := false
-
-@(private = "file")
-peer: ^enet.Peer = nil
-
-@(private = "file")
-client: ^enet.Host = nil
-
-@(private = "file")
-net_event: enet.Event = {}
-
-my_id: uintptr = 0
+import "thirdparty:tracy"
 
 establishConnectionWithServer :: proc() -> int {
-	if enet.initialize() != 0 {
-		fmt.println("Unable to Initialise enet, Stopping the client")
-		return 1
-	}
-
-	client = enet.host_create(nil, 1, 2, 0, 0)
-
-	if client == nil {
-		fmt.println("Unable to create the client thingy!")
-		return 1
-	}
+	if !network.InitialiseNetwork() do return 1
 	return 0
 }
 
 rewokeConnectionWithServer :: proc() {
-	if connected {
-		enet.peer_reset(peer)
-	}
-	enet.host_destroy(client)
-	enet.deinitialize()
+	network.DestroyNetwork()
 }
 
-sendDataToServer :: proc() {
-    tracy.Zone()
-	if !connected || peer == nil {
+sendInputsToServer :: proc() {
+	tracy.Zone()
+
+	if !network.IsConnected() {
 		return
 	}
 
@@ -52,67 +25,46 @@ sendDataToServer :: proc() {
 		return
 	}
 
-	packet := enet.packet_create(&input, size_of(input), {.UNSEQUENCED})
-	enet.peer_send(peer = peer, channelID = 0, packet = packet)
+	network.SendDataToServerU(&input, size_of(input))
 }
 
-handleNetworkEvents :: proc() {
-    tracy.Zone()
-	for enet.host_service(client, &net_event, 0) > 0 {
-		#partial switch (net_event.type) {
-		case .CONNECT:
+handleNetworkInputs :: proc() {
+	tracy.Zone()
+
+	loop: for {
+		switch event in network.GetNetworkEvent() {
+
+		case network.connect:
 			fmt.println("Connection succeeded.")
-			connected = true
-			connecting = false
-			break
-		case .RECEIVE:
-			defer enet.packet_destroy(net_event.packet)
 
-			packet_type := (cast(^common.PacketType)net_event.packet.data)^
+		case network.disconnect:
+			fmt.println("Disconnection succeeded.")
+			render_state = {}
 
-			if packet_type == .NEW_JOIN {
-				new_join := cast(^common.NewJoin)net_event.packet.data
-				my_id = new_join.id
-			} else if packet_type == .SERVER_OUTPUT {
-				server_out := cast(^common.ServerOutput)net_event.packet.data
-				render_state = server_out^
-			} else if packet_type == .MATCH_MAKING_OUTPUT {
-				match_making_output := cast(^common.MatchMakingOutput)net_event.packet.data
-				render_state.player_count = match_making_output.player_count
-			} else if packet_type == .COUNTDOWN_OUTPUT {
-				countdown_output := (cast(^common.CountDownOutput)net_event.packet.data)^
-				countdown = countdown_output
-			}else if packet_type == .MATCH_START {
-                client_state = .PLAYING
+		case network.receive:
+			switch packet in event.packet {
+
+			case common.ServerOutput:
+				render_state = packet
+
+			case common.MatchMakingOutput:
+				render_state.player_count = packet.player_count
+
+			case common.CountDownOutput:
+				countdown = packet
+
+			case common.MatchStartOutput:
+				client_state = .PLAYING
 			}
 
-			break
-		case .DISCONNECT:
-			fmt.println("Disconnection succeeded.")
-			connected = false
-			peer = nil
-			render_state = {}
-			my_id = 0
-			break
+		case network.none:
+			break loop
 		}
 	}
 }
 
 toggleConnection :: proc() {
-	if !connected && !connecting {
-		address: enet.Address = {}
-		enet.address_set_host(&address, "127.0.0.1")
-		address.port = 7777
-
-		peer = enet.host_connect(client, &address, 2, 0)
-		if peer == nil {
-			fmt.println("No available peers for initiating an ENet connection.")
-			return
-		}
-		connecting = true
-	}
-
-	if connected {
-		enet.peer_disconnect(peer, 0)
-	}
+	if !network.IsConnected() {
+		network.ConnectToServer()
+	} else do network.DisconnectFromServer()
 }

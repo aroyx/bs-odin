@@ -44,7 +44,7 @@ destroyWindow :: proc() {
 	sdl.DestroyWindow(window)
 }
 
-handleInputs :: proc() {
+handleUserInputs :: proc() {
 	for (sdl.PollEvent(&event)) {
 		if event.type == .QUIT {
 			quit = true
@@ -72,7 +72,6 @@ handleInputs :: proc() {
 					if client_state == .END_SCREEN do client_state = .MAIN_MENU
 					break
 				}
-
 			}
 		}
 	}
@@ -82,10 +81,10 @@ handleInputs :: proc() {
 	x_axis: f32 = 0
 	y_axis: f32 = 0
 
-	if keys[sdl.Scancode.W] == true {y_axis = -1}
-	if keys[sdl.Scancode.S] == true {y_axis = 1}
-	if keys[sdl.Scancode.A] == true {x_axis = -1}
-	if keys[sdl.Scancode.D] == true {x_axis = 1}
+	if keys[sdl.Scancode.W] || keys[sdl.Scancode.UP] do y_axis = -1
+	if keys[sdl.Scancode.S] || keys[sdl.Scancode.DOWN] do y_axis = 1
+	if keys[sdl.Scancode.A] || keys[sdl.Scancode.LEFT] do x_axis = -1
+	if keys[sdl.Scancode.D] || keys[sdl.Scancode.RIGHT] do x_axis = 1
 
 	input.x_axis = x_axis
 	input.y_axis = y_axis

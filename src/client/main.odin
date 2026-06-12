@@ -5,15 +5,15 @@ import "thirdparty:tracy"
 
 runLoop :: proc() {
 	for !quit {
-        defer tracy.FrameMark()
+        tracy.FrameMark()
 
 		initTimer()
 		defer stopTimer()
 
 		render()
-		handleInputs()
-		sendDataToServer()
-		handleNetworkEvents()
+		handleUserInputs()
+		sendInputsToServer()
+		handleNetworkInputs()
 	}
 }
 

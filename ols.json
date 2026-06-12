@@ -4,4 +4,6 @@
 		{ "name": "src", "path": "./src/" },
         { "name": "thirdparty", "path": "./thirdparty/" }
 	],
+    "enable_overload_resolution": true,
+    "enable_snippets": true,
 }

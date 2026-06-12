@@ -1,6 +1,7 @@
 package client
 
 import "core:fmt"
+import "src:client/network"
 import "src:common"
 import "thirdparty:tracy"
 import sdl "vendor:sdl3"
@@ -52,7 +53,7 @@ render_match_making :: proc() {
 	// render "Total players: 1/2" in the center slightly lower
 	text: cstring = "Unable to connect to any server!\nMaybe the server is down?\n\nPlease Exit and try again later"
 
-	if connected {
+	if network.IsConnected() {
 		text = fmt.ctprintf("Total Players: %d/%d", render_state.player_count, common.MAX_PLAYERS)
 	}
 
@@ -147,7 +148,7 @@ render_fps :: proc() {
 }
 
 draw_centered_text :: proc(text: ^ttf.Text, x_offset: f32 = 0.0, y_offset: f32 = 0.0) {
-    tracy.Zone()
+	tracy.Zone()
 	if text == nil do return
 
 	w, h, tw, th: i32

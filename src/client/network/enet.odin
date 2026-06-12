@@ -1,0 +1,145 @@
+package network
+
+import "core:fmt"
+import "src:common"
+import enet "vendor:ENet"
+
+@(private)
+connected := false
+@(private)
+connecting := false
+
+@(private)
+peer: ^enet.Peer = nil
+
+@(private)
+client: ^enet.Host = nil
+
+@(private)
+net_event: enet.Event = {}
+
+@(private)
+my_id: uintptr = 0
+
+InitialiseNetwork :: proc() -> bool {
+	if enet.initialize() != 0 {
+		fmt.println("Unable to Initialise enet, Stopping the client")
+		return false
+	}
+
+	client = enet.host_create(
+		address = nil,
+		peerCount = 1,
+		channelLimit = 2,
+		incomingBandwidth = 0,
+		outgoingBandwidth = 0,
+	)
+
+	if client == nil {
+		fmt.println("Unable to create the client thingy!")
+		return false
+	}
+
+	return true
+}
+
+DestroyNetwork :: proc() {
+	if connected {
+		enet.peer_disconnect_now(peer, 0)
+		enet.peer_reset(peer)
+	}
+
+	enet.host_destroy(client)
+	enet.deinitialize()
+}
+
+ConnectToServer :: proc() {
+	if connected || connecting {
+		return
+	}
+
+	// make the address and port argumental
+	address: enet.Address = {}
+	enet.address_set_host(&address, "127.0.0.1")
+	address.port = 7777
+
+	peer = enet.host_connect(client, &address, 2, 0)
+	if peer == nil {
+		fmt.println("No available peers for initiating an ENet connection.")
+		return
+	}
+
+	connecting = true
+}
+
+DisconnectFromServer :: proc() {
+	assert(peer != nil)
+	if connected {
+		enet.peer_disconnect(peer, 0)
+	}
+}
+
+IsConnected :: proc() -> bool {
+	return connected && peer != nil
+}
+
+SendDataToServerU :: proc(data: rawptr, size: uint) {
+	packet := enet.packet_create(data, size, {.UNSEQUENCED})
+	enet.peer_send(peer = peer, channelID = 0, packet = packet)
+}
+
+SendDataToServerR :: proc(data: rawptr, size: uint) {
+	packet := enet.packet_create(data, size, {.RELIABLE})
+	enet.peer_send(peer = peer, channelID = 0, packet = packet)
+}
+
+GetNetworkEvent :: proc() -> NetworkEvent {
+	for enet.host_service(client, &net_event, 0) > 0 {
+		switch (net_event.type) {
+		case .CONNECT:
+			connected = true
+			connecting = false
+			return connect{}
+		case .DISCONNECT:
+			connected = false
+			peer = nil
+			my_id = 0
+			return disconnect{}
+		case .RECEIVE:
+			defer enet.packet_destroy(net_event.packet)
+			packet_type := (cast(^common.PacketType)net_event.packet.data)^
+
+			#partial switch (packet_type) {
+			case .NEW_JOIN:
+				new_join := cast(^common.NewJoin)net_event.packet.data
+				my_id = new_join.id
+				return none{}
+
+			case .SERVER_OUTPUT:
+				server_out := (cast(^common.ServerOutput)net_event.packet.data)^
+				return receive{packet = server_out}
+
+			case .MATCH_MAKING_OUTPUT:
+				match_making := (cast(^common.MatchMakingOutput)net_event.packet.data)^
+				return receive{packet = match_making}
+
+			case .COUNTDOWN_OUTPUT:
+				countdown := (cast(^common.CountDownOutput)net_event.packet.data)^
+				return receive{packet = countdown}
+
+			case .MATCH_START:
+				match_start := (cast(^common.MatchStartOutput)net_event.packet.data)^
+				return receive{packet = match_start}
+			}
+
+			return none{}
+		case .NONE:
+			return none{}
+		}
+	}
+	return none{}
+}
+
+GetServerID :: proc() -> uintptr {
+	return my_id
+}
