@@ -27,24 +27,26 @@ for arg in "$@"; do
     esac
 done
 
-OUT_DIR="bin/$BUILD_TYPE/$EXE"
-
 if [[ "$EXE" == "client" ]]; then
     SRC_DIR="src/client/"
 elif [[ "$EXE" == "server" ]]; then
     SRC_DIR="src/server/"
 fi
 
+OUT_DIR="bin/$BUILD_TYPE/$EXE"
+
 if [[ "$BUILD_TYPE" == "release" ]]; then
     # FLAGS+="-microarch:native"
     FLAGS+=" -o:speed"
 elif [[ "$BUILD_TYPE" == "debug" ]]; then
     FLAGS+=" -debug"
+else
+    OUT_DIR="bin/$EXE"
 fi
 
 # Build Tracy
 if [[ "$ENABLE_TRACY" == true ]]; then
-    if [ ! -f "thirdparty/tracy/tracy.so" ]; then
+    if [[ ! -f "thirdparty/tracy/tracy.so" ]]; then
         echo "Building Tracy library"
         (cd "thirdparty/tracy/" && c++ -DTRACY_ENABLE -O2 tracy/public/TracyClient.cpp -shared -fPIC -o tracy.so)
     fi
@@ -58,6 +60,18 @@ COLLECTION="-collection:src=./src/"
 COLLECTION+=" -collection:thirdparty=./thirdparty/"
 
 # RUN ODIN!!
-echo "odin $MODE $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR"
+if [[ "$MODE" == "run" ]]; then
+    # we don't run the executable by `odin run` command because odin doesn't
+    # spawn an orphan process and goes away, instead it hogs 400-500mb ram and
+    # stays until the executable is done running
+    echo "odin build $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR"
+    odin build $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR
 
-odin $MODE $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR
+    if [[ $? == 0 ]]; then
+        echo ./$OUT_DIR
+        ./$OUT_DIR
+    fi
+else
+    echo "odin $MODE $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR"
+    odin $MODE $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR
+fi
