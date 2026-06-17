@@ -4,8 +4,8 @@ import "core:fmt"
 import "thirdparty:tracy"
 
 runLoop :: proc() {
-	for !quit {
-        tracy.FrameMark()
+	for !global.quit {
+		tracy.FrameMark()
 
 		initTimer()
 		defer stopTimer()
@@ -18,6 +18,11 @@ runLoop :: proc() {
 }
 
 main :: proc() {
+	if stateInit() != true {
+		fmt.println("Unable to do shti")
+		return
+	}
+
 	if initWindow() != 0 {
 		fmt.println("Unable to open Window")
 		return

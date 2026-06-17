@@ -12,7 +12,7 @@ render :: proc() {
 
 	{
 		tracy.ZoneN("Render Screen")
-		switch client_state {
+		switch global.client_state {
 		case .MAIN_MENU:
 			render_main_menu()
 			break
@@ -54,7 +54,7 @@ render_match_making :: proc() {
 	text: cstring = "Unable to connect to any server!\nMaybe the server is down?\n\nPlease Exit and try again later"
 
 	if network.IsConnected() {
-		text = fmt.ctprintf("Total Players: %d/%d", render_state.player_count, common.MAX_PLAYERS)
+		text = fmt.ctprintf("Total Players: %d/%d", global.render_state.player_count, common.MAX_PLAYERS)
 	}
 
 	players_text := ttf.CreateText(engine, font, text, 0)
@@ -64,9 +64,9 @@ render_match_making :: proc() {
 
 	ttf.DestroyText(players_text)
 
-	if countdown.show {
+	if global.time.countdown.show {
 		// render "Total players: 1/2" in the center slightly lower
-		text := fmt.ctprintf("Match Starts in: %ds", countdown.time)
+		text := fmt.ctprintf("Match Starts in: %ds", global.time.countdown.time)
 		cnt_text := ttf.CreateText(engine, font, text, 0)
 		ttf.SetTextColor(cnt_text, 255, 255, 255, 255)
 		draw_centered_text(cnt_text, y_offset = 30.0)
@@ -90,8 +90,8 @@ render_playing :: proc() {
 	blue.b = 255
 	blue.a = 255
 
-	for i in 0 ..< render_state.player_count {
-		player := render_state.states[i]
+	for i in 0 ..< global.render_state.player_count {
+		player := global.render_state.states[i]
 		rect: sdl.FRect
 
 		dim :: 30
@@ -128,10 +128,10 @@ alpha :: 2.0 / (20.0 + 1.0)
 
 render_fps :: proc() {
 	tracy.Zone()
-	if !show_fps do return
+	if !global.time.show_fps do return
 
-	cfps = cfps + alpha * (fps - cfps) // exponential moving avg
-	cft = cft + alpha * (frame_time - cft) // exponential moving avg
+	cfps = cfps + alpha * (global.time.fps - cfps) // exponential moving avg
+	cft = cft + alpha * (global.time.frame_time - cft) // exponential moving avg
 
 	// cfps = cfps + (fps - cfps) / counter // moving avg, hard to detech changes when counter gets too big
 	// counter += 1

@@ -21,11 +21,11 @@ sendInputsToServer :: proc() {
 		return
 	}
 
-	if input.x_axis == 0.0 && input.y_axis == 0.0 {
+	if global.input.x_axis == 0.0 && global.input.y_axis == 0.0 {
 		return
 	}
 
-	network.SendDataToServerU(&input, size_of(input))
+	network.Send(&global.input, size_of(global.input))
 }
 
 handleNetworkInputs :: proc() {
@@ -39,22 +39,22 @@ handleNetworkInputs :: proc() {
 
 		case network.disconnect:
 			fmt.println("Disconnection succeeded.")
-			render_state = {}
+			global.render_state = {}
 
 		case network.receive:
 			switch packet in event.packet {
 
 			case common.ServerOutput:
-				render_state = packet
+				global.render_state = packet
 
 			case common.MatchMakingOutput:
-				render_state.player_count = packet.player_count
+				global.render_state.player_count = packet.player_count
 
 			case common.CountDownOutput:
-				countdown = packet
+				global.time.countdown = packet
 
 			case common.MatchStartOutput:
-				client_state = .PLAYING
+				global.client_state = .PLAYING
 			}
 
 		case network.none:
@@ -65,6 +65,6 @@ handleNetworkInputs :: proc() {
 
 toggleConnection :: proc() {
 	if !network.IsConnected() {
-		network.ConnectToServer()
-	} else do network.DisconnectFromServer()
+		network.Connect(global.net.host, global.net.port)
+	} else do network.Disconnect()
 }

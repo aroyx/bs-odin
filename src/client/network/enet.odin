@@ -53,15 +53,15 @@ DestroyNetwork :: proc() {
 	enet.deinitialize()
 }
 
-ConnectToServer :: proc() {
+Connect :: proc(host: cstring, port: u16) {
 	if connected || connecting {
 		return
 	}
 
 	// make the address and port argumental
 	address: enet.Address = {}
-	enet.address_set_host(&address, "127.0.0.1")
-	address.port = 7777
+	enet.address_set_host(&address, host)
+	address.port = port
 
 	peer = enet.host_connect(client, &address, 2, 0)
 	if peer == nil {
@@ -72,7 +72,7 @@ ConnectToServer :: proc() {
 	connecting = true
 }
 
-DisconnectFromServer :: proc() {
+Disconnect :: proc() {
 	assert(peer != nil)
 	if connected {
 		enet.peer_disconnect(peer, 0)
@@ -83,13 +83,9 @@ IsConnected :: proc() -> bool {
 	return connected && peer != nil
 }
 
-SendDataToServerU :: proc(data: rawptr, size: uint) {
-	packet := enet.packet_create(data, size, {.UNSEQUENCED})
-	enet.peer_send(peer = peer, channelID = 0, packet = packet)
-}
-
-SendDataToServerR :: proc(data: rawptr, size: uint) {
-	packet := enet.packet_create(data, size, {.RELIABLE})
+Send :: proc(data: rawptr, size: uint, reliable: bool = false) {
+	flag: enet.PacketFlag = reliable ? .RELIABLE : .UNSEQUENCED
+	packet := enet.packet_create(data, size, {flag})
 	enet.peer_send(peer = peer, channelID = 0, packet = packet)
 }
 

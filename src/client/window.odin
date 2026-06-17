@@ -47,29 +47,29 @@ destroyWindow :: proc() {
 handleUserInputs :: proc() {
 	for (sdl.PollEvent(&event)) {
 		if event.type == .QUIT {
-			quit = true
+			global.quit = true
 		} else if event.type == .KEY_DOWN {
 			#partial switch event.key.scancode {
 			case .C:
 				{
-					if client_state != .MAIN_MENU && client_state != .MATCH_MAKING do break
+					if global.client_state != .MAIN_MENU && global.client_state != .MATCH_MAKING do break
 
-					if client_state == .MAIN_MENU do client_state = .MATCH_MAKING
-					else if client_state == .MATCH_MAKING do client_state = .MAIN_MENU
+					if global.client_state == .MAIN_MENU do global.client_state = .MATCH_MAKING
+					else if global.client_state == .MATCH_MAKING do global.client_state = .MAIN_MENU
 
 					toggleConnection()
 					break
 				}
 			case .Q:
 				{
-					if client_state == .MAIN_MENU do quit = true
+					if global.client_state == .MAIN_MENU do global.quit = true
 					// esle
 					// pop-up: "Are You sure?"
 					break
 				}
 			case .R:
 				{
-					if client_state == .END_SCREEN do client_state = .MAIN_MENU
+					if global.client_state == .END_SCREEN do global.client_state = .MAIN_MENU
 					break
 				}
 			}
@@ -86,7 +86,7 @@ handleUserInputs :: proc() {
 	if keys[sdl.Scancode.A] || keys[sdl.Scancode.LEFT] do x_axis = -1
 	if keys[sdl.Scancode.D] || keys[sdl.Scancode.RIGHT] do x_axis = 1
 
-	input.x_axis = x_axis
-	input.y_axis = y_axis
-	input.type = .PLAYER_INPUT
+	global.input.x_axis = x_axis
+	global.input.y_axis = y_axis
+	global.input.type = .PLAYER_INPUT
 }
