@@ -16,7 +16,7 @@ initialiseNetwork :: proc() -> int {
 
 	address: enet.Address = {
 		host = enet.HOST_ANY,
-		port = 7777,
+		port = global.net.port,
 	}
 
 	server = enet.host_create(&address, common.MAX_PLAYERS, 2, 0, 0)
@@ -61,18 +61,18 @@ pollEvents :: proc() {
 }
 
 sendDataToClients :: proc() {
-	if server_state == .COUNTDOWN do updateCountdown()
-    else if server_state == .MATCH_RUNNING do broadcastData()
+	if global.server_state == .COUNTDOWN do updateCountdown()
+    else if global.server_state == .MATCH_RUNNING do broadcastData()
 }
 
 handleConnect :: proc() {
-	id := uintptr(client_id_counter)
-	client_id_counter += 1
+	id := uintptr(global.client_id_counter)
+	global.client_id_counter += 1
 
 	fmt.printf("A new client connected with id: %d\n", id)
 	event.peer.data = rawptr(id)
 
-	players[id] = common.PlayerState {
+	global.players[id] = common.PlayerState {
 		id = id,
 		x  = f32(rand.int31() % 800),
 		y  = f32(rand.int31() % 600),
@@ -86,11 +86,11 @@ handleConnect :: proc() {
 	packet := enet.packet_create(&newJoin, size_of(newJoin), {.RELIABLE})
 	enet.peer_send(event.peer, 0, packet)
 
-	if server_state == .MATCH_MAKING {
+	if global.server_state == .MATCH_MAKING {
 		broadcastPlayerCount()
 	}
 
-	if len(players) == common.MAX_PLAYERS {
+	if len(global.players) == common.MAX_PLAYERS {
 		startCountdown()
 	}
 }
@@ -99,14 +99,14 @@ handleDisconnect :: proc() {
 	id := uintptr(event.peer.data)
 	fmt.printf("A connection was disconnected with id: %d\n", id)
 	event.peer.data = nil
-	delete_key(&players, id)
+	delete_key(&global.players, id)
 
-	if server_state == .MATCH_MAKING {
+	if global.server_state == .MATCH_MAKING {
 		broadcastPlayerCount()
 	}
 
-	if server_state == .COUNTDOWN {
-		server_state = .MATCH_MAKING
+	if global.server_state == .COUNTDOWN {
+		global.server_state = .MATCH_MAKING
 		sendCountDown(0, false)
 		broadcastPlayerCount()
 	}
@@ -126,12 +126,12 @@ handleRecieve :: proc() {
 	// 	break
 	// }
 
-	if !(id in players) {
+	if !(id in global.players) {
 		return
 	}
 
 	input := cast(^common.PlayerInput)event.packet.data
-	state := &players[id]
+	state := &global.players[id]
 
 	speed: f32 = 5.0
 	state.x += input.x_axis * speed
@@ -139,14 +139,14 @@ handleRecieve :: proc() {
 }
 
 broadcastData :: proc() {
-	if len(players) == common.MAX_PLAYERS {
+	if len(global.players) == common.MAX_PLAYERS {
 		server_output: common.ServerOutput = {
 			type         = .SERVER_OUTPUT,
-			player_count = u8(len(players)),
+			player_count = u8(len(global.players)),
 		}
 
 		i := 0
-		for _, player in players {
+		for _, player in global.players {
 			server_output.states[i] = player
 			i += 1
 		}
@@ -159,7 +159,7 @@ broadcastData :: proc() {
 broadcastPlayerCount :: proc() {
 	match_making_output: common.MatchMakingOutput = {
 		type         = .MATCH_MAKING_OUTPUT,
-		player_count = u8(len(players)),
+		player_count = u8(len(global.players)),
 	}
 
 	packet := enet.packet_create(&match_making_output, size_of(match_making_output), {.RELIABLE})

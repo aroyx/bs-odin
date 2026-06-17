@@ -1,11 +1,12 @@
 package server
 
+import "core:strconv"
+import "core:fmt"
+import "core:encoding/ini"
 import "core:math"
+import "core:strings"
 import "core:time"
 import "src:common"
-
-client_id_counter: uintptr = 0
-players: map[uintptr]common.PlayerState
 
 ServerState :: enum u8 {
 	MATCH_MAKING,
@@ -14,54 +15,90 @@ ServerState :: enum u8 {
 	MATCH_END,
 }
 
-server_state: ServerState = .MATCH_MAKING
+GlobalState :: struct {
+	client_id_counter: uintptr,
+	server_state:      ServerState,
+	players:           map[uintptr]common.PlayerState,
+	time:              TimeState,
+	net:               Network,
+}
 
-defaultState :: proc() -> int {
-	players = make(map[uintptr]common.PlayerState)
+TimeState :: struct {
+	countdown_time_left: f32,
+	last_sec_sent:       u8,
+	last_countdown_time: time.Time,
+}
 
-	return 0
+Network :: struct {
+	port: u16,
+	host: cstring,
+}
+
+global: GlobalState = {}
+
+defaultState :: proc() -> bool {
+	global.server_state = .MATCH_MAKING
+	global.client_id_counter = 0
+	global.players = make(map[uintptr]common.PlayerState)
+
+	config, alloc_error := ini.load_map_from_path("config.ini", context.allocator) or_return
+
+	defer ini.delete_map(config)
+
+	if alloc_error != .None {
+		fmt.println("Unable to allocate memory!")
+		return false
+	}
+
+	network := config["network"] or_return
+	port := network["port"] or_return
+	port_int := strconv.parse_int(port) or_return
+	host := network["host"] or_return
+
+	chost := strings.clone_to_cstring(host)
+
+	global.net.host = chost
+	global.net.port = u16(port_int)
+
+	return true
 }
 
 destroyState :: proc() {
-	delete(players)
+	delete(global.players)
 }
 
-countdown_time_left: f32
-last_sec_sent: u8
-last_countdown_time: time.Time
-
 startCountdown :: proc() {
-	server_state = .COUNTDOWN
-	countdown_time_left = 3.0
-	last_sec_sent = 3
-	last_countdown_time = time.now()
+	global.server_state = .COUNTDOWN
+	global.time.countdown_time_left = 3.0
+	global.time.last_sec_sent = 3
+	global.time.last_countdown_time = time.now()
 
 	sendCountDown(3)
 }
 
 updateCountdown :: proc() {
-	if server_state != .COUNTDOWN do return
+	if global.server_state != .COUNTDOWN do return
 
 	curr_time := time.now()
-	diff := f32(time.duration_seconds(time.diff(last_countdown_time, curr_time)))
+	diff := f32(time.duration_seconds(time.diff(global.time.last_countdown_time, curr_time)))
 
-	last_countdown_time = curr_time
-	countdown_time_left -= diff
+	global.time.last_countdown_time = curr_time
+	global.time.countdown_time_left -= diff
 
-	if countdown_time_left <= 0 {
+	if global.time.countdown_time_left <= 0 {
 		startMatch()
 		return
 	}
 
-	current_sec := u8(math.ceil(countdown_time_left))
+	current_sec := u8(math.ceil(global.time.countdown_time_left))
 
-	if current_sec < last_sec_sent {
-		last_sec_sent = current_sec
-		sendCountDown(last_sec_sent)
+	if current_sec < global.time.last_sec_sent {
+		global.time.last_sec_sent = current_sec
+		sendCountDown(global.time.last_sec_sent)
 	}
 }
 
 startMatch :: proc() {
-	server_state = .MATCH_RUNNING
-    sendMatchStartSignal()
+	global.server_state = .MATCH_RUNNING
+	sendMatchStartSignal()
 }

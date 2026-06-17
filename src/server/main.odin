@@ -8,12 +8,12 @@ main :: proc() {
 		return
 	}; defer stopNetwork()
 
-	if defaultState() != 0 {
+	if defaultState() != true {
 		fmt.println("Unable to Initialise the server state")
 		return
 	}; defer destroyState()
 
-	fmt.println("Server Started successfully!")
+	fmt.println("Server Started successfully on port: ", global.net.port)
 
 	for {
 		pollEvents()
