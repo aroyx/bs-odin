@@ -54,7 +54,11 @@ render_match_making :: proc() {
 	text: cstring = "Unable to connect to any server!\nMaybe the server is down?\n\nPlease Exit and try again later"
 
 	if network.IsConnected() {
-		text = fmt.ctprintf("Total Players: %d/%d", global.render_state.player_count, common.MAX_PLAYERS)
+		text = fmt.ctprintf(
+			"Total Players: %d/%d",
+			global.render_state.player_count,
+			common.MAX_PLAYERS,
+		)
 	}
 
 	players_text := ttf.CreateText(engine, font, text, 0)
@@ -75,8 +79,10 @@ render_match_making :: proc() {
 }
 
 render_playing :: proc() {
-	sdl.SetRenderDrawColor(renderer, 10, 200, 120, 255)
+	sdl.SetRenderDrawColor(renderer, 0, 0, 0, 255) // black
 	sdl.RenderClear(renderer)
+
+    render_terrain()
 
 	green: sdl.Color
 	green.r = 0
