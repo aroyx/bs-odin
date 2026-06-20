@@ -1,5 +1,6 @@
 package client
 
+import "core:math/linalg"
 import "thirdparty:imgui"
 import "vendor:sdl3"
 
@@ -9,15 +10,33 @@ grass: f32 = 0.8
 @(private = "file")
 water: f32 = -0.6
 
+@(private = "file")
+mnt_color: linalg.Vector3f32 = {0.515625, 0.29296875, 0.265625}
+@(private = "file")
+grass_color: linalg.Vector3f32 = {0.125, 0.609375, 0.5}
+@(private = "file")
+water_color: linalg.Vector3f32 = {0.125, 0.609375, 0.90234375}
+
 render_terrain :: proc() {
 	if indices == nil do generate_indices()
 	if vertices == nil do generate_vertices()
 
-	imgui.SliderFloat("Grass", &grass, water, 0.99)
+	imgui.SliderFloat("Grass", &grass, water, 2.0)
 	if (imgui.IsItemDeactivatedAfterEdit()) do generate_vertices()
 
-	imgui.SliderFloat("Water", &water, -1.0, grass)
+	imgui.SliderFloat("Water", &water, -2.0, grass)
 	if (imgui.IsItemDeactivatedAfterEdit()) do generate_vertices()
+
+	//    imgui.ColorEdit3("Mountain Colour", &mnt_color)
+	// if (imgui.IsItemDeactivatedAfterEdit()) do generate_vertices()
+	//
+	//    imgui.ColorEdit3("Grass Colour", &grass_color)
+	// if (imgui.IsItemDeactivatedAfterEdit()) do generate_vertices()
+	//
+	//    imgui.ColorEdit3("Water Colour", &water_color)
+	// if (imgui.IsItemDeactivatedAfterEdit()) do generate_vertices()
+
+    terrain_data_ui()
 
 	sdl3.RenderGeometry(
 		renderer,
@@ -32,7 +51,6 @@ render_terrain :: proc() {
 @(private = "file")
 vertices: ^[size * size * 4]sdl3.Vertex = nil
 
-@(private = "file")
 generate_vertices :: proc() {
 	if vertices == nil {
 		vertices = new([size * size * 4]sdl3.Vertex)
@@ -52,14 +70,14 @@ generate_vertices :: proc() {
 
 			switch (terrain[i][j]) {
 			// mountain
-			case grass ..= 1.0:
-				color = {0.515625, 0.29296875, 0.265625, 1.0}
+			case grass ..< 255.0: // lets hope the noise is not bigger than 255...
+				color = {mnt_color.r, mnt_color.g, mnt_color.b, 1.0}
 			// grass
 			case water ..< grass:
-				color = {0.125, 0.609375, 0.5, 1.0}
+				color = {grass_color.r, grass_color.g, grass_color.b, 1.0}
 			// water
-			case -1.0 ..< water:
-				color = {0.125, 0.609375, 0.90234375, 1.0}
+			case -255.0 ..< water:
+				color = {water_color.r, water_color.g, water_color.b, 1.0}
 			}
 
 			index := (i * size + j) * 4
