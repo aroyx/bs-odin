@@ -1,3 +1,4 @@
 bin/
+imgui.ini
 thirdparty/tracy/tracy/
 thirdparty/tracy/tracy.so

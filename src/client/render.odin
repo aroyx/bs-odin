@@ -1,5 +1,9 @@
 package client
 
+import "thirdparty:imgui"
+import "thirdparty:imgui/imgui_impl_sdl3"
+import "thirdparty:imgui/imgui_impl_sdlrenderer3"
+
 import "core:fmt"
 import "src:client/network"
 import "src:common"
@@ -7,8 +11,16 @@ import "thirdparty:tracy"
 import sdl "vendor:sdl3"
 import "vendor:sdl3/ttf"
 
+show_demo_window := true
+
 render :: proc() {
 	tracy.Zone()
+
+    imgui_impl_sdl3.NewFrame()
+    imgui_impl_sdl3.NewFrame()
+    imgui.NewFrame()
+
+    if show_demo_window do imgui.ShowDemoWindow(&show_demo_window)
 
 	{
 		tracy.ZoneN("Render Screen")
@@ -29,6 +41,9 @@ render :: proc() {
 	}
 
 	render_fps()
+
+    imgui.Render()
+    imgui_impl_sdlrenderer3.RenderDrawData(imgui.GetDrawData(), renderer)
 
 	{
 		tracy.ZoneN("Render Present")

@@ -1,6 +1,9 @@
 package client
 
 import "core:fmt"
+import "thirdparty:imgui"
+import "thirdparty:imgui/imgui_impl_sdl3"
+import "thirdparty:imgui/imgui_impl_sdlrenderer3"
 import sdl "vendor:sdl3"
 
 window: ^sdl.Window
@@ -35,10 +38,25 @@ initWindow :: proc() -> int {
 		return 1
 	}
 
+	imgui.CHECKVERSION()
+	imgui.CreateContext()
+	io := imgui.GetIO()
+
+	io.ConfigFlags += {.DockingEnable, .NavEnableGamepad}
+
+	imgui.StyleColorsDark()
+
+	imgui_impl_sdl3.InitForSDLRenderer(window, renderer)
+	imgui_impl_sdlrenderer3.Init(renderer)
+
 	return 0
 }
 
 destroyWindow :: proc() {
+	imgui_impl_sdlrenderer3.Shutdown()
+	imgui_impl_sdl3.Shutdown()
+	imgui.DestroyContext()
+
 	closeFont()
 	sdl.DestroyRenderer(renderer)
 	sdl.DestroyWindow(window)
@@ -46,6 +64,7 @@ destroyWindow :: proc() {
 
 handleUserInputs :: proc() {
 	for (sdl.PollEvent(&event)) {
+        imgui_impl_sdl3.ProcessEvent(&event)
 		if event.type == .QUIT {
 			global.quit = true
 		} else if event.type == .KEY_DOWN {
