@@ -16,11 +16,17 @@ show_demo_window := true
 render :: proc() {
 	tracy.Zone()
 
-    imgui_impl_sdl3.NewFrame()
-    imgui_impl_sdl3.NewFrame()
-    imgui.NewFrame()
+	defer sdl.RenderPresent(renderer)
 
-    if show_demo_window do imgui.ShowDemoWindow(&show_demo_window)
+	imgui_impl_sdl3.NewFrame()
+	imgui_impl_sdl3.NewFrame()
+	imgui.NewFrame()
+
+	defer imgui_impl_sdlrenderer3.RenderDrawData(imgui.GetDrawData(), renderer)
+	defer imgui.Render()
+
+	imgui.Begin("Data")
+	defer imgui.End()
 
 	{
 		tracy.ZoneN("Render Screen")
@@ -41,14 +47,6 @@ render :: proc() {
 	}
 
 	render_fps()
-
-    imgui.Render()
-    imgui_impl_sdlrenderer3.RenderDrawData(imgui.GetDrawData(), renderer)
-
-	{
-		tracy.ZoneN("Render Present")
-		sdl.RenderPresent(renderer)
-	}
 }
 
 render_main_menu :: proc() {
@@ -97,7 +95,7 @@ render_playing :: proc() {
 	sdl.SetRenderDrawColor(renderer, 0, 0, 0, 255) // black
 	sdl.RenderClear(renderer)
 
-    render_terrain()
+	render_terrain()
 
 	green: sdl.Color
 	green.r = 0
