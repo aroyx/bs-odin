@@ -1,6 +1,7 @@
 package client
 
 import "core:fmt"
+import "src:client/camera"
 import "thirdparty:imgui"
 import "thirdparty:imgui/imgui_impl_sdl3"
 import "thirdparty:imgui/imgui_impl_sdlrenderer3"
@@ -26,12 +27,17 @@ initWindow :: proc() -> int {
 		return 1
 	}
 
+	w, h: i32
+	sdl.GetWindowSize(window, &w, &h)
+	camera.init(w, h)
+
 	renderer = sdl.CreateRenderer(window, nil)
 	if window == nil {
 		fmt.printf("Failed to create Renderer!\n%s\n", sdl.GetError())
 		sdl.DestroyWindow(window)
 		return 1
 	}
+    sdl.SetRenderDrawBlendMode(renderer, {.BLEND})
 
 	if initFonts() != 0 {
 		fmt.println("Failed to initialise fonts!")
@@ -64,7 +70,7 @@ destroyWindow :: proc() {
 
 handleUserInputs :: proc() {
 	for (sdl.PollEvent(&event)) {
-        imgui_impl_sdl3.ProcessEvent(&event)
+		imgui_impl_sdl3.ProcessEvent(&event)
 		if event.type == .QUIT {
 			global.quit = true
 		} else if event.type == .KEY_DOWN {
@@ -82,7 +88,7 @@ handleUserInputs :: proc() {
 			case .Q:
 				{
 					if global.client_state == .MAIN_MENU do global.quit = true
-					// esle
+					// else
 					// pop-up: "Are You sure?"
 					break
 				}
@@ -92,6 +98,12 @@ handleUserInputs :: proc() {
 					break
 				}
 			}
+		} else if event.type == .WINDOW_RESIZED {
+			w, h: i32
+			sdl.GetWindowSize(window, &w, &h)
+			camera.cameraUpdate(w, h)
+
+			generate_vertices()
 		}
 	}
 

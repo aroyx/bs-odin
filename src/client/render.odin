@@ -25,6 +25,8 @@ render :: proc() {
 	defer imgui_impl_sdlrenderer3.RenderDrawData(imgui.GetDrawData(), renderer)
 	defer imgui.Render()
 
+	// imgui.DockSpaceOverViewport()
+
 	imgui.Begin("Data")
 	defer imgui.End()
 
@@ -159,8 +161,22 @@ render_fps :: proc() {
 
 	text := fmt.ctprintf("FPS: %d\nFrame Time: %fms", u32(cfps), cft)
 	fps_text := ttf.CreateText(engine, font, text, 0)
+
+	w, h: i32
+	ttf.GetTextSize(fps_text, &w, &h)
+
+	rekt: sdl.FRect = {
+		h = f32(h) + 16,
+		w = f32(w) + 16,
+		x = 0,
+		y = 0,
+	}
+
+    sdl.SetRenderDrawColor(renderer, 220, 200, 200, 200)
+    sdl.RenderFillRect(renderer, &rekt)
+
 	ttf.SetTextColor(fps_text, 10, 10, 10, 255)
-	ttf.DrawRendererText(fps_text, 0, 0)
+	ttf.DrawRendererText(fps_text, 8, 8)
 	ttf.DestroyText(fps_text)
 
 	ttf.SetFontWrapAlignment(font, .CENTER)
