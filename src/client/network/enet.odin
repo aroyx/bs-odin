@@ -1,6 +1,7 @@
 package network
 
 import "core:fmt"
+import "core:time"
 import "src:common"
 import enet "vendor:ENet"
 
@@ -126,8 +127,11 @@ GetNetworkEvent :: proc() -> NetworkEvent {
 			case .MATCH_START:
 				match_start := (cast(^common.MatchStartOutput)net_event.packet.data)^
 				return receive{packet = match_start}
-			}
 
+			case .PING:
+				Pong()
+				return none{}
+			}
 			return none{}
 		case .NONE:
 			return none{}
@@ -138,4 +142,19 @@ GetNetworkEvent :: proc() -> NetworkEvent {
 
 GetServerID :: proc() -> uintptr {
 	return my_id
+}
+
+@(private = "file")
+ping_sent_time: time.Time = {}
+
+Ping :: proc() {
+	ping_sent_time = time.now()
+
+	a: common.Ping = {.PING}
+	Send(&a, size_of(a), true)
+}
+
+Pong :: proc() {
+	diff := time.duration_milliseconds(time.diff(ping_sent_time, time.now()))
+	fmt.printfln("Ping: %fms", diff)
 }

@@ -6,7 +6,8 @@ PacketType :: enum u8 {
 	SERVER_OUTPUT,
 	MATCH_MAKING_OUTPUT,
 	COUNTDOWN_OUTPUT,
-    MATCH_START,
+	MATCH_START,
+	PING,
 }
 
 NewJoin :: struct {
@@ -32,11 +33,15 @@ MatchMakingOutput :: struct {
 }
 
 CountDownOutput :: struct {
-	type:       PacketType,
-	time:       u8,
+	type: PacketType,
+	time: u8,
 	show: bool, // if false, someone left the game and client should stop the countdown
 }
 
 MatchStartOutput :: struct {
-	type:       PacketType,
+	type: PacketType,
+}
+
+Ping :: struct {
+    type: PacketType,
 }

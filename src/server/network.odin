@@ -62,7 +62,7 @@ pollEvents :: proc() {
 
 sendDataToClients :: proc() {
 	if global.server_state == .COUNTDOWN do updateCountdown()
-    else if global.server_state == .MATCH_RUNNING do broadcastData()
+	else if global.server_state == .MATCH_RUNNING do broadcastData()
 }
 
 handleConnect :: proc() {
@@ -117,6 +117,13 @@ handleRecieve :: proc() {
 
 	packet_type := cast(^common.PacketType)event.packet.data
 	id := uintptr(event.peer.data)
+
+	if packet_type^ == .PING {
+		a: common.Ping = {.PING}
+
+		packet := enet.packet_create(&a, size_of(a), {.RELIABLE})
+		enet.peer_send(event.peer, 0, packet)
+	}
 
 	if packet_type^ != .PLAYER_INPUT {
 		return
