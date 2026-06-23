@@ -34,36 +34,36 @@ render :: proc() {
 		tracy.ZoneN("Render Screen")
 		switch global.client_state {
 		case .MAIN_MENU:
-			render_main_menu()
+			renderMainMenu()
 			break
 		case .MATCH_MAKING:
-			render_match_making()
+			renderMatchMaking()
 			break
 		case .PLAYING:
-			render_playing()
+			renderPlaying()
 			break
 		case .END_SCREEN:
-			render_end_screen()
+			renderEndScreen()
 			break
 		}
 	}
 
-	render_fps()
+	renderFps()
 }
 
-render_main_menu :: proc() {
+renderMainMenu :: proc() {
 	sdl.SetRenderDrawColor(renderer, 200, 100, 240, 255)
 	sdl.RenderClear(renderer)
 
-	draw_centered_text(welcome_text)
+	drawCenteredText(welcome_text)
 }
 
-render_match_making :: proc() {
+renderMatchMaking :: proc() {
 	sdl.SetRenderDrawColor(renderer, 10, 200, 120, 255)
 	sdl.RenderClear(renderer)
 
 	// render "Match-Making!" in the center
-	draw_centered_text(match_making_text, y_offset = -60.0)
+	drawCenteredText(match_making_text, y_offset = -60.0)
 
 	// render "Total players: 1/2" in the center slightly lower
 	text: cstring = "Unable to connect to any server!\nMaybe the server is down?\n\nPlease Exit and try again later"
@@ -79,7 +79,7 @@ render_match_making :: proc() {
 	players_text := ttf.CreateText(engine, font, text, 0)
 	ttf.SetTextColor(players_text, 255, 255, 255, 255)
 
-	draw_centered_text(players_text)
+	drawCenteredText(players_text)
 
 	ttf.DestroyText(players_text)
 
@@ -88,16 +88,16 @@ render_match_making :: proc() {
 		text := fmt.ctprintf("Match Starts in: %ds", global.time.countdown.time)
 		cnt_text := ttf.CreateText(engine, font, text, 0)
 		ttf.SetTextColor(cnt_text, 255, 255, 255, 255)
-		draw_centered_text(cnt_text, y_offset = 30.0)
+		drawCenteredText(cnt_text, y_offset = 30.0)
 		ttf.DestroyText(cnt_text)
 	}
 }
 
-render_playing :: proc() {
+renderPlaying :: proc() {
 	sdl.SetRenderDrawColor(renderer, 0, 0, 0, 255) // black
 	sdl.RenderClear(renderer)
 
-	render_terrain()
+	renderTerrain()
 
 	green: sdl.Color
 	green.r = 0
@@ -133,11 +133,11 @@ render_playing :: proc() {
 	}
 }
 
-render_end_screen :: proc() {
+renderEndScreen :: proc() {
 	sdl.SetRenderDrawColor(renderer, 80, 30, 80, 255)
 	sdl.RenderClear(renderer)
 
-	draw_centered_text(end_screen_text)
+	drawCenteredText(end_screen_text)
 }
 
 @(private = "file")
@@ -147,7 +147,7 @@ cft := 16.0
 @(private = "file")
 alpha :: 2.0 / (20.0 + 1.0)
 
-render_fps :: proc() {
+renderFps :: proc() {
 	tracy.Zone()
 	if !global.time.show_fps do return
 
@@ -182,7 +182,7 @@ render_fps :: proc() {
 	ttf.SetFontWrapAlignment(font, .CENTER)
 }
 
-draw_centered_text :: proc(text: ^ttf.Text, x_offset: f32 = 0.0, y_offset: f32 = 0.0) {
+drawCenteredText :: proc(text: ^ttf.Text, x_offset: f32 = 0.0, y_offset: f32 = 0.0) {
 	tracy.Zone()
 	if text == nil do return
 

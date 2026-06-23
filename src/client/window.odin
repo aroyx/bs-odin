@@ -103,7 +103,7 @@ handleUserInputs :: proc() {
 			sdl.GetWindowSize(window, &w, &h)
 			camera.cameraUpdate(w, h)
 
-			generate_vertices()
+			generateVertices()
 		}
 	}
 
