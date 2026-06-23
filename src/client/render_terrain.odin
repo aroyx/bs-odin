@@ -124,8 +124,8 @@ generateVertices :: proc() {
 	cp := camera.camPos
 
 	camTopLeft: linalg.Vector2f32 = {
-		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (map_size - camera.state.hcc)),
-		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (map_size - camera.state.vcc)),
+		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (map_size - camera.state.hcc - 1)),
+		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (map_size - camera.state.vcc - 1)),
 	}
 
 	start_x := int(camTopLeft.x / cs)
