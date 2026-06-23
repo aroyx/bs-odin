@@ -1,19 +1,22 @@
 package client
 
+import "src:client/camera"
 import "core:fmt"
+import "src:client/utils"
 import "thirdparty:tracy"
 
 runLoop :: proc() {
 	for !global.quit {
 		tracy.FrameMark()
 
-		initTimer()
-		defer stopTimer()
+		utils.InitTimer()
+		defer utils.StopTimer()
 
 		render()
 		handleUserInputs()
 		sendInputsToServer()
 		handleNetworkInputs()
+        camera.cameraUpdate()
 	}
 }
 

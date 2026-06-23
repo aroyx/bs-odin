@@ -1,5 +1,6 @@
 package client
 
+import "src:client/network"
 import "core:fmt"
 import "src:client/camera"
 import "thirdparty:imgui"
@@ -29,7 +30,7 @@ initWindow :: proc() -> int {
 
 	w, h: i32
 	sdl.GetWindowSize(window, &w, &h)
-	camera.init(w, h)
+	camera.init(w, h, map_size)
 
 	renderer = sdl.CreateRenderer(window, nil)
 	if window == nil {
@@ -37,7 +38,7 @@ initWindow :: proc() -> int {
 		sdl.DestroyWindow(window)
 		return 1
 	}
-    sdl.SetRenderDrawBlendMode(renderer, {.BLEND})
+	sdl.SetRenderDrawBlendMode(renderer, {.BLEND})
 
 	if initFonts() != 0 {
 		fmt.println("Failed to initialise fonts!")
@@ -97,11 +98,14 @@ handleUserInputs :: proc() {
 					if global.client_state == .END_SCREEN do global.client_state = .MAIN_MENU
 					break
 				}
+
+			case .P:
+				network.Ping()
 			}
 		} else if event.type == .WINDOW_RESIZED {
 			w, h: i32
 			sdl.GetWindowSize(window, &w, &h)
-			camera.cameraUpdate(w, h)
+			camera.cameraSizeUpdate(w, h)
 
 			generateVertices()
 		}

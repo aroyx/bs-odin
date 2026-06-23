@@ -1,5 +1,9 @@
 package client
 
+import "core:math/linalg"
+import "core:math"
+import "src:client/camera"
+import "src:client/utils"
 import "thirdparty:imgui"
 import "thirdparty:imgui/imgui_impl_sdl3"
 import "thirdparty:imgui/imgui_impl_sdlrenderer3"
@@ -99,17 +103,14 @@ renderPlaying :: proc() {
 
 	renderTerrain()
 
-	green: sdl.Color
-	green.r = 0
-	green.g = 255
-	green.b = 0
-	green.a = 255
+	cs := camera.state.cs
+	cp := camera.camPos
 
-	blue: sdl.Color
-	blue.r = 0
-	blue.g = 0
-	blue.b = 255
-	blue.a = 255
+
+	camTopLeft: linalg.Vector2f32 = {
+		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (map_size - camera.state.hcc)),
+		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (map_size - camera.state.vcc)),
+	}
 
 	for i in 0 ..< global.render_state.player_count {
 		player := global.render_state.states[i]
@@ -118,15 +119,15 @@ renderPlaying :: proc() {
 		dim :: 30
 		rect.h = dim
 		rect.w = dim
-		rect.x = player.x - (dim * 0.5)
-		rect.y = player.y - (dim * 0.5)
+		rect.x = player.x - (dim * 0.5) - camTopLeft.x + camera.state.x_offset
+		rect.y = player.y - (dim * 0.5) - camTopLeft.y + camera.state.y_offset
 
 		sdl.SetRenderDrawColor(
 			renderer,
 			0,
 			u8((player.x / 800.0) * 255.0),
 			u8((player.y / 600.0) * 255.0),
-			0,
+			255,
 		)
 
 		sdl.RenderFillRect(renderer, &rect)
@@ -151,8 +152,8 @@ renderFps :: proc() {
 	tracy.Zone()
 	if !global.time.show_fps do return
 
-	cfps = cfps + alpha * (global.time.fps - cfps) // exponential moving avg
-	cft = cft + alpha * (global.time.frame_time - cft) // exponential moving avg
+	cfps = cfps + alpha * (utils.fps - cfps) // exponential moving avg
+	cft = cft + alpha * (utils.frame_time - cft) // exponential moving avg
 
 	// cfps = cfps + (fps - cfps) / counter // moving avg, hard to detech changes when counter gets too big
 	// counter += 1
@@ -172,8 +173,8 @@ renderFps :: proc() {
 		y = 0,
 	}
 
-    sdl.SetRenderDrawColor(renderer, 220, 200, 200, 200)
-    sdl.RenderFillRect(renderer, &rekt)
+	sdl.SetRenderDrawColor(renderer, 220, 200, 200, 200)
+	sdl.RenderFillRect(renderer, &rekt)
 
 	ttf.SetTextColor(fps_text, 10, 10, 10, 255)
 	ttf.DrawRendererText(fps_text, 8, 8)

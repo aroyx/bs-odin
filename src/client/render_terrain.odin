@@ -13,36 +13,23 @@ TerrainLayer :: struct {
 }
 
 @(private = "file")
-deep_grass: TerrainLayer = {
-	threshold = 0.9,
-	color     = {6 / 255.9, 98 / 255.9, 38 / 255.9, 1.0},
+TerrainLayerIndex :: enum u8 {
+	WATER,
+	SAND,
+	GRASS,
+	DEEP_GRASS,
 }
 
 @(private = "file")
-grass: TerrainLayer = {
-	threshold = -0.01,
-	color     = {51 / 255.9, 204 / 255.9, 73 / 255.9, 1.0},
-}
-
-sand: TerrainLayer = {
-	threshold = -0.3,
-	color     = {220 / 255.9, 199 / 255.9, 156 / 255.9, 1.0},
-}
-
-@(private = "file")
-water: TerrainLayer = {
-	threshold = -0.8,
-	color     = {50 / 255.9, 162 / 255.9, 230 / 255.9, 1.0},
-}
-
-@(private = "file")
-deep_water: TerrainLayer = {
-	threshold = -255.9,
-	color     = {49 / 255.9, 70 / 255.9, 190 / 255.9, 1.0},
+terrain_layers: [4]TerrainLayer = {
+	{threshold = -0.8, color = {50 / 255.9, 162 / 255.9, 230 / 255.9, 1.0}}, // water
+	{threshold = -0.3, color = {220 / 255.9, 199 / 255.9, 156 / 255.9, 1.0}}, // sand
+	{threshold = -0.01, color = {51 / 255.9, 204 / 255.9, 73 / 255.9, 1.0}}, // grass
+	{threshold = 0.9, color = {6 / 255.9, 98 / 255.9, 38 / 255.9, 1.0}}, // dark grass
 }
 
 renderTerrain :: proc() {
-	if len(vertices) == 0 || len(indices) == 0 do generateVertices()
+	if len(vertices) == 0 || len(indices) == 0 || camera.isMoving() do generateVertices()
 
 	imgui.Text("Landmass controls")
 
@@ -57,23 +44,42 @@ renderTerrain :: proc() {
 		generateVertices()
 	}
 
-	imgui.Text("Elevation Thresholds")
-
-	if imgui.DragFloat("Deep Water", &deep_water.threshold, 0.01, -2.0, water.threshold, "%.3f") do generateVertices()
-	if imgui.DragFloat("Water", &water.threshold, 0.01, deep_water.threshold, sand.threshold, "%.3f") do generateVertices()
-	if imgui.DragFloat("Sand", &sand.threshold, 0.01, water.threshold, grass.threshold, "%.3f") do generateVertices()
-	if imgui.DragFloat("Grass", &grass.threshold, 0.01, sand.threshold, deep_grass.threshold, "%.3f") do generateVertices()
-	if imgui.DragFloat("Deep Grass", &deep_grass.threshold, 0.01, grass.threshold, 2.0, "%.3f") do generateVertices()
-
-	if (imgui.ColorEdit4("Deep Grass Colour", auto_cast &deep_grass.color)) do generateVertices()
-	if (imgui.ColorEdit4("Grass Colour", auto_cast &grass.color)) do generateVertices()
-	if (imgui.ColorEdit4("Sand Colour", auto_cast &sand.color)) do generateVertices()
-	if (imgui.ColorEdit4("Water Colour", auto_cast &water.color)) do generateVertices()
-	if (imgui.ColorEdit4("Deep Water Colour", auto_cast &deep_water.color)) do generateVertices()
+	// imgui.Text("Elevation Thresholds")
+	//
+	// if imgui.DragFloat("Deep Water", &deep_water.threshold, 0.01, -2.0, water.threshold, "%.3f") do generateVertices()
+	// if imgui.DragFloat("Water", &water.threshold, 0.01, deep_water.threshold, sand.threshold, "%.3f") do generateVertices()
+	// if imgui.DragFloat("Sand", &sand.threshold, 0.01, water.threshold, grass.threshold, "%.3f") do generateVertices()
+	// if imgui.DragFloat("Grass", &grass.threshold, 0.01, sand.threshold, deep_grass.threshold, "%.3f") do generateVertices()
+	// if imgui.DragFloat("Deep Grass", &deep_grass.threshold, 0.01, grass.threshold, 2.0, "%.3f") do generateVertices()
+	//
+	// if (imgui.ColorEdit4("Deep Grass Colour", auto_cast &deep_grass.color)) do generateVertices()
+	// if (imgui.ColorEdit4("Grass Colour", auto_cast &grass.color)) do generateVertices()
+	// if (imgui.ColorEdit4("Sand Colour", auto_cast &sand.color)) do generateVertices()
+	// if (imgui.ColorEdit4("Water Colour", auto_cast &water.color)) do generateVertices()
+	// if (imgui.ColorEdit4("Deep Water Colour", auto_cast &deep_water.color)) do generateVertices()
 
 	// if (imgui.SliderInt("Cell Size", auto_cast &cell_size, 8, 128)) do generate_vertices()
 
 	terrainDataUi()
+
+	// render the lowest layer "deep_water" // saved like 1ms
+	rekt: sdl3.FRect = {
+		h = camera.state.cs * camera.state.vcc,
+		w = camera.state.cs * camera.state.hcc,
+		x = camera.state.x_offset,
+		y = camera.state.y_offset,
+	}
+
+	sdl3.SetRenderDrawColor(renderer, 49, 70, 190, 255)
+	sdl3.RenderFillRect(renderer, &rekt)
+
+	rekt_again: sdl3.Rect = {
+		h = i32(rekt.h),
+		w = i32(rekt.w),
+		x = i32(rekt.x),
+		y = i32(rekt.y),
+	}
+	sdl3.SetRenderClipRect(renderer, &rekt_again)
 
 	sdl3.RenderGeometry(
 		renderer,
@@ -83,6 +89,8 @@ renderTerrain :: proc() {
 		raw_data(indices),
 		auto_cast len(indices),
 	)
+
+	sdl3.SetRenderClipRect(renderer, nil)
 }
 
 @(private = "file")
@@ -94,18 +102,17 @@ indices: [dynamic]i32 = nil
 index: i32 = 0
 
 @(private = "file")
-vfirst_time := true
-@(private = "file")
-ifirst_time := true
+first_time := true
 
 generateVertices :: proc() {
 	clear(&vertices)
 	clear(&indices)
 	index = 0
 
-	if (vfirst_time) {
+	if (first_time) {
 		reserve(&vertices, int(math.ceil(camera.state.hcc * camera.state.vcc * 4)))
-		vfirst_time = false
+		reserve(&indices, int(math.ceil(camera.state.hcc * camera.state.vcc * 6)))
+		first_time = false
 	}
 
 	// assert(terrain != nil)
@@ -114,19 +121,26 @@ generateVertices :: proc() {
 	}
 
 	cs := camera.state.cs
+	cp := camera.camPos
 
-	for i in 0 ..< int(camera.state.hcc) {
-		for j in 0 ..< int(camera.state.vcc) {
+	camTopLeft: linalg.Vector2f32 = {
+		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (map_size - camera.state.hcc)),
+		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (map_size - camera.state.vcc)),
+	}
+
+	start_x := int(camTopLeft.x / cs)
+	start_y := int(camTopLeft.y / cs)
+
+	for i in start_x ..< int(camera.state.hcc) + start_x + 1 {
+		for j in start_y ..< int(camera.state.vcc) + start_y + 1 {
 			if i >= map_size - 1 || j >= map_size - 1 do continue
 
-			x := (f32(i) * cs) + camera.state.x_offset
-			y := (f32(j) * cs) + camera.state.y_offset
+			x := (f32(i) * cs) + camera.state.x_offset - camTopLeft.x
+			y := (f32(j) * cs) + camera.state.y_offset - camTopLeft.y
 
-			marching_squares(x, y, deep_water.threshold, i, j, deep_water.color)
-			marching_squares(x, y, water.threshold, i, j, water.color)
-			marching_squares(x, y, sand.threshold, i, j, sand.color)
-			marching_squares(x, y, grass.threshold, i, j, grass.color)
-			marching_squares(x, y, deep_grass.threshold, i, j, deep_grass.color)
+			for layer in terrain_layers {
+				marching_squares(x, y, layer.threshold, i, j, layer.color)
+			}
 		}
 	}
 }

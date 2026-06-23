@@ -1,11 +1,11 @@
-package client
+package utils
 
 import "core:time"
 
 @(private = "file")
 last_time: time.Time
 
-initTimer :: proc() {
+InitTimer :: proc() {
 	last_time = time.now()
 }
 
@@ -14,11 +14,13 @@ TARGET_FPS :: 60.0
 @(private = "file")
 TARGET_FRAME_DUR :: time.Duration(time.Second / TARGET_FPS)
 
-stopTimer :: proc() {
+frame_time, fps, dt : f64 = 0,0,0
+
+StopTimer :: proc() {
 	curr_time := time.now()
 	dur := time.diff(last_time, curr_time)
 
-	global.time.frame_time = time.duration_milliseconds(dur)
+	frame_time = time.duration_milliseconds(dur)
 
 	sleep_for := TARGET_FRAME_DUR - dur
 	time.sleep(sleep_for) // I wanna see what happens if `sleep_for` is negative, but for that to happen I'd need to make a slow application, I think, never gonna happen. UNLESS!
@@ -26,6 +28,8 @@ stopTimer :: proc() {
 	curr_time = time.now()
 	dur = time.diff(last_time, curr_time)
 
-	global.time.fps = 1.0 / time.duration_seconds(dur)
-	global.time.dt = time.duration_seconds(dur)
+	fps = 1.0 / time.duration_seconds(dur)
+	dt = time.duration_seconds(dur)
+
+	return
 }

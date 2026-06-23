@@ -1,6 +1,7 @@
 package client
 
 import "core:fmt"
+import "src:client/camera"
 import "src:client/network"
 import "src:common"
 import "thirdparty:tracy"
@@ -25,6 +26,7 @@ sendInputsToServer :: proc() {
 		return
 	}
 
+	camera.startCamTagAlong(gPlayer.pos)
 	network.Send(&global.input, size_of(global.input))
 }
 
@@ -46,6 +48,7 @@ handleNetworkInputs :: proc() {
 
 			case common.ServerOutput:
 				global.render_state = packet
+				updatePlayerPos()
 
 			case common.MatchMakingOutput:
 				global.render_state.player_count = packet.player_count

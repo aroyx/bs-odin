@@ -2,8 +2,10 @@ package client
 
 import "core:encoding/ini"
 import "core:fmt"
+import "core:math/linalg"
 import "core:strconv"
 import "core:strings"
+import "src:client/network"
 import "src:common"
 
 ClientState :: enum u8 {
@@ -28,9 +30,6 @@ GlobalState :: struct {
 }
 
 Time :: struct {
-	fps:        f64,
-	frame_time: f64,
-	dt:         f64,
 	show_fps:   bool,
 	countdown:  common.CountDownOutput,
 }
@@ -41,6 +40,13 @@ Network :: struct {
 }
 
 global: GlobalState = {}
+
+PlayerState :: struct {
+	id:  uintptr,
+	pos: linalg.Vector2f32,
+}
+
+gPlayer: PlayerState = {}
 
 stateInit :: proc() -> bool {
 	global.quit = false
@@ -70,4 +76,12 @@ stateInit :: proc() -> bool {
 	global.net.port = u16(port_int)
 
 	return true
+}
+
+updatePlayerPos :: proc() {
+	for i in global.render_state.states {
+		if i.id == network.GetServerID() {
+			gPlayer.pos = {i.x, i.y}
+		}
+	}
 }
