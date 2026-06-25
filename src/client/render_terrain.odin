@@ -154,8 +154,27 @@ generateVertices :: proc() {
 			x := (f32(i) * cs) + camera.state.x_offset - camTopLeft.x
 			y := (f32(j) * cs) + camera.state.y_offset - camTopLeft.y
 
-			for layer in terrain_layers {
-				marching_squares(x, y, layer.threshold, i, j, layer.color)
+			tl := terrain[i][j]
+			tr := terrain[i + 1][j]
+			bl := terrain[i][j + 1]
+			br := terrain[i + 1][j + 1]
+
+			min_h := min(tl, tr, bl, br)
+			max_h := max(tl, tr, bl, br)
+
+			for k := 0; k < len(terrain_layers); k += 1 {
+				// if the following statement is true then there are no, tiles
+				// to render in this cel. So stop.
+				if max_h <= terrain_layers[k].threshold do break
+
+				if k < len(terrain_layers) - 1 {
+					// if the following statement is true then,
+                    // this cell will be overshadowed by another tile. So just
+                    // skip rendering this one. But do render the following ones
+					if min_h >= terrain_layers[k + 1].threshold do continue
+				}
+
+				marching_squares(x, y, terrain_layers[k].threshold, i, j, terrain_layers[k].color)
 			}
 		}
 	}
