@@ -30,7 +30,7 @@ init :: proc(w: i32, h: i32, map_size: i32) {
 	camPos = {hms * state.cs, hms * state.cs}
 }
 
-cameraSizeUpdate :: proc(w: i32, h: i32) {
+SizeUpdate :: proc(w: i32, h: i32) {
 	state.w = auto_cast w
 	state.h = auto_cast h
 
@@ -69,13 +69,13 @@ elapsed: f32 = 0.0
 @(private = "file")
 dur: f32 = 0.5 // sec
 
-startCamTagAlong :: proc(pos: linalg.Vector2f32) {
+startTagAlong :: proc(pos: linalg.Vector2f32) {
 	elapsed = 0
 	startPos = camPos
 	targetPos = pos
 }
 
-cameraUpdate :: proc() {
+Update :: proc() {
 	if elapsed >= dur {
 		camPos = targetPos
 		return

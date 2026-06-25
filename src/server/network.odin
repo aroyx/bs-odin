@@ -72,10 +72,14 @@ handleConnect :: proc() {
 	fmt.printf("A new client connected with id: %d\n", id)
 	event.peer.data = rawptr(id)
 
+	// do smth about these variables
+	map_size: f32 = 129.0
+	cell_size: f32 = 10.0
+
 	global.players[id] = common.PlayerState {
 		id = id,
-		x  = f32(rand.int31() % 800),
-		y  = f32(rand.int31() % 600),
+		x  = rand.float32() * map_size * cell_size,
+		y  = rand.float32() * map_size * cell_size,
 	}
 
 	newJoin: common.NewJoin = {

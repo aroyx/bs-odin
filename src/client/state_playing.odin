@@ -36,7 +36,7 @@ on_network_event :: proc(pEvent: network.ReceivedStruct) {
 		updatePlayerPos()
 
         if !lock_camera {
-            camera.startCamTagAlong(gPlayer.pos)
+            camera.startTagAlong(gPlayer.pos)
             lock_camera = true
         }
 	}
@@ -47,7 +47,7 @@ on_event :: proc(event: ^sdl3.Event) {
 	if event.type == .WINDOW_RESIZED {
 		w, h: i32
 		sdl3.GetWindowSize(window, &w, &h)
-		camera.cameraSizeUpdate(w, h)
+		camera.SizeUpdate(w, h)
 
 		generateVertices()
 	}
@@ -69,7 +69,7 @@ on_event :: proc(event: ^sdl3.Event) {
 
 @(private = "file")
 on_update :: proc(dt: f32) {
-	camera.cameraUpdate()
+	camera.Update()
 }
 
 @(private = "file")
