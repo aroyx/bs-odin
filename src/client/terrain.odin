@@ -1,7 +1,7 @@
 package client
 
-import "core:math/noise"
 import "thirdparty:imgui"
+import "core:math/noise"
 
 // these videos helped a lot with making this terrain generator!
 // https://youtu.be/J1OdPrO7GD0?t=655 (My favourite!) - "Sculpting Terrain With Math" by Acerola

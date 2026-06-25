@@ -85,8 +85,8 @@ cameraUpdate :: proc() {
 	if elapsed > dur do elapsed = dur
 
 	t := elapsed / dur
-	// e := ease.exponential_out(t)
-	e := ease.cubic_out(t)
+	// e := ease.exponential_out(t) // dur = 1.5
+	e := ease.cubic_out(t) // dur = 0.5
 
 	camPos = startPos + (targetPos - startPos) * e
 }
