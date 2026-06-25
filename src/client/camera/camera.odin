@@ -18,13 +18,13 @@ CameraState :: struct {
 
 state: CameraState = {}
 
-init :: proc(w: i32, h: i32, map_size: i32) {
+Init :: proc(w: i32, h: i32, map_size: i32) {
 	state.ar = 16.0 / 9.0
 	state.hcc = 80
 	state.w = auto_cast w
 	state.h = auto_cast h
 
-	updateVariables()
+	UpdateVariables()
 
 	hms: f32 = f32(map_size) / 2
 	camPos = {hms * state.cs, hms * state.cs}
@@ -34,10 +34,10 @@ SizeUpdate :: proc(w: i32, h: i32) {
 	state.w = auto_cast w
 	state.h = auto_cast h
 
-	updateVariables()
+	UpdateVariables()
 }
 
-updateVariables :: proc() {
+UpdateVariables :: proc() {
 	state.vcc = math.ceil(state.hcc / state.ar)
 	vcc := state.hcc / state.ar
 
@@ -69,7 +69,7 @@ elapsed: f32 = 0.0
 @(private = "file")
 dur: f32 = 0.5 // sec
 
-startTagAlong :: proc(pos: linalg.Vector2f32) {
+StartTagAlong :: proc(pos: linalg.Vector2f32) {
 	elapsed = 0
 	startPos = camPos
 	targetPos = pos
@@ -91,6 +91,6 @@ Update :: proc() {
 	camPos = startPos + (targetPos - startPos) * e
 }
 
-isMoving :: proc() -> bool {
+IsMoving :: proc() -> bool {
     return elapsed < dur
 }

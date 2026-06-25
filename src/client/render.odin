@@ -32,7 +32,7 @@ cfps := 60.0 // cumulative fps
 @(private = "file")
 cft := 16.0
 @(private = "file")
-alpha :: 2.0 / (20.0 + 1.0)
+alpha :: 1.0 / 10.0
 
 renderFps :: proc() {
 	tracy.Zone()

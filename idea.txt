@@ -1,3 +1,0 @@
-connect with the server the first thing. If not connected. Don't let to play
-after connected player can join match when they want
-show ping

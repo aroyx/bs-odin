@@ -9,9 +9,6 @@ import "vendor:sdl3"
 window: ^sdl3.Window
 renderer: ^sdl3.Renderer
 
-@(private = "file")
-event: sdl3.Event
-
 initWindow :: proc() -> int {
 	if !sdl3.Init({.VIDEO + .JOYSTICK}) {
 		fmt.printf("Failed to initialise SDL!\n%s\n", sdl3.GetError())
@@ -52,18 +49,16 @@ destroyWindow :: proc() {
 	sdl3.DestroyWindow(window)
 }
 
-handleUserInputs :: proc() {
-	for (sdl3.PollEvent(&event)) {
-		ImGuiProcessEvent(&event)
+handleUserInputs :: proc(event: ^sdl3.Event) {
+	ImGuiProcessEvent(event)
 
-		if event.type == .QUIT {
-			global.quit = true
-		} else if event.type == .KEY_DOWN && event.key.scancode == .P {
-			network.Ping()
-		}
+	if event.type == .QUIT {
+		global.quit = true
+	} else if event.type == .KEY_DOWN && event.key.scancode == .P {
+		network.Ping()
+	}
 
-		if client_state != nil && client_state.on_event != nil {
-			client_state.on_event(&event)
-		}
+	if client_state != nil && client_state.on_event != nil {
+		client_state.on_event(event)
 	}
 }

@@ -24,7 +24,7 @@ lock_camera := false
 on_enter :: proc() {
 	w, h: i32
 	sdl3.GetWindowSize(window, &w, &h)
-	camera.init(w, h, map_size)
+	camera.Init(w, h, map_size)
     lock_camera = false
 }
 
@@ -36,7 +36,7 @@ on_network_event :: proc(pEvent: network.ReceivedStruct) {
 		updatePlayerPos()
 
         if !lock_camera {
-            camera.startTagAlong(gPlayer.pos)
+            camera.StartTagAlong(gPlayer.pos)
             lock_camera = true
         }
 	}

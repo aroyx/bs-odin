@@ -31,7 +31,7 @@ terrain_layers: [4]TerrainLayer = {
 }
 
 renderTerrain :: proc() {
-	if len(vertices) == 0 || len(indices) == 0 || camera.isMoving() do generateVertices()
+	if len(vertices) == 0 || len(indices) == 0 || camera.IsMoving() do generateVertices()
 
 	when IMGUI_ENABLE {
 		imgui.Begin("Debug Window")
@@ -40,7 +40,7 @@ renderTerrain :: proc() {
 
 		if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
 			camera.state.hcc = math.round(camera.state.hcc)
-			camera.updateVariables()
+			camera.UpdateVariables()
 			generateVertices()
 		}
 

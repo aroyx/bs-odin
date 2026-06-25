@@ -27,7 +27,7 @@ sendInputsToServer :: proc() {
 		return
 	}
 
-	camera.startTagAlong(gPlayer.pos)
+	camera.StartTagAlong(gPlayer.pos)
 	network.Send(&global.input, size_of(global.input))
 }
 
