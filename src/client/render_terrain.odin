@@ -2,8 +2,10 @@ package client
 
 import "core:math"
 import "core:math/linalg"
-import "src:client/camera"
 import "thirdparty:imgui"
+
+import "src:client/camera"
+
 import "vendor:sdl3"
 
 @(private = "file")
@@ -31,36 +33,42 @@ terrain_layers: [4]TerrainLayer = {
 renderTerrain :: proc() {
 	if len(vertices) == 0 || len(indices) == 0 || camera.isMoving() do generateVertices()
 
-	imgui.Text("Landmass controls")
+	when IMGUI_ENABLE {
+		imgui.Begin("Debug Window")
 
-	if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
-		camera.state.hcc = math.round(camera.state.hcc)
-		camera.updateVariables()
-		generateVertices()
+		imgui.Text("Landmass controls")
+
+		if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
+			camera.state.hcc = math.round(camera.state.hcc)
+			camera.updateVariables()
+			generateVertices()
+		}
+
+		if (imgui.SliderInt("Seed", &seed, 0, 214748364)) {
+			createTerrain()
+			generateVertices()
+		}
+
+		// imgui.Text("Elevation Thresholds")
+		//
+		// if imgui.DragFloat("Deep Water", &deep_water.threshold, 0.01, -2.0, water.threshold, "%.3f") do generateVertices()
+		// if imgui.DragFloat("Water", &water.threshold, 0.01, deep_water.threshold, sand.threshold, "%.3f") do generateVertices()
+		// if imgui.DragFloat("Sand", &sand.threshold, 0.01, water.threshold, grass.threshold, "%.3f") do generateVertices()
+		// if imgui.DragFloat("Grass", &grass.threshold, 0.01, sand.threshold, deep_grass.threshold, "%.3f") do generateVertices()
+		// if imgui.DragFloat("Deep Grass", &deep_grass.threshold, 0.01, grass.threshold, 2.0, "%.3f") do generateVertices()
+		//
+		// if (imgui.ColorEdit4("Deep Grass Colour", auto_cast &deep_grass.color)) do generateVertices()
+		// if (imgui.ColorEdit4("Grass Colour", auto_cast &grass.color)) do generateVertices()
+		// if (imgui.ColorEdit4("Sand Colour", auto_cast &sand.color)) do generateVertices()
+		// if (imgui.ColorEdit4("Water Colour", auto_cast &water.color)) do generateVertices()
+		// if (imgui.ColorEdit4("Deep Water Colour", auto_cast &deep_water.color)) do generateVertices()
+
+		// if (imgui.SliderInt("Cell Size", auto_cast &cell_size, 8, 128)) do generate_vertices()
+
+		terrainDataUi()
+
+		imgui.End()
 	}
-
-	if (imgui.SliderInt("Seed", &seed, 0, 214748364)) {
-		createTerrain()
-		generateVertices()
-	}
-
-	// imgui.Text("Elevation Thresholds")
-	//
-	// if imgui.DragFloat("Deep Water", &deep_water.threshold, 0.01, -2.0, water.threshold, "%.3f") do generateVertices()
-	// if imgui.DragFloat("Water", &water.threshold, 0.01, deep_water.threshold, sand.threshold, "%.3f") do generateVertices()
-	// if imgui.DragFloat("Sand", &sand.threshold, 0.01, water.threshold, grass.threshold, "%.3f") do generateVertices()
-	// if imgui.DragFloat("Grass", &grass.threshold, 0.01, sand.threshold, deep_grass.threshold, "%.3f") do generateVertices()
-	// if imgui.DragFloat("Deep Grass", &deep_grass.threshold, 0.01, grass.threshold, 2.0, "%.3f") do generateVertices()
-	//
-	// if (imgui.ColorEdit4("Deep Grass Colour", auto_cast &deep_grass.color)) do generateVertices()
-	// if (imgui.ColorEdit4("Grass Colour", auto_cast &grass.color)) do generateVertices()
-	// if (imgui.ColorEdit4("Sand Colour", auto_cast &sand.color)) do generateVertices()
-	// if (imgui.ColorEdit4("Water Colour", auto_cast &water.color)) do generateVertices()
-	// if (imgui.ColorEdit4("Deep Water Colour", auto_cast &deep_water.color)) do generateVertices()
-
-	// if (imgui.SliderInt("Cell Size", auto_cast &cell_size, 8, 128)) do generate_vertices()
-
-	terrainDataUi()
 
 	// render the lowest layer "deep_water" // saved like 1ms
 	rekt: sdl3.FRect = {
@@ -181,7 +189,6 @@ lookup: [15][]Points = {
 
 @(private = "file")
 marching_squares :: proc(x, y, threshold: f32, i, j: int, color: sdl3.FColor) {
-
 	tl := terrain[i][j]
 	tr := terrain[i + 1][j]
 	bl := terrain[i][j + 1]

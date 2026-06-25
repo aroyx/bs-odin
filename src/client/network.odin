@@ -1,6 +1,7 @@
 package client
 
 import "core:fmt"
+import "src:client"
 import "src:client/camera"
 import "src:client/network"
 import "src:common"
@@ -35,7 +36,6 @@ handleNetworkInputs :: proc() {
 
 	loop: for {
 		switch event in network.GetNetworkEvent() {
-
 		case network.connect:
 			fmt.println("Connection succeeded.")
 
@@ -44,21 +44,8 @@ handleNetworkInputs :: proc() {
 			global.render_state = {}
 
 		case network.receive:
-			switch packet in event.packet {
-
-			case common.ServerOutput:
-				global.render_state = packet
-				updatePlayerPos()
-
-			case common.MatchMakingOutput:
-				global.render_state.player_count = packet.player_count
-
-			case common.CountDownOutput:
-				global.time.countdown = packet
-
-			case common.MatchStartOutput:
-				global.client_state = .PLAYING
-			}
+			// todo: prevent copy of massive data
+			client_state.on_network_event(event.packet)
 
 		case network.none:
 			break loop

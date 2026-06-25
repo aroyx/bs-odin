@@ -1,9 +1,12 @@
 package client
 
-import "src:client/camera"
 import "core:fmt"
+
 import "src:client/utils"
+
 import "thirdparty:tracy"
+
+IMGUI_ENABLE :: #config(IMGUI_ENABLE, false)
 
 runLoop :: proc() {
 	for !global.quit {
@@ -12,11 +15,19 @@ runLoop :: proc() {
 		utils.InitTimer()
 		defer utils.StopTimer()
 
-		render()
 		handleUserInputs()
 		sendInputsToServer()
 		handleNetworkInputs()
-        camera.cameraUpdate()
+
+		if client_state != nil && client_state.on_update != nil {
+			client_state.on_update(f32(utils.dt))
+		}
+
+		render()
+	}
+
+	if client_state != nil && client_state.on_exit != nil {
+		client_state.on_exit()
 	}
 }
 

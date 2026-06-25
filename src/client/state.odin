@@ -7,13 +7,7 @@ import "core:strconv"
 import "core:strings"
 import "src:client/network"
 import "src:common"
-
-ClientState :: enum u8 {
-	MAIN_MENU,
-	MATCH_MAKING,
-	PLAYING,
-	END_SCREEN,
-}
+import "vendor:sdl3"
 
 // MatchMakingState :: enum u8 {
 // 	CONNECTING_PLAYERS,
@@ -25,13 +19,12 @@ GlobalState :: struct {
 	net:          Network,
 	time:         Time,
 	input:        common.PlayerInput,
-	client_state: ClientState,
 	render_state: common.ServerOutput,
 }
 
 Time :: struct {
-	show_fps:   bool,
-	countdown:  common.CountDownOutput,
+	show_fps:  bool,
+	countdown: common.CountDownOutput,
 }
 
 Network :: struct {
@@ -48,10 +41,20 @@ PlayerState :: struct {
 
 gPlayer: PlayerState = {}
 
+client_state: ^ClientState
+
+ClientState :: struct {
+	on_enter:  proc(),
+	on_exit:   proc(),
+	on_event:  proc(event: ^sdl3.Event),
+    on_network_event: proc(event: network.ReceivedStruct),
+	on_update: proc(dt: f32),
+	on_render: proc(),
+}
+
 stateInit :: proc() -> bool {
 	global.quit = false
 	global.time.show_fps = true
-	global.client_state = .MAIN_MENU
 	global.input = {}
 	global.render_state = {}
 	global.time.countdown = {}
@@ -75,7 +78,26 @@ stateInit :: proc() -> bool {
 	global.net.host = chost
 	global.net.port = u16(port_int)
 
+	changeState(&main_menu_state)
+
+	if client_state != nil && client_state.on_enter != nil {
+		client_state.on_enter()
+	}
+
 	return true
+}
+
+changeState :: proc(new_state: ^ClientState) {
+    if client_state == new_state do return
+
+	if client_state != nil && client_state.on_exit != nil {
+		client_state.on_exit()
+	}
+	client_state = new_state
+
+	if client_state != nil && client_state.on_enter != nil {
+		client_state.on_enter()
+	}
 }
 
 updatePlayerPos :: proc() {

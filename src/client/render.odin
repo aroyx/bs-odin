@@ -1,18 +1,11 @@
 package client
 
-import "core:math/linalg"
-import "core:math"
-import "src:client/camera"
-import "src:client/utils"
-import "thirdparty:imgui"
-import "thirdparty:imgui/imgui_impl_sdl3"
-import "thirdparty:imgui/imgui_impl_sdlrenderer3"
-
 import "core:fmt"
-import "src:client/network"
-import "src:common"
+
+import "src:client/utils"
+
 import "thirdparty:tracy"
-import sdl "vendor:sdl3"
+import "vendor:sdl3"
 import "vendor:sdl3/ttf"
 
 show_demo_window := true
@@ -20,125 +13,18 @@ show_demo_window := true
 render :: proc() {
 	tracy.Zone()
 
-	defer sdl.RenderPresent(renderer)
-
-	imgui_impl_sdl3.NewFrame()
-	imgui_impl_sdl3.NewFrame()
-	imgui.NewFrame()
-
-	defer imgui_impl_sdlrenderer3.RenderDrawData(imgui.GetDrawData(), renderer)
-	defer imgui.Render()
-
-	// imgui.DockSpaceOverViewport()
-
-	imgui.Begin("Data")
-	defer imgui.End()
-
+	ImGuiNewFrame()
 	{
 		tracy.ZoneN("Render Screen")
-		switch global.client_state {
-		case .MAIN_MENU:
-			renderMainMenu()
-			break
-		case .MATCH_MAKING:
-			renderMatchMaking()
-			break
-		case .PLAYING:
-			renderPlaying()
-			break
-		case .END_SCREEN:
-			renderEndScreen()
-			break
+		if client_state != nil && client_state.on_render != nil {
+			client_state.on_render()
 		}
 	}
 
 	renderFps()
-}
+	ImGuiRender()
 
-renderMainMenu :: proc() {
-	sdl.SetRenderDrawColor(renderer, 200, 100, 240, 255)
-	sdl.RenderClear(renderer)
-
-	drawCenteredText(welcome_text)
-}
-
-renderMatchMaking :: proc() {
-	sdl.SetRenderDrawColor(renderer, 10, 200, 120, 255)
-	sdl.RenderClear(renderer)
-
-	// render "Match-Making!" in the center
-	drawCenteredText(match_making_text, y_offset = -60.0)
-
-	// render "Total players: 1/2" in the center slightly lower
-	text: cstring = "Unable to connect to any server!\nMaybe the server is down?\n\nPlease Exit and try again later"
-
-	if network.IsConnected() {
-		text = fmt.ctprintf(
-			"Total Players: %d/%d",
-			global.render_state.player_count,
-			common.MAX_PLAYERS,
-		)
-	}
-
-	players_text := ttf.CreateText(engine, font, text, 0)
-	ttf.SetTextColor(players_text, 255, 255, 255, 255)
-
-	drawCenteredText(players_text)
-
-	ttf.DestroyText(players_text)
-
-	if global.time.countdown.show {
-		// render "Total players: 1/2" in the center slightly lower
-		text := fmt.ctprintf("Match Starts in: %ds", global.time.countdown.time)
-		cnt_text := ttf.CreateText(engine, font, text, 0)
-		ttf.SetTextColor(cnt_text, 255, 255, 255, 255)
-		drawCenteredText(cnt_text, y_offset = 30.0)
-		ttf.DestroyText(cnt_text)
-	}
-}
-
-renderPlaying :: proc() {
-	sdl.SetRenderDrawColor(renderer, 0, 0, 0, 255) // black
-	sdl.RenderClear(renderer)
-
-	renderTerrain()
-
-	cs := camera.state.cs
-	cp := camera.camPos
-
-
-	camTopLeft: linalg.Vector2f32 = {
-		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (map_size - camera.state.hcc)),
-		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (map_size - camera.state.vcc)),
-	}
-
-	for i in 0 ..< global.render_state.player_count {
-		player := global.render_state.states[i]
-		rect: sdl.FRect
-
-		dim :: 30
-		rect.h = dim
-		rect.w = dim
-		rect.x = player.x - (dim * 0.5) - camTopLeft.x + camera.state.x_offset
-		rect.y = player.y - (dim * 0.5) - camTopLeft.y + camera.state.y_offset
-
-		sdl.SetRenderDrawColor(
-			renderer,
-			0,
-			u8((player.x / 800.0) * 255.0),
-			u8((player.y / 600.0) * 255.0),
-			255,
-		)
-
-		sdl.RenderFillRect(renderer, &rect)
-	}
-}
-
-renderEndScreen :: proc() {
-	sdl.SetRenderDrawColor(renderer, 80, 30, 80, 255)
-	sdl.RenderClear(renderer)
-
-	drawCenteredText(end_screen_text)
+	sdl3.RenderPresent(renderer)
 }
 
 @(private = "file")
@@ -166,15 +52,15 @@ renderFps :: proc() {
 	w, h: i32
 	ttf.GetTextSize(fps_text, &w, &h)
 
-	rekt: sdl.FRect = {
+	rekt: sdl3.FRect = {
 		h = f32(h) + 16,
 		w = f32(w) + 16,
 		x = 0,
 		y = 0,
 	}
 
-	sdl.SetRenderDrawColor(renderer, 220, 200, 200, 200)
-	sdl.RenderFillRect(renderer, &rekt)
+	sdl3.SetRenderDrawColor(renderer, 220, 200, 200, 200)
+	sdl3.RenderFillRect(renderer, &rekt)
 
 	ttf.SetTextColor(fps_text, 10, 10, 10, 255)
 	ttf.DrawRendererText(fps_text, 8, 8)
@@ -188,7 +74,7 @@ drawCenteredText :: proc(text: ^ttf.Text, x_offset: f32 = 0.0, y_offset: f32 = 0
 	if text == nil do return
 
 	w, h, tw, th: i32
-	sdl.GetWindowSize(window, &w, &h)
+	sdl3.GetWindowSize(window, &w, &h)
 	ttf.GetTextSize(text, &tw, &th)
 
 	x := (f32(w - tw) * 0.5) + x_offset
