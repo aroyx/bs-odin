@@ -2,16 +2,17 @@ package client
 
 import "core:math"
 import "core:math/linalg"
-import "thirdparty:imgui"
+import "thirdparty:tracy"
+import "vendor:raylib/rlgl"
 
 import "src:client/camera"
 
-import "vendor:sdl3"
+import rl "vendor:raylib"
 
 @(private = "file")
 TerrainLayer :: struct {
 	threshold: f32,
-	color:     sdl3.FColor,
+	color:     rl.Color,
 }
 
 @(private = "file")
@@ -24,102 +25,97 @@ TerrainLayerIndex :: enum u8 {
 
 @(private = "file")
 terrain_layers: [4]TerrainLayer = {
-	{threshold = -0.8, color = {50 / 255.9, 162 / 255.9, 230 / 255.9, 1.0}}, // water
-	{threshold = -0.3, color = {220 / 255.9, 199 / 255.9, 156 / 255.9, 1.0}}, // sand
-	{threshold = -0.01, color = {51 / 255.9, 204 / 255.9, 73 / 255.9, 1.0}}, // grass
-	{threshold = 0.9, color = {6 / 255.9, 98 / 255.9, 38 / 255.9, 1.0}}, // dark grass
+	{threshold = -0.8, color = {50, 162, 230, 255}}, // water
+	{threshold = -0.3, color = {220, 199, 156, 255}}, // sand
+	{threshold = -0.01, color = {51, 204, 73, 255}}, // grass
+	{threshold = 0.9, color = {6, 98, 38, 255}}, // dark grass
 }
 
 renderTerrain :: proc() {
-	if len(vertices) == 0 || len(indices) == 0 || camera.IsMoving() do generateVertices()
+	tracy.ZoneN("Render Terrain")
+	if len(vertices) == 0 || camera.IsMoving() do generateVertices()
 
-	when IMGUI_ENABLE {
-		imgui.Begin("Debug Window")
+	// when IMGUI_ENABLE {
+	// 	imgui.Begin("Debug Window")
+	//
+	// 	imgui.Text("Landmass controls")
+	//
+	// 	if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
+	// 		camera.state.hcc = math.round(camera.state.hcc)
+	// 		camera.UpdateVariables()
+	// 		generateVertices()
+	// 	}
+	//
+	// 	if (imgui.SliderInt("Seed", &seed, 0, 214748364)) {
+	// 		createTerrain()
+	// 		generateVertices()
+	// 	}
+	//
+	// imgui.Text("Elevation Thresholds")
+	//
+	// if imgui.DragFloat("Deep Water", &deep_water.threshold, 0.01, -2.0, water.threshold, "%.3f") do generateVertices()
+	// if imgui.DragFloat("Water", &water.threshold, 0.01, deep_water.threshold, sand.threshold, "%.3f") do generateVertices()
+	// if imgui.DragFloat("Sand", &sand.threshold, 0.01, water.threshold, grass.threshold, "%.3f") do generateVertices()
+	// if imgui.DragFloat("Grass", &grass.threshold, 0.01, sand.threshold, deep_grass.threshold, "%.3f") do generateVertices()
+	// if imgui.DragFloat("Deep Grass", &deep_grass.threshold, 0.01, grass.threshold, 2.0, "%.3f") do generateVertices()
+	//
+	// if (imgui.ColorEdit4("Deep Grass Colour", auto_cast &deep_grass.color)) do generateVertices()
+	// if (imgui.ColorEdit4("Grass Colour", auto_cast &grass.color)) do generateVertices()
+	// if (imgui.ColorEdit4("Sand Colour", auto_cast &sand.color)) do generateVertices()
+	// if (imgui.ColorEdit4("Water Colour", auto_cast &water.color)) do generateVertices()
+	// if (imgui.ColorEdit4("Deep Water Colour", auto_cast &deep_water.color)) do generateVertices()
 
-		imgui.Text("Landmass controls")
+	// if (imgui.SliderInt("Cell Size", auto_cast &cell_size, 8, 128)) do generate_vertices()
 
-		if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
-			camera.state.hcc = math.round(camera.state.hcc)
-			camera.UpdateVariables()
-			generateVertices()
-		}
+	// terrainDataUi()
 
-		if (imgui.SliderInt("Seed", &seed, 0, 214748364)) {
-			createTerrain()
-			generateVertices()
-		}
-
-		// imgui.Text("Elevation Thresholds")
-		//
-		// if imgui.DragFloat("Deep Water", &deep_water.threshold, 0.01, -2.0, water.threshold, "%.3f") do generateVertices()
-		// if imgui.DragFloat("Water", &water.threshold, 0.01, deep_water.threshold, sand.threshold, "%.3f") do generateVertices()
-		// if imgui.DragFloat("Sand", &sand.threshold, 0.01, water.threshold, grass.threshold, "%.3f") do generateVertices()
-		// if imgui.DragFloat("Grass", &grass.threshold, 0.01, sand.threshold, deep_grass.threshold, "%.3f") do generateVertices()
-		// if imgui.DragFloat("Deep Grass", &deep_grass.threshold, 0.01, grass.threshold, 2.0, "%.3f") do generateVertices()
-		//
-		// if (imgui.ColorEdit4("Deep Grass Colour", auto_cast &deep_grass.color)) do generateVertices()
-		// if (imgui.ColorEdit4("Grass Colour", auto_cast &grass.color)) do generateVertices()
-		// if (imgui.ColorEdit4("Sand Colour", auto_cast &sand.color)) do generateVertices()
-		// if (imgui.ColorEdit4("Water Colour", auto_cast &water.color)) do generateVertices()
-		// if (imgui.ColorEdit4("Deep Water Colour", auto_cast &deep_water.color)) do generateVertices()
-
-		// if (imgui.SliderInt("Cell Size", auto_cast &cell_size, 8, 128)) do generate_vertices()
-
-		terrainDataUi()
-
-		imgui.End()
-	}
+	// imgui.End()
+	// }
 
 	// render the lowest layer "deep_water" // saved like 1ms
-	rekt: sdl3.FRect = {
-		h = camera.state.cs * camera.state.vcc,
-		w = camera.state.cs * camera.state.hcc,
-		x = camera.state.x_offset,
-		y = camera.state.y_offset,
+	rekt: rl.Rectangle = {
+		height = camera.state.cs * camera.state.vcc,
+		width  = camera.state.cs * camera.state.hcc,
+		x      = camera.state.x_offset,
+		y      = camera.state.y_offset,
+	}
+	rl.DrawRectangleRec(rekt, {49, 70, 190, 255})
+
+	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
+	rlgl.DisableBackfaceCulling()
+	rlgl.Begin(rlgl.TRIANGLES)
+
+	{
+		tracy.ZoneN("Iterating Tiles")
+		for v in vertices {
+			rlgl.Color4ub(v.color.r, v.color.g, v.color.b, v.color.a)
+			rlgl.Vertex2f(v.pos.x, v.pos.y)
+		}
 	}
 
-	sdl3.SetRenderDrawColor(renderer, 49, 70, 190, 255)
-	sdl3.RenderFillRect(renderer, &rekt)
+	rlgl.End()
+	rlgl.DrawRenderBatchActive()
+	rlgl.EnableBackfaceCulling()
+	rl.EndScissorMode()
+}
 
-	rekt_again: sdl3.Rect = {
-		h = i32(rekt.h),
-		w = i32(rekt.w),
-		x = i32(rekt.x),
-		y = i32(rekt.y),
-	}
-	sdl3.SetRenderClipRect(renderer, &rekt_again)
-
-	sdl3.RenderGeometry(
-		renderer,
-		nil,
-		raw_data(vertices),
-		auto_cast len(vertices),
-		raw_data(indices),
-		auto_cast len(indices),
-	)
-
-	sdl3.SetRenderClipRect(renderer, nil)
+vertex :: struct {
+	pos:   rl.Vector2,
+	color: rl.Color,
 }
 
 @(private = "file")
-vertices: [dynamic]sdl3.Vertex
-@(private = "file")
-indices: [dynamic]i32 = nil
-
-@(private = "file")
-index: i32 = 0
+vertices: [dynamic]vertex
 
 @(private = "file")
 first_time := true
 
 generateVertices :: proc() {
+	tracy.ZoneN("Generate Vertices")
 	clear(&vertices)
-	clear(&indices)
-	index = 0
 
 	if (first_time) {
 		reserve(&vertices, int(math.ceil(camera.state.hcc * camera.state.vcc * 4)))
-		reserve(&indices, int(math.ceil(camera.state.hcc * camera.state.vcc * 6)))
 		first_time = false
 	}
 
@@ -169,8 +165,8 @@ generateVertices :: proc() {
 
 				if k < len(terrain_layers) - 1 {
 					// if the following statement is true then,
-                    // this cell will be overshadowed by another tile. So just
-                    // skip rendering this one. But do render the following ones
+					// this cell will be overshadowed by another tile. So just
+					// skip rendering this one. But do render the following ones
 					if min_h >= terrain_layers[k + 1].threshold do continue
 				}
 
@@ -215,7 +211,7 @@ lookup: [15][]Points = {
 }
 
 @(private = "file")
-marching_squares :: proc(x, y, threshold: f32, i, j: int, color: sdl3.FColor) {
+marching_squares :: proc(x, y, threshold: f32, i, j: int, color: rl.Color) {
 	tl := terrain[i][j]
 	tr := terrain[i + 1][j]
 	bl := terrain[i][j + 1]
@@ -248,6 +244,7 @@ marching_squares :: proc(x, y, threshold: f32, i, j: int, color: sdl3.FColor) {
 		pushTriangle(points[shape[k]], points[shape[k + 1]], points[shape[k + 2]], color)
 	}
 }
+
 @(private = "file")
 li :: proc(v1, v2, t: f32) -> f32 { 	// linear interpolation
 	if math.abs(v2 - v1) < 0.00001 do return 0.5
@@ -255,15 +252,11 @@ li :: proc(v1, v2, t: f32) -> f32 { 	// linear interpolation
 }
 
 @(private = "file")
-pushTriangle :: proc(a, b, c: linalg.Vector2f32, color: sdl3.FColor) {
+pushTriangle :: proc(a, b, c: linalg.Vector2f32, color: rl.Color) {
 	append(
 		&vertices,
-		sdl3.Vertex{position = {a.x, a.y}, color = color},
-		sdl3.Vertex{position = {b.x, b.y}, color = color},
-		sdl3.Vertex{position = {c.x, c.y}, color = color},
+		vertex{pos = {a.x, a.y}, color = color},
+		vertex{pos = {b.x, b.y}, color = color},
+		vertex{pos = {c.x, c.y}, color = color},
 	)
-
-	append(&indices, index, index + 1, index + 2)
-
-	index += 3
 }

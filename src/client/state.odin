@@ -7,7 +7,6 @@ import "core:strconv"
 import "core:strings"
 import "src:client/network"
 import "src:common"
-import "vendor:sdl3"
 
 // MatchMakingState :: enum u8 {
 // 	CONNECTING_PLAYERS,
@@ -46,7 +45,6 @@ client_state: ^ClientState
 ClientState :: struct {
 	on_enter:  proc(),
 	on_exit:   proc(),
-	on_event:  proc(event: ^sdl3.Event),
     on_network_event: proc(event: network.ReceivedStruct),
 	on_update: proc(dt: f32),
 	on_render: proc(),

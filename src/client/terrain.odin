@@ -1,6 +1,5 @@
 package client
 
-import "thirdparty:imgui"
 import "core:math/noise"
 
 // these videos helped a lot with making this terrain generator!
@@ -64,12 +63,12 @@ calculateNoise :: proc(x: int, y: int) -> f32 {
 terrainDataUi :: proc() {
 	changed := false
 
-	if (imgui.SliderInt("iterations", auto_cast &terrain_gen_data.iterations, 1, 8)) do changed = true
-	if (imgui.SliderFloat("scale", &terrain_gen_data.scale, 0.0, 0.3)) do changed = true
-	if (imgui.SliderFloat("decay", &terrain_gen_data.decay, 0.01, 1.0)) do changed = true
-	if (imgui.SliderFloat("lacunarity", &terrain_gen_data.lacunarity, 0.0, 5.0)) do changed = true
-	if (imgui.SliderFloat("start_amplitude", &terrain_gen_data.start_amplitude, 0.0, 5.0)) do changed = true
-	if (imgui.SliderFloat("start_frequency", &terrain_gen_data.start_frequency, 0.0, 5.0)) do changed = true
+	// if (imgui.SliderInt("iterations", auto_cast &terrain_gen_data.iterations, 1, 8)) do changed = true
+	// if (imgui.SliderFloat("scale", &terrain_gen_data.scale, 0.0, 0.3)) do changed = true
+	// if (imgui.SliderFloat("decay", &terrain_gen_data.decay, 0.01, 1.0)) do changed = true
+	// if (imgui.SliderFloat("lacunarity", &terrain_gen_data.lacunarity, 0.0, 5.0)) do changed = true
+	// if (imgui.SliderFloat("start_amplitude", &terrain_gen_data.start_amplitude, 0.0, 5.0)) do changed = true
+	// if (imgui.SliderFloat("start_frequency", &terrain_gen_data.start_frequency, 0.0, 5.0)) do changed = true
 
 	if changed {
 		createTerrain()

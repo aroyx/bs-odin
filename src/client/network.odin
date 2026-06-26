@@ -5,7 +5,6 @@ import "src:client"
 import "src:client/camera"
 import "src:client/network"
 import "src:common"
-import "thirdparty:tracy"
 
 establishConnectionWithServer :: proc() -> int {
 	if !network.InitialiseNetwork() do return 1
@@ -17,8 +16,6 @@ rewokeConnectionWithServer :: proc() {
 }
 
 sendInputsToServer :: proc() {
-	tracy.Zone()
-
 	if !network.IsConnected() {
 		return
 	}
@@ -32,8 +29,6 @@ sendInputsToServer :: proc() {
 }
 
 handleNetworkInputs :: proc() {
-	tracy.Zone()
-
 	loop: for {
 		switch event in network.GetNetworkEvent() {
 		case network.connect:
