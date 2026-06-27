@@ -3,12 +3,13 @@ package terrain
 import "core:math"
 import "core:math/linalg"
 import "core:mem"
-import "thirdparty:tracy"
-import "vendor:raylib/rlgl"
 
 import "src:client/camera"
 
+import "thirdparty:imgui"
+import "thirdparty:tracy"
 import rl "vendor:raylib"
+import "vendor:raylib/rlgl"
 
 @(private = "file")
 TerrainLayer :: struct {
@@ -34,6 +35,7 @@ terrain_layers: [4]TerrainLayer = {
 
 renderTerrain :: proc() {
 	tracy.ZoneN("Render Terrain")
+    evalUI()
 
 	if len(vertices_pos) == 0 || len(vertices_col) == 0 || camera.IsMoving() do generateVertices()
 
@@ -228,7 +230,7 @@ terrain_mesh: rl.Mesh = {}
 @(private = "file")
 terrain_material: rl.Material = {}
 @(private = "file")
-terrain_transform: rl.Matrix = {
+terrain_transform: rl.Matrix = { 	// currently identity matrix
 	1.0,
 	0.0,
 	0.0,
@@ -252,9 +254,11 @@ mesh_initialised := false
 
 @(private = "file")
 updateMesh :: proc() {
+	rl.SetTraceLogLevel(rl.TraceLogLevel.NONE)
+
 	if mesh_initialised {
 		rl.UnloadMesh(terrain_mesh)
-        terrain_mesh = {}
+		terrain_mesh = {}
 	} else {
 		mesh_initialised = true
 		terrain_material = rl.LoadMaterialDefault()
@@ -273,4 +277,45 @@ updateMesh :: proc() {
 	mem.copy(terrain_mesh.colors, raw_data(vertices_col), int(c_size))
 
 	rl.UploadMesh(&terrain_mesh, false)
+
+	rl.SetTraceLogLevel(rl.TraceLogLevel.INFO)
+}
+
+evalUI :: proc() {
+	when IMGUI_ENABLE {
+		imgui.Begin("Debug Window")
+
+		imgui.Text("Landmass controls")
+
+		if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
+			camera.state.hcc = math.round(camera.state.hcc)
+			camera.UpdateVariables()
+			generateVertices()
+		}
+
+		if (imgui.SliderInt("Seed", &seed, 0, 214748364)) {
+			createTerrain()
+			generateVertices()
+		}
+
+		imgui.Text("Elevation Thresholds")
+
+		// if imgui.DragFloat("Deep Water", &deep_water.threshold, 0.01, -2.0, water.threshold, "%.3f") do generateVertices()
+		// if imgui.DragFloat("Water", &water.threshold, 0.01, deep_water.threshold, sand.threshold, "%.3f") do generateVertices()
+		// if imgui.DragFloat("Sand", &sand.threshold, 0.01, water.threshold, grass.threshold, "%.3f") do generateVertices()
+		// if imgui.DragFloat("Grass", &grass.threshold, 0.01, sand.threshold, deep_grass.threshold, "%.3f") do generateVertices()
+		// if imgui.DragFloat("Deep Grass", &deep_grass.threshold, 0.01, grass.threshold, 2.0, "%.3f") do generateVertices()
+		//
+		// if (imgui.ColorEdit4("Deep Grass Colour", auto_cast &deep_grass.color)) do generateVertices()
+		// if (imgui.ColorEdit4("Grass Colour", auto_cast &grass.color)) do generateVertices()
+		// if (imgui.ColorEdit4("Sand Colour", auto_cast &sand.color)) do generateVertices()
+		// if (imgui.ColorEdit4("Water Colour", auto_cast &water.color)) do generateVertices()
+		// if (imgui.ColorEdit4("Deep Water Colour", auto_cast &deep_water.color)) do generateVertices()
+		//
+		// if (imgui.SliderInt("Cell Size", auto_cast &cell_size, 8, 128)) do generate_vertices()
+
+		terrainDataUi()
+
+		imgui.End()
+	}
 }

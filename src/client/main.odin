@@ -18,6 +18,7 @@ runLoop :: proc "c" () {
 
 	handleNetworkInputs()
 
+    ImGuiProcessEvent()
 	if client_state != nil && client_state.on_update != nil {
 		client_state.on_update(f32(utils.dt))
 	}
@@ -32,12 +33,16 @@ main :: proc() {
 		return
 	}
 
+	// rl.SetConfigFlags({.WINDOW_RESIZABLE, .MSAA_4X_HINT})
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
 	rl.InitWindow(800, 600, "BS-Odin")
 	defer rl.CloseWindow()
 
     initFont()
     defer deinitFont()
+
+    ImGuiInit()
+    defer ImGuiClose()
 
 	if establishConnectionWithServer() != 0 {
 		fmt.println("Unable to open start enet")
@@ -49,7 +54,7 @@ main :: proc() {
 	when ODIN_OS == .JS {
 
 	} else {
-		rl.SetTargetFPS(60)
+		// rl.SetTargetFPS(60) // I can do it myself
 		for !global.quit {
 			if rl.WindowShouldClose() do global.quit = true
 			runLoop()

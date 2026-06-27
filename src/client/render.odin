@@ -7,11 +7,10 @@ import "src:client/utils"
 import "thirdparty:tracy"
 import rl "vendor:raylib"
 
-show_demo_window := true
-
 render :: proc() {
 	tracy.ZoneN("Render Everything")
 
+	ImGuiNewFrame()
 	rl.BeginDrawing()
 	{
 		tracy.ZoneN("Render State")
@@ -21,6 +20,8 @@ render :: proc() {
 	}
 
 	renderFps()
+
+    ImGuiRender()
 	rl.EndDrawing()
 }
 
