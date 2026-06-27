@@ -1,4 +1,4 @@
-package client
+package terrain
 
 import "core:math/noise"
 
@@ -7,7 +7,9 @@ import "core:math/noise"
 // https://www.youtube.com/watch?v=cLs3CGNV120 - "How to Procedurally Generate Terrain (in Unity!)" by PangDev
 
 map_size :: 128 + 1
+@(private)
 terrain: ^[map_size][map_size]f32 = nil // 4096*4 = 16.376Kb woah that's a lot
+@(private)
 seed: i32 = 86030688
 
 createTerrain :: proc() {
@@ -22,6 +24,7 @@ createTerrain :: proc() {
 	}
 }
 
+@(private)
 TerrainGenData :: struct {
 	iterations:      int,
 	decay:           f32,
@@ -31,6 +34,7 @@ TerrainGenData :: struct {
 	start_frequency: f32,
 }
 
+@(private)
 terrain_gen_data: TerrainGenData = {
 	iterations      = 4,
 	decay           = 0.2,
@@ -60,6 +64,7 @@ calculateNoise :: proc(x: int, y: int) -> f32 {
 	return height
 }
 
+@(private)
 terrainDataUi :: proc() {
 	changed := false
 

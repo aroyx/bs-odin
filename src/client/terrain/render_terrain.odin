@@ -1,7 +1,8 @@
-package client
+package terrain
 
 import "core:math"
 import "core:math/linalg"
+import "core:mem"
 import "thirdparty:tracy"
 import "vendor:raylib/rlgl"
 
@@ -33,44 +34,8 @@ terrain_layers: [4]TerrainLayer = {
 
 renderTerrain :: proc() {
 	tracy.ZoneN("Render Terrain")
-	if len(vertices) == 0 || camera.IsMoving() do generateVertices()
 
-	// when IMGUI_ENABLE {
-	// 	imgui.Begin("Debug Window")
-	//
-	// 	imgui.Text("Landmass controls")
-	//
-	// 	if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
-	// 		camera.state.hcc = math.round(camera.state.hcc)
-	// 		camera.UpdateVariables()
-	// 		generateVertices()
-	// 	}
-	//
-	// 	if (imgui.SliderInt("Seed", &seed, 0, 214748364)) {
-	// 		createTerrain()
-	// 		generateVertices()
-	// 	}
-	//
-	// imgui.Text("Elevation Thresholds")
-	//
-	// if imgui.DragFloat("Deep Water", &deep_water.threshold, 0.01, -2.0, water.threshold, "%.3f") do generateVertices()
-	// if imgui.DragFloat("Water", &water.threshold, 0.01, deep_water.threshold, sand.threshold, "%.3f") do generateVertices()
-	// if imgui.DragFloat("Sand", &sand.threshold, 0.01, water.threshold, grass.threshold, "%.3f") do generateVertices()
-	// if imgui.DragFloat("Grass", &grass.threshold, 0.01, sand.threshold, deep_grass.threshold, "%.3f") do generateVertices()
-	// if imgui.DragFloat("Deep Grass", &deep_grass.threshold, 0.01, grass.threshold, 2.0, "%.3f") do generateVertices()
-	//
-	// if (imgui.ColorEdit4("Deep Grass Colour", auto_cast &deep_grass.color)) do generateVertices()
-	// if (imgui.ColorEdit4("Grass Colour", auto_cast &grass.color)) do generateVertices()
-	// if (imgui.ColorEdit4("Sand Colour", auto_cast &sand.color)) do generateVertices()
-	// if (imgui.ColorEdit4("Water Colour", auto_cast &water.color)) do generateVertices()
-	// if (imgui.ColorEdit4("Deep Water Colour", auto_cast &deep_water.color)) do generateVertices()
-
-	// if (imgui.SliderInt("Cell Size", auto_cast &cell_size, 8, 128)) do generate_vertices()
-
-	// terrainDataUi()
-
-	// imgui.End()
-	// }
+	if len(vertices_pos) == 0 || len(vertices_col) == 0 || camera.IsMoving() do generateVertices()
 
 	// render the lowest layer "deep_water" // saved like 1ms
 	rekt: rl.Rectangle = {
@@ -83,39 +48,34 @@ renderTerrain :: proc() {
 
 	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
 	rlgl.DisableBackfaceCulling()
-	rlgl.Begin(rlgl.TRIANGLES)
+	// rlgl.Begin(rlgl.TRIANGLES)
 
-	{
-		tracy.ZoneN("Iterating Tiles")
-		for v in vertices {
-			rlgl.Color4ub(v.color.r, v.color.g, v.color.b, v.color.a)
-			rlgl.Vertex2f(v.pos.x, v.pos.y)
-		}
+	if mesh_initialised && terrain_mesh.vaoId != 0 {
+		rl.DrawMesh(terrain_mesh, terrain_material, terrain_transform)
 	}
 
-	rlgl.End()
-	rlgl.DrawRenderBatchActive()
+	// rlgl.End()
+	// rlgl.DrawRenderBatchActive()
 	rlgl.EnableBackfaceCulling()
 	rl.EndScissorMode()
 }
 
-vertex :: struct {
-	pos:   rl.Vector2,
-	color: rl.Color,
-}
-
 @(private = "file")
-vertices: [dynamic]vertex
+vertices_pos: [dynamic]rl.Vector3
+@(private = "file")
+vertices_col: [dynamic]rl.Color
 
 @(private = "file")
 first_time := true
 
 generateVertices :: proc() {
 	tracy.ZoneN("Generate Vertices")
-	clear(&vertices)
+	clear(&vertices_pos)
+	clear(&vertices_col)
 
 	if (first_time) {
-		reserve(&vertices, int(math.ceil(camera.state.hcc * camera.state.vcc * 4)))
+		reserve(&vertices_pos, int(math.ceil(camera.state.hcc * camera.state.vcc * 4)))
+		reserve(&vertices_col, int(math.ceil(camera.state.hcc * camera.state.vcc * 4)))
 		first_time = false
 	}
 
@@ -174,6 +134,7 @@ generateVertices :: proc() {
 			}
 		}
 	}
+	updateMesh()
 }
 
 @(private = "file")
@@ -254,9 +215,62 @@ li :: proc(v1, v2, t: f32) -> f32 { 	// linear interpolation
 @(private = "file")
 pushTriangle :: proc(a, b, c: linalg.Vector2f32, color: rl.Color) {
 	append(
-		&vertices,
-		vertex{pos = {a.x, a.y}, color = color},
-		vertex{pos = {b.x, b.y}, color = color},
-		vertex{pos = {c.x, c.y}, color = color},
+		&vertices_pos,
+		rl.Vector3{a.x, a.y, 0.0},
+		rl.Vector3{b.x, b.y, 0.0},
+		rl.Vector3{c.x, c.y, 0.0},
 	)
+	append(&vertices_col, color, color, color)
+}
+
+@(private = "file")
+terrain_mesh: rl.Mesh = {}
+@(private = "file")
+terrain_material: rl.Material = {}
+@(private = "file")
+terrain_transform: rl.Matrix = {
+	1.0,
+	0.0,
+	0.0,
+	0.0,
+	0.0,
+	1.0,
+	0.0,
+	0.0,
+	0.0,
+	0.0,
+	1.0,
+	0.0,
+	0.0,
+	0.0,
+	0.0,
+	1.0,
+}
+
+@(private = "file")
+mesh_initialised := false
+
+@(private = "file")
+updateMesh :: proc() {
+	if mesh_initialised {
+		rl.UnloadMesh(terrain_mesh)
+        terrain_mesh = {}
+	} else {
+		mesh_initialised = true
+		terrain_material = rl.LoadMaterialDefault()
+	}
+
+	terrain_mesh.vertexCount = i32(len(vertices_pos))
+	terrain_mesh.triangleCount = i32(len(vertices_pos) / 3)
+
+	v_size := u32(len(vertices_pos) * size_of(rl.Vector3))
+	c_size := u32(len(vertices_col) * size_of(rl.Color))
+
+	terrain_mesh.vertices = cast([^]f32)rl.MemAlloc(v_size)
+	terrain_mesh.colors = cast([^]u8)rl.MemAlloc(c_size)
+
+	mem.copy(terrain_mesh.vertices, raw_data(vertices_pos), int(v_size))
+	mem.copy(terrain_mesh.colors, raw_data(vertices_col), int(c_size))
+
+	rl.UploadMesh(&terrain_mesh, false)
 }

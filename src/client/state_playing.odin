@@ -2,6 +2,7 @@ package client
 
 import "src:client/camera"
 import "src:client/network"
+import "src:client/terrain"
 import "src:common"
 
 import "core:math"
@@ -23,7 +24,7 @@ lock_camera := false
 on_enter :: proc() {
 	w := rl.GetScreenWidth()
 	h := rl.GetScreenHeight()
-	camera.Init(w, h, map_size)
+	camera.Init(w, h, terrain.map_size)
 	lock_camera = false
 }
 
@@ -51,7 +52,7 @@ on_update :: proc(dt: f32) {
 		h := rl.GetScreenHeight()
 		camera.SizeUpdate(w, h)
 
-		generateVertices()
+		terrain.generateVertices()
 	}
 
 	x_axis: f32 = 0
@@ -71,14 +72,14 @@ on_update :: proc(dt: f32) {
 on_render :: proc() {
 	rl.ClearBackground(rl.BLACK)
 
-	renderTerrain()
+	terrain.renderTerrain()
 
 	cs := camera.state.cs
 	cp := camera.camPos
 
 	camTopLeft: linalg.Vector2f32 = {
-		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (map_size - camera.state.hcc)),
-		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (map_size - camera.state.vcc)),
+		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (terrain.map_size - camera.state.hcc)),
+		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (terrain.map_size - camera.state.vcc)),
 	}
 
 	for i in 0 ..< global.render_state.player_count {
