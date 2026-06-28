@@ -6,14 +6,14 @@ import "core:math/linalg"
 import "src:client/utils"
 
 CameraState :: struct {
-	ar:         f32, // aspect ratio
-	cs:         f32, // cell size
-	w:          f32,
-	h:          f32,
-	hcc:        f32, // horizontal cell count // no of cells in the horizontal, vertical is calculated in the fly
-	vcc:        f32, // vertical cell count
-	x_offset:   f32,
-	y_offset:   f32,
+	ar:       f32, // aspect ratio
+	cs:       f32, // cell size
+	w:        f32,
+	h:        f32,
+	hcc:      f32, // horizontal cell count // no of cells in the horizontal, vertical is calculated in the fly
+	vcc:      f32, // vertical cell count
+	x_offset: f32,
+	y_offset: f32,
 }
 
 state: CameraState = {}
@@ -92,5 +92,5 @@ Update :: proc() {
 }
 
 IsMoving :: proc() -> bool {
-    return elapsed < dur
+	return elapsed < dur
 }

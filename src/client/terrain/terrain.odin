@@ -9,7 +9,7 @@ IMGUI_ENABLE :: #config(IMGUI_ENABLE, true)
 // https://youtu.be/J1OdPrO7GD0?t=655 (My favourite!) - "Sculpting Terrain With Math" by Acerola
 // https://www.youtube.com/watch?v=cLs3CGNV120 - "How to Procedurally Generate Terrain (in Unity!)" by PangDev
 
-map_size :: 128 + 1
+map_size :: 512 + 1
 @(private)
 terrain: ^[map_size][map_size]f32 = nil // 4096*4 = 16.376Kb woah that's a lot
 @(private)
@@ -25,6 +25,7 @@ createTerrain :: proc() {
 			terrain[x][y] = calculateNoise(x, y)
 		}
 	}
+	generateChunks()
 }
 
 @(private)
@@ -81,7 +82,6 @@ terrainDataUi :: proc() {
 
 		if changed {
 			createTerrain()
-			generateVertices()
 		}
 	}
 }
