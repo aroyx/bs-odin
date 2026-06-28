@@ -126,6 +126,10 @@ GetNetworkEvent :: proc() -> NetworkEvent {
 				countdown := (cast(^types.CountDownOutput)net_event.packet.data)^
 				return receive{packet = countdown}
 
+			case .LOADING:
+				loading := (cast(^types.Loading)net_event.packet.data)^
+				return receive{packet = loading}
+
 			case .MATCH_START:
 				match_start := (cast(^types.MatchStartOutput)net_event.packet.data)^
 				return receive{packet = match_start}

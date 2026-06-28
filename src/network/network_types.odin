@@ -23,4 +23,5 @@ ReceivedStruct :: union {
 	types.MatchMakingOutput,
 	types.CountDownOutput,
 	types.MatchStartOutput,
+	types.Loading,
 }

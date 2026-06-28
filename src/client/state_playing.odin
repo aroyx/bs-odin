@@ -1,5 +1,6 @@
 package client
 
+import "core:fmt"
 import "../camera"
 import "../network"
 import "../terrain"
@@ -12,7 +13,7 @@ import rl "vendor:raylib"
 
 playing_state: ClientState = {
 	on_enter         = on_enter,
-    on_exit = on_exit,
+	on_exit          = on_exit,
 	on_network_event = on_network_event,
 	on_update        = on_update,
 	on_render        = on_render,
@@ -23,19 +24,23 @@ lock_camera := false
 
 @(private = "file")
 on_enter :: proc() {
-    rl.SetExitKey(.KEY_NULL)// whatif they prees accidentially while parkouring?
+	rl.SetExitKey(.KEY_NULL) // whatif they prees accidentially while parkouring?
 
 	w := rl.GetScreenWidth()
 	h := rl.GetScreenHeight()
-	camera.Init(w, h, terrain.CELL_SIZE)
-	terrain.createTerrain()
-	terrain.generateChunks()
+	camera.Init(w, h, terrain.MAP_SIZE)
 	lock_camera = false
+
+	terrain.createTerrain()
+	ready: types.ClientReady = {
+		type = .CLIENT_READY,
+	}
+	network.Send(&ready, size_of(ready), true)
 }
 
 @(private = "file")
 on_exit :: proc() {
-    rl.SetExitKey(.ESCAPE)
+	rl.SetExitKey(.ESCAPE)
 	terrain.destroyChunks()
 }
 
@@ -50,6 +55,9 @@ on_network_event :: proc(pEvent: network.ReceivedStruct) {
 			camera.StartTagAlong(gPlayer.pos)
 			lock_camera = true
 		}
+	case types.MatchStartOutput:
+        fmt.println("match really started nw")
+	// do smth idk
 	}
 }
 
@@ -62,7 +70,7 @@ on_update :: proc(dt: f32) {
 		w := rl.GetScreenWidth()
 		h := rl.GetScreenHeight()
 		camera.SizeUpdate(w, h)
-		terrain.generateChunks()
+		terrain.generateRenderChunks()
 	}
 
 	x_axis: f32 = 0
@@ -91,12 +99,12 @@ on_render :: proc() {
 		math.clamp(
 			cp.x - (cs * camera.state.hcc * 0.5),
 			0,
-			cs * (terrain.CELL_SIZE - camera.state.hcc),
+			cs * (terrain.MAP_SIZE - camera.state.hcc),
 		),
 		math.clamp(
 			cp.y - (cs * camera.state.vcc * 0.5),
 			0,
-			cs * (terrain.CELL_SIZE - camera.state.vcc),
+			cs * (terrain.MAP_SIZE - camera.state.vcc),
 		),
 	}
 

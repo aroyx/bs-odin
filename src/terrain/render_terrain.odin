@@ -4,6 +4,7 @@ import "core:math"
 import "core:math/linalg"
 
 import "../camera"
+import "../utils"
 
 import "thirdparty:imgui"
 import "thirdparty:tracy"
@@ -49,8 +50,8 @@ renderTerrain :: proc() {
 	cp := camera.camPos
 
 	camTopLeft: linalg.Vector2f32 = {
-		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (CELL_SIZE - camera.state.hcc)),
-		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (CELL_SIZE - camera.state.vcc)),
+		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (MAP_SIZE - camera.state.hcc)),
+		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (MAP_SIZE - camera.state.vcc)),
 	}
 
 	rl.DrawRectangleRec(rekt, {49, 70, 190, 255})
@@ -85,7 +86,7 @@ renderTerrain :: proc() {
 }
 
 evalUI :: proc() {
-	when IMGUI_ENABLE {
+	when utils.IMGUI {
 		if (imgui.Begin("Debug Window")) {
 
 			imgui.Text("Landmass controls")
@@ -93,11 +94,7 @@ evalUI :: proc() {
 			if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
 				camera.state.hcc = math.round(camera.state.hcc)
 				camera.UpdateVariables()
-				generateChunks()
-			}
-
-			if (imgui.SliderInt("Seed", &seed, 0, 214748364)) {
-				generateChunks()
+				generateRenderChunks()
 			}
 
 			// imgui.Text("Elevation Thresholds")

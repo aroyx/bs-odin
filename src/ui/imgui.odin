@@ -3,9 +3,9 @@ package ui
 import "thirdparty:imgui"
 import "thirdparty:imgui/imgui_impl_raylib"
 
-IMGUI_ENABLE :: #config(IMGUI_ENABLE, true)
+import "../utils"
 
-when IMGUI_ENABLE {
+when utils.IMGUI {
 	ImGuiInit :: proc() {
 		imgui.CHECKVERSION()
 		imgui.CreateContext()

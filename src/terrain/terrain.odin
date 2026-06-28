@@ -1,9 +1,10 @@
 package terrain
 
 import "core:math/noise"
-import "thirdparty:imgui"
 
-IMGUI_ENABLE :: #config(IMGUI_ENABLE, true)
+import "../utils"
+
+import "thirdparty:imgui"
 
 // these videos helped a lot with making this terrain generator!
 // https://youtu.be/J1OdPrO7GD0?t=655 (My favourite!) - "Sculpting Terrain With Math" by Acerola
@@ -12,8 +13,11 @@ IMGUI_ENABLE :: #config(IMGUI_ENABLE, true)
 map_size :: 512 + 1
 @(private)
 terrain: ^[map_size][map_size]f32 = nil // 4096*4 = 16.376Kb woah that's a lot
-@(private)
-seed: i32 = 86030688
+@(private = "file")
+seed: i32
+setSeed :: proc(pSeed: i32) {
+	seed = pSeed
+}
 
 createTerrain :: proc() {
 	if terrain == nil {
@@ -24,6 +28,12 @@ createTerrain :: proc() {
 		for y in 0 ..< map_size {
 			terrain[x][y] = calculateNoise(x, y)
 		}
+	}
+
+	when utils.SERVER {
+		// generatePhysicsChunks?// todo
+	} else {
+		generateRenderChunks()
 	}
 }
 
@@ -69,7 +79,7 @@ calculateNoise :: proc(x: int, y: int) -> f32 {
 
 @(private)
 terrainDataUi :: proc() {
-	when IMGUI_ENABLE {
+	when utils.IMGUI {
 		changed := false
 
 		if (imgui.SliderInt("iterations", auto_cast &terrain_gen_data.iterations, 1, 8)) do changed = true
@@ -80,7 +90,7 @@ terrainDataUi :: proc() {
 		if (imgui.SliderFloat("start_frequency", &terrain_gen_data.start_frequency, 0.0, 5.0)) do changed = true
 
 		if changed {
-			generateChunks()
+			generateRenderChunks()
 		}
 	}
 }

@@ -2,11 +2,10 @@ package main
 
 import "server"
 import "client"
-
-SERVER :: #config(SERVER, false)
+import "utils"
 
 main :: proc() {
-	when SERVER {
+	when utils.SERVER {
 		server.BootServer()
 	} else {
 		client.BootClient()

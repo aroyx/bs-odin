@@ -2,6 +2,7 @@ package client
 
 import "core:fmt"
 
+import "../terrain"
 import "../network"
 import "../types"
 
@@ -28,7 +29,8 @@ on_network_event :: proc(pEvent: network.ReceivedStruct) {
 		global.render_state.player_count = packet.player_count
 	case types.CountDownOutput:
 		global.time.countdown = packet
-	case types.MatchStartOutput:
+	case types.Loading:
+        terrain.setSeed(packet.seed)
 		changeState(&playing_state)
 	}
 }

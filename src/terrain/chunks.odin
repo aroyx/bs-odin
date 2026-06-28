@@ -10,9 +10,9 @@ import "thirdparty:imgui"
 import "thirdparty:tracy"
 import rl "vendor:raylib"
 
-CELL_SIZE :: map_size - 1
+MAP_SIZE :: map_size - 1
 CHUNK_SIZE :: 32
-GRID_SIZE :: CELL_SIZE / CHUNK_SIZE
+GRID_SIZE :: MAP_SIZE / CHUNK_SIZE
 
 Chunks :: struct {
 	mesh:   rl.Mesh,
@@ -27,7 +27,7 @@ mat: rl.Material
 @(private = "file")
 first_time := true
 
-generateChunks :: proc() {
+generateRenderChunks :: proc() {
 	tracy.ZoneN("Chunk Generation!")
 	cs := camera.state.cs
 	mat = rl.LoadMaterialDefault()

@@ -1,27 +1,37 @@
 package server
 
-import "core:strconv"
-import "core:fmt"
 import "core:encoding/ini"
+import "core:fmt"
 import "core:math"
+import "core:math/linalg"
+import "core:math/rand"
+import "core:strconv"
 import "core:strings"
 import "core:time"
 
-import "../types"
+import "../terrain"
 
 ServerState :: enum u8 {
 	MATCH_MAKING,
 	COUNTDOWN,
+    LOADING,
 	MATCH_RUNNING,
 	MATCH_END,
+}
+
+ServerPlayerState :: struct {
+	id:    uintptr,
+	pos:   linalg.Vector2f32,
+	ready: bool,
 }
 
 GlobalState :: struct {
 	client_id_counter: uintptr,
 	server_state:      ServerState,
-	players:           map[uintptr]types.PlayerState,
+	players:           map[uintptr]ServerPlayerState,
 	time:              TimeState,
 	net:               Network,
+	seed:              i32,
 }
 
 TimeState :: struct {
@@ -40,7 +50,8 @@ global: GlobalState = {}
 defaultState :: proc() -> bool {
 	global.server_state = .MATCH_MAKING
 	global.client_id_counter = 0
-	global.players = make(map[uintptr]types.PlayerState)
+	global.players = make(map[uintptr]ServerPlayerState)
+	global.seed = rand.int31()
 
 	config, alloc_error := ini.load_map_from_path("config.ini", context.allocator) or_return
 
@@ -74,7 +85,16 @@ startCountdown :: proc() {
 	global.time.last_sec_sent = 3
 	global.time.last_countdown_time = time.now()
 
-	sendCountDown(3)
+	broadcastCountDown(3)
+}
+
+startLoading :: proc() {
+    global.server_state = .LOADING
+
+    broadcastLoading()
+    // generate terrain
+    terrain.setSeed(global.seed)
+    terrain.createTerrain()
 }
 
 updateCountdown :: proc() {
@@ -87,7 +107,7 @@ updateCountdown :: proc() {
 	global.time.countdown_time_left -= diff
 
 	if global.time.countdown_time_left <= 0 {
-		startMatch()
+		startLoading()
 		return
 	}
 
@@ -95,11 +115,26 @@ updateCountdown :: proc() {
 
 	if current_sec < global.time.last_sec_sent {
 		global.time.last_sec_sent = current_sec
-		sendCountDown(global.time.last_sec_sent)
+		broadcastCountDown(global.time.last_sec_sent)
 	}
 }
 
 startMatch :: proc() {
 	global.server_state = .MATCH_RUNNING
-	sendMatchStartSignal()
+	broadcastMatchStart()
+}
+
+clientReady :: proc(id: uintptr) {
+	if !(id in global.players) do return
+
+	player := &global.players[id]
+
+    player.ready = true
+
+    for _, pl in global.players {
+        if !pl.ready do return
+    }
+
+    // all players are ready, can start match now
+    startMatch()
 }
