@@ -5,8 +5,9 @@ import "core:fmt"
 import "core:math/linalg"
 import "core:strconv"
 import "core:strings"
-import "src:client/network"
-import "src:common"
+
+import "../network"
+import "../types"
 
 // MatchMakingState :: enum u8 {
 // 	CONNECTING_PLAYERS,
@@ -17,13 +18,13 @@ GlobalState :: struct {
 	quit:         bool,
 	net:          Network,
 	time:         Time,
-	input:        common.PlayerInput,
-	render_state: common.ServerOutput,
+	input:        types.PlayerInput,
+	render_state: types.ServerOutput,
 }
 
 Time :: struct {
 	show_fps:  bool,
-	countdown: common.CountDownOutput,
+	countdown: types.CountDownOutput,
 }
 
 Network :: struct {
@@ -33,12 +34,7 @@ Network :: struct {
 
 global: GlobalState = {}
 
-PlayerState :: struct {
-	id:  uintptr,
-	pos: linalg.Vector2f32,
-}
-
-gPlayer: PlayerState = {}
+gPlayer: types.PlayerState = {}
 
 client_state: ^ClientState
 
@@ -101,7 +97,7 @@ changeState :: proc(new_state: ^ClientState) {
 updatePlayerPos :: proc() {
 	for i in global.render_state.states {
 		if i.id == network.GetServerID() {
-			gPlayer.pos = {i.x, i.y}
+			gPlayer.pos = {i.pos.x, i.pos.y}
 		}
 	}
 }

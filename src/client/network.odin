@@ -1,20 +1,22 @@
 package client
 
 import "core:fmt"
-import "src:client"
-import "src:client/camera"
-import "src:client/network"
-import "src:common"
 
+import "../camera"
+import "../network"
+
+@(private)
 establishConnectionWithServer :: proc() -> int {
 	if !network.InitialiseNetwork() do return 1
 	return 0
 }
 
+@(private)
 rewokeConnectionWithServer :: proc() {
 	network.DestroyNetwork()
 }
 
+@(private)
 sendInputsToServer :: proc() {
 	if !network.IsConnected() {
 		return

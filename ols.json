@@ -1,7 +1,6 @@
 {
 	"$schema": "https://raw.githubusercontent.com/DanielGavin/ols/master/misc/ols.schema.json",
 	"collections": [
-		{ "name": "src", "path": "./src/" },
         { "name": "thirdparty", "path": "./thirdparty/" }
 	],
     "enable_overload_resolution": true,

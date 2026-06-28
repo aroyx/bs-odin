@@ -1,6 +1,6 @@
 package terrain
 
-import "src:client/camera"
+import "../camera"
 
 import "core:math"
 import "core:math/linalg"

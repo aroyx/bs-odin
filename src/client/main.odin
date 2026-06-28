@@ -3,7 +3,8 @@ package client
 import "base:runtime"
 import "core:fmt"
 
-import "src:client/utils"
+import "../utils"
+import "../ui"
 
 import "thirdparty:tracy"
 import rl "vendor:raylib"
@@ -18,7 +19,7 @@ runLoop :: proc "c" () {
 
 	handleNetworkInputs()
 
-    ImGuiProcessEvent()
+	ui.ImGuiProcessEvent()
 	if client_state != nil && client_state.on_update != nil {
 		client_state.on_update(f32(utils.dt))
 	}
@@ -26,8 +27,7 @@ runLoop :: proc "c" () {
 	render()
 }
 
-
-main :: proc() {
+BootClient :: proc() {
 	if stateInit() != true {
 		fmt.println("Unable to do shti")
 		return
@@ -38,11 +38,11 @@ main :: proc() {
 	rl.InitWindow(800, 600, "BS-Odin")
 	defer rl.CloseWindow()
 
-    initFont()
-    defer deinitFont()
+	initFont()
+	defer deinitFont()
 
-    ImGuiInit()
-    defer ImGuiClose()
+	ui.ImGuiInit()
+	defer ui.ImGuiClose()
 
 	if establishConnectionWithServer() != 0 {
 		fmt.println("Unable to open start enet")

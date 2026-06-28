@@ -2,8 +2,9 @@ package server
 
 import "core:fmt"
 import "core:math/rand"
-import "src:common"
 import enet "vendor:ENet"
+
+import "../types"
 
 server: ^enet.Host
 event: enet.Event
@@ -19,7 +20,7 @@ initialiseNetwork :: proc() -> int {
 		port = global.net.port,
 	}
 
-	server = enet.host_create(&address, common.MAX_PLAYERS, 2, 0, 0)
+	server = enet.host_create(&address, types.MAX_PLAYERS, 2, 0, 0)
 
 	if server == nil {
 		fmt.println("Unable to create the server!")
@@ -76,13 +77,12 @@ handleConnect :: proc() {
 	map_size: f32 = 129.0
 	cell_size: f32 = 10.0
 
-	global.players[id] = common.PlayerState {
-		id = id,
-		x  = rand.float32() * map_size * cell_size,
-		y  = rand.float32() * map_size * cell_size,
+	global.players[id] = types.PlayerState {
+		id  = id,
+		pos = {rand.float32() * map_size * cell_size, rand.float32() * map_size * cell_size},
 	}
 
-	newJoin: common.NewJoin = {
+	newJoin: types.NewJoin = {
 		type = .NEW_JOIN,
 		id   = id,
 	}
@@ -94,7 +94,7 @@ handleConnect :: proc() {
 		broadcastPlayerCount()
 	}
 
-	if len(global.players) == common.MAX_PLAYERS {
+	if len(global.players) == types.MAX_PLAYERS {
 		startCountdown()
 	}
 }
@@ -119,11 +119,11 @@ handleDisconnect :: proc() {
 handleRecieve :: proc() {
 	defer enet.packet_destroy(event.packet)
 
-	packet_type := cast(^common.PacketType)event.packet.data
+	packet_type := cast(^types.PacketType)event.packet.data
 	id := uintptr(event.peer.data)
 
 	if packet_type^ == .PING {
-		a: common.Ping = {.PING}
+		a: types.Ping = {.PING}
 
 		packet := enet.packet_create(&a, size_of(a), {.RELIABLE})
 		enet.peer_send(event.peer, 0, packet)
@@ -133,7 +133,7 @@ handleRecieve :: proc() {
 		return
 	}
 
-	// if event.packet.dataLength != size_of(common.PlayerInput) {
+	// if event.packet.dataLength != size_of(types.PlayerInput) {
 	// 	break
 	// }
 
@@ -141,17 +141,17 @@ handleRecieve :: proc() {
 		return
 	}
 
-	input := cast(^common.PlayerInput)event.packet.data
+	input := cast(^types.PlayerInput)event.packet.data
 	state := &global.players[id]
 
 	speed: f32 = 5.0
-	state.x += input.x_axis * speed
-	state.y += input.y_axis * speed
+	state.pos.x += input.x_axis * speed
+	state.pos.y += input.y_axis * speed
 }
 
 broadcastData :: proc() {
-	if len(global.players) == common.MAX_PLAYERS {
-		server_output: common.ServerOutput = {
+	if len(global.players) == types.MAX_PLAYERS {
+		server_output: types.ServerOutput = {
 			type         = .SERVER_OUTPUT,
 			player_count = u8(len(global.players)),
 		}
@@ -168,7 +168,7 @@ broadcastData :: proc() {
 }
 
 broadcastPlayerCount :: proc() {
-	match_making_output: common.MatchMakingOutput = {
+	match_making_output: types.MatchMakingOutput = {
 		type         = .MATCH_MAKING_OUTPUT,
 		player_count = u8(len(global.players)),
 	}
@@ -178,7 +178,7 @@ broadcastPlayerCount :: proc() {
 }
 
 sendCountDown :: proc(time: u8, show: bool = true) {
-	countdown_output: common.CountDownOutput = {
+	countdown_output: types.CountDownOutput = {
 		type = .COUNTDOWN_OUTPUT,
 		time = time,
 		show = show,
@@ -189,7 +189,7 @@ sendCountDown :: proc(time: u8, show: bool = true) {
 }
 
 sendMatchStartSignal :: proc() {
-	match_start: common.MatchStartOutput = {
+	match_start: types.MatchStartOutput = {
 		type = .MATCH_START,
 	}
 

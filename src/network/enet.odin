@@ -2,7 +2,9 @@ package network
 
 import "core:fmt"
 import "core:time"
-import "src:common"
+
+import "../types"
+
 import enet "vendor:ENet"
 
 @(private)
@@ -104,28 +106,28 @@ GetNetworkEvent :: proc() -> NetworkEvent {
 			return disconnect{}
 		case .RECEIVE:
 			defer enet.packet_destroy(net_event.packet)
-			packet_type := (cast(^common.PacketType)net_event.packet.data)^
+			packet_type := (cast(^types.PacketType)net_event.packet.data)^
 
 			#partial switch (packet_type) {
 			case .NEW_JOIN:
-				new_join := cast(^common.NewJoin)net_event.packet.data
+				new_join := cast(^types.NewJoin)net_event.packet.data
 				my_id = new_join.id
 				return none{}
 
 			case .SERVER_OUTPUT:
-				server_out := (cast(^common.ServerOutput)net_event.packet.data)^
+				server_out := (cast(^types.ServerOutput)net_event.packet.data)^
 				return receive{packet = server_out}
 
 			case .MATCH_MAKING_OUTPUT:
-				match_making := (cast(^common.MatchMakingOutput)net_event.packet.data)^
+				match_making := (cast(^types.MatchMakingOutput)net_event.packet.data)^
 				return receive{packet = match_making}
 
 			case .COUNTDOWN_OUTPUT:
-				countdown := (cast(^common.CountDownOutput)net_event.packet.data)^
+				countdown := (cast(^types.CountDownOutput)net_event.packet.data)^
 				return receive{packet = countdown}
 
 			case .MATCH_START:
-				match_start := (cast(^common.MatchStartOutput)net_event.packet.data)^
+				match_start := (cast(^types.MatchStartOutput)net_event.packet.data)^
 				return receive{packet = match_start}
 
 			case .PING:
@@ -150,7 +152,7 @@ ping_sent_time: time.Time = {}
 Ping :: proc() {
 	ping_sent_time = time.now()
 
-	a: common.Ping = {.PING}
+	a: types.Ping = {.PING}
 	Send(&a, size_of(a), true)
 }
 

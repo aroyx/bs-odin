@@ -1,6 +1,6 @@
 package network
 
-import "src:common"
+import "../types"
 
 NetworkEvent :: union {
 	connect,
@@ -19,8 +19,8 @@ receive :: struct {
 none :: struct {}
 
 ReceivedStruct :: union {
-	common.ServerOutput,
-	common.MatchMakingOutput,
-	common.CountDownOutput,
-	common.MatchStartOutput,
+	types.ServerOutput,
+	types.MatchMakingOutput,
+	types.CountDownOutput,
+	types.MatchStartOutput,
 }

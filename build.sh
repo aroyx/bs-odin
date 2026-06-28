@@ -14,6 +14,7 @@ MODE="run"
 FLAGS="-show-timings"
 ENABLE_TRACY=false
 BUILD_TYPE="" # no need for super fast release
+SRC_DIR="src/"
 
 for arg in "$@"; do
     case $arg in
@@ -27,10 +28,8 @@ for arg in "$@"; do
     esac
 done
 
-if [[ "$EXE" == "client" ]]; then
-    SRC_DIR="src/client/"
-elif [[ "$EXE" == "server" ]]; then
-    SRC_DIR="src/server/"
+if [[ "$EXE" == "server" ]]; then
+    FLAGS+=" -define:SERVER=true"
 fi
 
 OUT_DIR="bin/$BUILD_TYPE/$EXE"
@@ -56,7 +55,6 @@ else
 fi
 
 # collections!
-COLLECTION="-collection:src=./src/"
 COLLECTION+=" -collection:thirdparty=./thirdparty/"
 
 # RUN ODIN!!

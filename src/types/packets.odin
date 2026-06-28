@@ -1,4 +1,4 @@
-package common
+package type
 
 PacketType :: enum u8 {
 	NEW_JOIN,

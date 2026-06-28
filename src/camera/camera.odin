@@ -3,7 +3,8 @@ package camera
 import "core:math"
 import "core:math/ease"
 import "core:math/linalg"
-import "src:client/utils"
+
+import "../utils"
 
 CameraState :: struct {
 	ar:       f32, // aspect ratio

@@ -3,7 +3,7 @@ package terrain
 import "core:math"
 import "core:math/linalg"
 
-import "src:client/camera"
+import "../camera"
 
 import "thirdparty:imgui"
 import "thirdparty:tracy"

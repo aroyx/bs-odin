@@ -6,7 +6,8 @@ import "core:encoding/ini"
 import "core:math"
 import "core:strings"
 import "core:time"
-import "src:common"
+
+import "../types"
 
 ServerState :: enum u8 {
 	MATCH_MAKING,
@@ -18,7 +19,7 @@ ServerState :: enum u8 {
 GlobalState :: struct {
 	client_id_counter: uintptr,
 	server_state:      ServerState,
-	players:           map[uintptr]common.PlayerState,
+	players:           map[uintptr]types.PlayerState,
 	time:              TimeState,
 	net:               Network,
 }
@@ -39,7 +40,7 @@ global: GlobalState = {}
 defaultState :: proc() -> bool {
 	global.server_state = .MATCH_MAKING
 	global.client_id_counter = 0
-	global.players = make(map[uintptr]common.PlayerState)
+	global.players = make(map[uintptr]types.PlayerState)
 
 	config, alloc_error := ini.load_map_from_path("config.ini", context.allocator) or_return
 

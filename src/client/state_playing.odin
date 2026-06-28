@@ -1,9 +1,9 @@
 package client
 
-import "src:client/camera"
-import "src:client/network"
-import "src:client/terrain"
-import "src:common"
+import "../camera"
+import "../network"
+import "../terrain"
+import "../types"
 
 import "core:math"
 import "core:math/linalg"
@@ -23,6 +23,8 @@ lock_camera := false
 
 @(private = "file")
 on_enter :: proc() {
+    rl.SetExitKey(.KEY_NULL)// whatif they prees accidentially while parkouring?
+
 	w := rl.GetScreenWidth()
 	h := rl.GetScreenHeight()
 	camera.Init(w, h, terrain.CELL_SIZE)
@@ -33,13 +35,14 @@ on_enter :: proc() {
 
 @(private = "file")
 on_exit :: proc() {
+    rl.SetExitKey(.ESCAPE)
 	terrain.destroyChunks()
 }
 
 @(private = "file")
 on_network_event :: proc(pEvent: network.ReceivedStruct) {
 	#partial switch packet in pEvent {
-	case common.ServerOutput:
+	case types.ServerOutput:
 		global.render_state = packet
 		updatePlayerPos()
 
@@ -104,12 +107,12 @@ on_render :: proc() {
 		dim :: 30
 		rect.height = dim
 		rect.width = dim
-		rect.x = player.x - (dim * 0.5) - camTopLeft.x + camera.state.x_offset
-		rect.y = player.y - (dim * 0.5) - camTopLeft.y + camera.state.y_offset
+		rect.x = player.pos.x - (dim * 0.5) - camTopLeft.x + camera.state.x_offset
+		rect.y = player.pos.y - (dim * 0.5) - camTopLeft.y + camera.state.y_offset
 
 		rl.DrawRectangleRec(
 			rect,
-			{0, u8((player.x / 800.0) * 255.0), u8((player.y / 600.0) * 255.0), 255},
+			{0, u8((player.pos.x / 800.0) * 255.0), u8((player.pos.y / 600.0) * 255.0), 255},
 		)
 	}
 }

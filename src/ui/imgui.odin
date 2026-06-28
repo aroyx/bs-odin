@@ -1,4 +1,4 @@
-package client
+package ui
 
 import "thirdparty:imgui"
 import "thirdparty:imgui/imgui_impl_raylib"

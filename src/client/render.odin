@@ -2,7 +2,8 @@ package client
 
 import "core:fmt"
 
-import "src:client/utils"
+import "../utils"
+import "../ui"
 
 import "thirdparty:tracy"
 import rl "vendor:raylib"
@@ -10,7 +11,7 @@ import rl "vendor:raylib"
 render :: proc() {
 	tracy.ZoneN("Render Everything")
 
-	ImGuiNewFrame()
+	ui.ImGuiNewFrame()
 	rl.BeginDrawing()
 	{
 		tracy.ZoneN("Render State")
@@ -21,7 +22,7 @@ render :: proc() {
 
 	renderFps()
 
-    ImGuiRender()
+    ui.ImGuiRender()
 	rl.EndDrawing()
 }
 

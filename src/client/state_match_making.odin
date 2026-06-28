@@ -2,8 +2,8 @@ package client
 
 import "core:fmt"
 
-import "src:client/network"
-import "src:common"
+import "../network"
+import "../types"
 
 import rl "vendor:raylib"
 
@@ -24,11 +24,11 @@ on_update :: proc(dt: f32) {
 @(private = "file")
 on_network_event :: proc(pEvent: network.ReceivedStruct) {
 	#partial switch packet in pEvent {
-	case common.MatchMakingOutput:
+	case types.MatchMakingOutput:
 		global.render_state.player_count = packet.player_count
-	case common.CountDownOutput:
+	case types.CountDownOutput:
 		global.time.countdown = packet
-	case common.MatchStartOutput:
+	case types.MatchStartOutput:
 		changeState(&playing_state)
 	}
 }
@@ -47,7 +47,7 @@ on_render :: proc() {
 		text = fmt.ctprintf(
 			"Total Players: %d/%d",
 			global.render_state.player_count,
-			common.MAX_PLAYERS,
+			types.MAX_PLAYERS,
 		)
 	}
 

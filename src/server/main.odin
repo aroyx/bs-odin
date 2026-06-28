@@ -2,7 +2,7 @@ package server
 
 import "core:fmt"
 
-main :: proc() {
+BootServer :: proc() {
 	if defaultState() != true {
 		fmt.println("Unable to Initialise the server state")
 		return
@@ -17,6 +17,6 @@ main :: proc() {
 
 	for {
 		pollEvents()
-        sendDataToClients()
+		sendDataToClients()
 	}
 }
