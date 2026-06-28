@@ -12,6 +12,7 @@ import rl "vendor:raylib"
 
 playing_state: ClientState = {
 	on_enter         = on_enter,
+    on_exit = on_exit,
 	on_network_event = on_network_event,
 	on_update        = on_update,
 	on_render        = on_render,
@@ -26,7 +27,13 @@ on_enter :: proc() {
 	h := rl.GetScreenHeight()
 	camera.Init(w, h, terrain.CELL_SIZE)
 	terrain.createTerrain()
+	terrain.generateChunks()
 	lock_camera = false
+}
+
+@(private = "file")
+on_exit :: proc() {
+	terrain.destroyChunks()
 }
 
 @(private = "file")
@@ -52,8 +59,7 @@ on_update :: proc(dt: f32) {
 		w := rl.GetScreenWidth()
 		h := rl.GetScreenHeight()
 		camera.SizeUpdate(w, h)
-
-		// terrain.generateVertices()
+		terrain.generateChunks()
 	}
 
 	x_axis: f32 = 0

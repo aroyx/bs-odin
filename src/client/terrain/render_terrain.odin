@@ -9,7 +9,6 @@ import "thirdparty:imgui"
 import "thirdparty:tracy"
 
 import rl "vendor:raylib"
-import "vendor:raylib/rlgl"
 
 @(private = "file")
 TerrainLayer :: struct {
@@ -38,7 +37,7 @@ renderTerrain :: proc() {
 
 	evalUI()
 
-	// render the lowest layer "deep_water" // saved like 1ms
+	// render the lowest layer "deep_water"
 	rekt: rl.Rectangle = {
 		height = camera.state.cs * camera.state.vcc,
 		width  = camera.state.cs * camera.state.hcc,
@@ -56,7 +55,6 @@ renderTerrain :: proc() {
 
 	rl.DrawRectangleRec(rekt, {49, 70, 190, 255})
 	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
-	rlgl.DisableBackfaceCulling()
 
 	cam_bounds: rl.Rectangle = {
 		x      = camTopLeft.x,
@@ -83,7 +81,6 @@ renderTerrain :: proc() {
 		}
 	}
 
-	rlgl.EnableBackfaceCulling()
 	rl.EndScissorMode()
 }
 
@@ -96,10 +93,11 @@ evalUI :: proc() {
 			if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
 				camera.state.hcc = math.round(camera.state.hcc)
 				camera.UpdateVariables()
+				generateChunks()
 			}
 
 			if (imgui.SliderInt("Seed", &seed, 0, 214748364)) {
-				createTerrain()
+				generateChunks()
 			}
 
 			// imgui.Text("Elevation Thresholds")

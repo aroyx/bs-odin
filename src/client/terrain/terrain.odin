@@ -25,7 +25,6 @@ createTerrain :: proc() {
 			terrain[x][y] = calculateNoise(x, y)
 		}
 	}
-	generateChunks()
 }
 
 @(private)
@@ -81,7 +80,7 @@ terrainDataUi :: proc() {
 		if (imgui.SliderFloat("start_frequency", &terrain_gen_data.start_frequency, 0.0, 5.0)) do changed = true
 
 		if changed {
-			createTerrain()
+			generateChunks()
 		}
 	}
 }

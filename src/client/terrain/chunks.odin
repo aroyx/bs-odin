@@ -31,6 +31,7 @@ generateChunks :: proc() {
 	tracy.ZoneN("Chunk Generation!")
 	cs := camera.state.cs
 	mat = rl.LoadMaterialDefault()
+	destroyChunks()
 	for a in 0 ..< GRID_SIZE { 	// iterate over the chunks
 		for b in 0 ..< GRID_SIZE {
 			start_x := a * CHUNK_SIZE
@@ -93,6 +94,20 @@ generateChunks :: proc() {
 			}
 			chunks[a][b].baked = true
 			chunks[a][b].is_in = false
+		}
+	}
+}
+
+destroyChunks :: proc() {
+	rl.SetTraceLogLevel(rl.TraceLogLevel.NONE)
+	defer rl.SetTraceLogLevel(rl.TraceLogLevel.INFO)
+
+	for a in 0 ..< GRID_SIZE { 	// iterate over the chunks
+		for b in 0 ..< GRID_SIZE {
+			if chunks[a][b].baked {
+				rl.UnloadMesh(chunks[a][b].mesh)
+				chunks[a][b].baked = false
+			}
 		}
 	}
 }

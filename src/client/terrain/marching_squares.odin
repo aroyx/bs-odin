@@ -22,6 +22,11 @@ Points :: enum i32 {
 	C4,
 }
 
+// I HAND WROTE THIS FOR PEAK UNDERSTANDING!! BUT BUT BUT!!! MY RENDERING ORDER
+// IS IN CLOCKWISE WINDING ORDER INSTEAD OF ANTI-CLOCKWISE THAT MOST RENDERING
+// APIS USE
+// But fortunately I can just push the triangles in reverse order :)
+
 @(private = "file")
 lookup: [15][]Points = {
 	{.D, .C, .C4},
@@ -69,9 +74,16 @@ marching_squares :: proc(x, y, threshold: f32, i, j: int, color: rl.Color) {
 
 	points = {a, b, c, d, c1, c2, c3, c4}
 
+    // clockwise
+	// shape := lookup[total - 1]
+	// for k := 0; k < len(shape); k += 3 {
+	// 	pushTriangle(points[shape[k]], points[shape[k + 1]], points[shape[k + 2]], color)
+	// }
+
+    // anti-clockwise (allegedly)
 	shape := lookup[total - 1]
 	for k := 0; k < len(shape); k += 3 {
-		pushTriangle(points[shape[k]], points[shape[k + 1]], points[shape[k + 2]], color)
+		pushTriangle(points[shape[k + 2]], points[shape[k + 1]], points[shape[k]], color)
 	}
 }
 
