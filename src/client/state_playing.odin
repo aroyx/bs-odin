@@ -1,8 +1,10 @@
 package client
 
 import "core:fmt"
+
 import "../camera"
 import "../network"
+import "../physics"
 import "../terrain"
 import "../types"
 
@@ -36,12 +38,15 @@ on_enter :: proc() {
 		type = .CLIENT_READY,
 	}
 	network.Send(&ready, size_of(ready), true)
+
+	physics.initPhysics()
 }
 
 @(private = "file")
 on_exit :: proc() {
 	rl.SetExitKey(.ESCAPE)
 	terrain.destroyChunks()
+	physics.closePhysics()
 }
 
 @(private = "file")
@@ -56,13 +61,15 @@ on_network_event :: proc(pEvent: network.ReceivedStruct) {
 			lock_camera = true
 		}
 	case types.MatchStartOutput:
-        fmt.println("match really started nw")
+		fmt.println("match really started nw")
 	// do smth idk
 	}
 }
 
 @(private = "file")
 on_update :: proc(dt: f32) {
+	physics.physicsTick()
+
 	camera.Update()
 	sendInputsToServer()
 
@@ -123,4 +130,6 @@ on_render :: proc() {
 			{0, u8((player.pos.x / 800.0) * 255.0), u8((player.pos.y / 600.0) * 255.0), 255},
 		)
 	}
+
+    physics.drawPhysics()
 }
