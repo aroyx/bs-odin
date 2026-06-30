@@ -3,7 +3,7 @@ package server
 import "core:fmt"
 import "core:math/rand"
 
-import "../terrain"
+import "../utils"
 import "../types"
 
 import enet "vendor:ENet"
@@ -71,7 +71,7 @@ handleConnect :: proc() {
 	event.peer.data = rawptr(id)
 
 	// do smth about these variables
-	map_size := f32(terrain.MAP_SIZE)
+	map_size := f32(utils.MAP_SIZE)
 	cell_size: f32 = 10.0
 
 	global.players[id] = ServerPlayerState {

@@ -25,6 +25,8 @@ runLoop :: proc "c" () {
 	}
 
 	render()
+
+    free_all(context.temp_allocator)
 }
 
 BootClient :: proc() {

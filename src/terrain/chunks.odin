@@ -1,6 +1,7 @@
 package terrain
 
 import "../camera"
+import "../utils"
 
 import "core:fmt"
 import "core:math/linalg"
@@ -10,10 +11,6 @@ import "thirdparty:imgui"
 import "thirdparty:tracy"
 import rl "vendor:raylib"
 
-MAP_SIZE :: map_size - 1
-CHUNK_SIZE :: 32
-GRID_SIZE :: MAP_SIZE / CHUNK_SIZE
-
 Chunks :: struct {
 	mesh:   rl.Mesh,
 	bounds: rl.Rectangle,
@@ -21,7 +18,7 @@ Chunks :: struct {
 	is_in:  bool,
 }
 
-chunks: [GRID_SIZE][GRID_SIZE]Chunks
+chunks: [utils.GRID_SIZE][utils.GRID_SIZE]Chunks
 mat: rl.Material
 
 @(private = "file")
@@ -32,23 +29,28 @@ generateRenderChunks :: proc() {
 	cs := camera.state.cs
 	mat = rl.LoadMaterialDefault()
 	destroyChunks()
-	for a in 0 ..< GRID_SIZE { 	// iterate over the chunks
-		for b in 0 ..< GRID_SIZE {
-			start_x := a * CHUNK_SIZE
-			start_y := b * CHUNK_SIZE
+
+    gs := utils.GRID_SIZE
+    chunkSize := utils.CHUNK_SIZE
+    mps := utils.map_size
+
+	for a in 0 ..< gs { 	// iterate over the chunks
+		for b in 0 ..< gs {
+			start_x := a * chunkSize
+			start_y := b * chunkSize
 
 			clear(&vertices_pos)
 			clear(&vertices_col)
 
 			if (first_time) {
-				reserve(&vertices_pos, CHUNK_SIZE * CHUNK_SIZE * 4)
-				reserve(&vertices_col, CHUNK_SIZE * CHUNK_SIZE * 4)
+				reserve(&vertices_pos, chunkSize * chunkSize * 4)
+				reserve(&vertices_col, chunkSize * chunkSize * 4)
 				first_time = false
 			}
 
-			for i in start_x ..< start_x + CHUNK_SIZE { 	// iterate over the cells in chunks
-				for j in start_y ..< start_y + CHUNK_SIZE {
-					if i < 0 || j < 0 || i >= map_size - 1 || j >= map_size - 1 do continue
+			for i in start_x ..< start_x + chunkSize { 	// iterate over the cells in chunks
+				for j in start_y ..< start_y + chunkSize {
+					if i < 0 || j < 0 || i >= mps - 1 || j >= mps - 1 do continue
 
 					x := f32(i) * cs
 					y := f32(j) * cs
@@ -89,8 +91,8 @@ generateRenderChunks :: proc() {
 			chunks[a][b].bounds = {
 				x      = f32(start_x) * cs,
 				y      = f32(start_y) * cs,
-				width  = CHUNK_SIZE * cs,
-				height = CHUNK_SIZE * cs,
+				width  = f32(chunkSize) * cs,
+				height = f32(chunkSize) * cs,
 			}
 			chunks[a][b].baked = true
 			chunks[a][b].is_in = false
@@ -102,8 +104,8 @@ destroyChunks :: proc() {
 	rl.SetTraceLogLevel(rl.TraceLogLevel.NONE)
 	defer rl.SetTraceLogLevel(rl.TraceLogLevel.INFO)
 
-	for a in 0 ..< GRID_SIZE { 	// iterate over the chunks
-		for b in 0 ..< GRID_SIZE {
+	for a in 0 ..< utils.GRID_SIZE { 	// iterate over the chunks
+		for b in 0 ..< utils.GRID_SIZE {
 			if chunks[a][b].baked {
 				rl.UnloadMesh(chunks[a][b].mesh)
 				chunks[a][b].baked = false
@@ -153,12 +155,12 @@ createMeshFromVertices :: proc() -> rl.Mesh {
 }
 
 chunksUI :: proc() {
-	imgui.BeginTable("Chunks Render Grid", GRID_SIZE)
-	for j in 0 ..< GRID_SIZE {
+	imgui.BeginTable("Chunks Render Grid", utils.GRID_SIZE)
+	for j in 0 ..< utils.GRID_SIZE {
 		imgui.TableNextRow()
-		for i in 0 ..< GRID_SIZE {
+		for i in 0 ..< utils.GRID_SIZE {
 			imgui.TableNextColumn()
-			imgui.PushID(fmt.ctprintf("%d", i * GRID_SIZE + j))
+			imgui.PushID(fmt.ctprintf("%d", i * utils.GRID_SIZE + j))
 			imgui.Checkbox("##cell", &chunks[i][j].is_in)
 			imgui.PopID()
 		}

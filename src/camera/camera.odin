@@ -21,7 +21,7 @@ state: CameraState = {}
 
 Init :: proc(w: i32, h: i32, map_size: i32) {
 	state.ar = 16.0 / 9.0
-	state.hcc = 80
+	state.hcc = 40
 	state.w = auto_cast w
 	state.h = auto_cast h
 

@@ -50,8 +50,8 @@ renderTerrain :: proc() {
 	cp := camera.camPos
 
 	camTopLeft: linalg.Vector2f32 = {
-		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (MAP_SIZE - camera.state.hcc)),
-		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (MAP_SIZE - camera.state.vcc)),
+		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (utils.MAP_SIZE - camera.state.hcc)),
+		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (utils.MAP_SIZE - camera.state.vcc)),
 	}
 
 	rl.DrawRectangleRec(rekt, {49, 70, 190, 255})
@@ -70,8 +70,8 @@ renderTerrain :: proc() {
 		0.0,
 	)
 
-	for i in 0 ..< GRID_SIZE {
-		for j in 0 ..< GRID_SIZE {
+	for i in 0 ..< utils.GRID_SIZE {
+		for j in 0 ..< utils.GRID_SIZE {
 			chunk := chunks[i][j]
 			if !chunk.baked || chunk.mesh.vaoId == 0 do continue
 

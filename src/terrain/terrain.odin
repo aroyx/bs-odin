@@ -10,9 +10,8 @@ import "thirdparty:imgui"
 // https://youtu.be/J1OdPrO7GD0?t=655 (My favourite!) - "Sculpting Terrain With Math" by Acerola
 // https://www.youtube.com/watch?v=cLs3CGNV120 - "How to Procedurally Generate Terrain (in Unity!)" by PangDev
 
-map_size :: 512 + 1
 @(private)
-terrain: ^[map_size][map_size]f32 = nil // 4096*4 = 16.376Kb woah that's a lot
+terrain: ^[utils.map_size][utils.map_size]f32 = nil // 4096*4 = 16.376Kb woah that's a lot
 @(private = "file")
 seed: i32
 setSeed :: proc(pSeed: i32) {
@@ -21,11 +20,11 @@ setSeed :: proc(pSeed: i32) {
 
 createTerrain :: proc() {
 	if terrain == nil {
-		terrain = new([map_size][map_size]f32)
+		terrain = new([utils.map_size][utils.map_size]f32)
 	}
 
-	for x in 0 ..< map_size {
-		for y in 0 ..< map_size {
+	for x in 0 ..< utils.map_size {
+		for y in 0 ..< utils.map_size {
 			terrain[x][y] = calculateNoise(x, y)
 		}
 	}

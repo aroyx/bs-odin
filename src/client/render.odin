@@ -2,7 +2,6 @@ package client
 
 import "core:fmt"
 
-import "../physics"
 import "../ui"
 import "../utils"
 
@@ -24,8 +23,6 @@ render :: proc() {
 	renderFps()
 
 	ui.ImGuiRender()
-
-	physics.drawPhysics()
 	rl.EndDrawing()
 }
 

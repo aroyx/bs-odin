@@ -7,6 +7,7 @@ import "../network"
 import "../physics"
 import "../terrain"
 import "../types"
+import "../utils"
 
 import "core:math"
 import "core:math/linalg"
@@ -30,16 +31,16 @@ on_enter :: proc() {
 
 	w := rl.GetScreenWidth()
 	h := rl.GetScreenHeight()
-	camera.Init(w, h, terrain.MAP_SIZE)
+	camera.Init(w, h, utils.MAP_SIZE)
 	lock_camera = false
 
 	terrain.createTerrain()
+	physics.initPhysics()
+
 	ready: types.ClientReady = {
 		type = .CLIENT_READY,
 	}
 	network.Send(&ready, size_of(ready), true)
-
-	physics.initPhysics()
 }
 
 @(private = "file")
@@ -91,7 +92,14 @@ on_update :: proc(dt: f32) {
 	global.input.x_axis = x_axis
 	global.input.y_axis = y_axis
 	global.input.type = .PLAYER_INPUT
+
+	if rl.IsKeyPressed(.R) {
+		draw_physics = !draw_physics
+	}
 }
+
+@(private = "file")
+draw_physics := false
 
 @(private = "file")
 on_render :: proc() {
@@ -106,12 +114,12 @@ on_render :: proc() {
 		math.clamp(
 			cp.x - (cs * camera.state.hcc * 0.5),
 			0,
-			cs * (terrain.MAP_SIZE - camera.state.hcc),
+			cs * (utils.MAP_SIZE - camera.state.hcc),
 		),
 		math.clamp(
 			cp.y - (cs * camera.state.vcc * 0.5),
 			0,
-			cs * (terrain.MAP_SIZE - camera.state.vcc),
+			cs * (utils.MAP_SIZE - camera.state.vcc),
 		),
 	}
 
@@ -131,5 +139,7 @@ on_render :: proc() {
 		)
 	}
 
-    physics.drawPhysics()
+	if draw_physics {
+		physics.drawPhysics()
+	}
 }
