@@ -2,8 +2,9 @@ package client
 
 import "core:fmt"
 
-import "../utils"
+import "../physics"
 import "../ui"
+import "../utils"
 
 import "thirdparty:tracy"
 import rl "vendor:raylib"
@@ -22,7 +23,9 @@ render :: proc() {
 
 	renderFps()
 
-    ui.ImGuiRender()
+	ui.ImGuiRender()
+
+	physics.drawPhysics()
 	rl.EndDrawing()
 }
 
@@ -43,7 +46,7 @@ renderFps :: proc() {
 	// counter += 1
 
 	text := fmt.ctprintf("FPS: %d\nFrame Time: %fms", u32(cfps), cft)
-	w, h := getTextSize("FPS: 100\nFrame Time: 16.999ms", .MEDIUM)
+	w, h := utils.getTextSize("FPS: 100\nFrame Time: 16.999ms", .MEDIUM)
 
 	rekt: rl.Rectangle = {
 		height = h + 16,
@@ -54,5 +57,5 @@ renderFps :: proc() {
 
 	rl.DrawRectangleRec(rekt, {220, 200, 200, 200})
 
-	drawText(text, .MEDIUM, {8, 8}, rl.BLACK)
+	utils.drawText(text, .MEDIUM, {8, 8}, rl.BLACK)
 }

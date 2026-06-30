@@ -1,5 +1,7 @@
 package client
 
+import "../utils"
+
 import rl "vendor:raylib"
 
 end_screen_state: ClientState = {
@@ -16,5 +18,5 @@ on_event :: proc() {
 @(private = "file")
 on_render :: proc() {
     rl.ClearBackground({80, 30, 80, 255})
-	drawCenteredText("Game End!\nIf you want to start again, press 'R'!", tint = rl.WHITE)
+	utils.drawCenteredText("Game End!\nIf you want to start again, press 'R'!", tint = rl.WHITE)
 }

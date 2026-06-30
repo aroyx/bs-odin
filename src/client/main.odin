@@ -3,8 +3,8 @@ package client
 import "base:runtime"
 import "core:fmt"
 
-import "../utils"
 import "../ui"
+import "../utils"
 
 import "thirdparty:tracy"
 import rl "vendor:raylib"
@@ -38,8 +38,8 @@ BootClient :: proc() {
 	rl.InitWindow(800, 600, "BS-Odin")
 	defer rl.CloseWindow()
 
-	initFont()
-	defer deinitFont()
+	utils.initFont()
+	defer utils.deinitFont()
 
 	ui.ImGuiInit()
 	defer ui.ImGuiClose()

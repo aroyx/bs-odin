@@ -2,6 +2,7 @@ package client
 
 import "core:fmt"
 
+import "../utils"
 import "../terrain"
 import "../network"
 import "../types"
@@ -40,7 +41,7 @@ on_render :: proc() {
 	rl.ClearBackground({10, 200, 120, 255})
 
 	// render "Match-Making!" in the center
-	drawCenteredText("Match-Making!", y_offset = -60.0)
+	utils.drawCenteredText("Match-Making!", y_offset = -60.0)
 
 	// render "Total players: 1/2" in the center slightly lower
 	text: cstring = "Unable to connect to any server!\nMaybe the server is down?\n\nPlease Exit and try again later"
@@ -53,11 +54,11 @@ on_render :: proc() {
 		)
 	}
 
-	drawCenteredText(text)
+	utils.drawCenteredText(text)
 
 	if global.time.countdown.show {
 		// render "Total players: 1/2" in the center slightly lower
 		text := fmt.ctprintf("Match Starts in: %ds", global.time.countdown.time)
-		drawCenteredText(text, y_offset = 30.0)
+		utils.drawCenteredText(text, y_offset = 30.0)
 	}
 }

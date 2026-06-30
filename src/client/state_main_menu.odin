@@ -1,5 +1,6 @@
 package client
 
+import "../utils"
 import rl "vendor:raylib"
 
 main_menu_state: ClientState = {
@@ -21,8 +22,8 @@ on_update :: proc(dt: f32) {
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground({200, 100, 240, 255})
-	drawCenteredText("Welcome To BS Brawl Starts!", y_offset = -24)
-	drawCenteredText("Press 'C' to connect", y_offset = 0)
-	drawCenteredText("Press 'Q' to quit", y_offset = 24)
-	drawCenteredText("Hope you enjoy playing!", y_offset = 72)
+	utils.drawCenteredText("Welcome To BS Brawl Starts!", y_offset = -24)
+	utils.drawCenteredText("Press 'C' to connect", y_offset = 0)
+	utils.drawCenteredText("Press 'Q' to quit", y_offset = 24)
+	utils.drawCenteredText("Hope you enjoy playing!", y_offset = 72)
 }

@@ -1,4 +1,4 @@
-package client
+package utils
 
 import "core:math"
 
@@ -37,7 +37,6 @@ deinitFont :: proc() {
 
 drawText :: proc(text: cstring, size: FontSize, position: rl.Vector2, tint: rl.Color) {
 	rl.DrawTextEx(font[size], text, position, font_sizes[size], 1, tint)
-
 }
 
 drawCenteredText :: proc(text: cstring, size: FontSize = .MEDIUM, x_offset: f32 = 0, y_offset: f32 = 0, tint: rl.Color = rl.BLACK) {
