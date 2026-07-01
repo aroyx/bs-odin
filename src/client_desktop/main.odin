@@ -1,8 +1,9 @@
-package client
+package main
 
 import "base:runtime"
 import "core:fmt"
 
+import "../client"
 import "../ui"
 import "../utils"
 
@@ -20,17 +21,17 @@ runLoop :: proc "c" () {
 	handleNetworkInputs()
 
 	ui.ImGuiProcessEvent()
-	if client_state != nil && client_state.on_update != nil {
-		client_state.on_update(f32(utils.dt))
+	if client.client_state != nil && client.client_state.on_update != nil {
+		client.client_state.on_update(f32(utils.dt))
 	}
 
-	render()
+	client.render()
 
     free_all(context.temp_allocator)
 }
 
-BootClient :: proc() {
-	if stateInit() != true {
+main :: proc() {
+	if client.stateInit() != true {
 		fmt.println("Unable to do shti")
 		return
 	}
@@ -57,14 +58,14 @@ BootClient :: proc() {
 
 	} else {
 		// rl.SetTargetFPS(60) // I can do it myself
-		for !global.quit {
-			if rl.WindowShouldClose() do global.quit = true
+		for !client.global.quit {
+			if rl.WindowShouldClose() do client.global.quit = true
 			runLoop()
 		}
 	}
 
 	// QUIT
-	if client_state != nil && client_state.on_exit != nil {
-		client_state.on_exit()
+	if client.client_state != nil && client.client_state.on_exit != nil {
+		client.client_state.on_exit()
 	}
 }

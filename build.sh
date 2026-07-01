@@ -18,24 +18,31 @@ SRC_DIR="src/"
 
 for arg in "$@"; do
     case $arg in
-        client|c)    EXE="client" ;;
-        server|s)    EXE="server" ;;
-        run|r)       MODE="run" ;;
-        build|b)     MODE="build" ;;
+        client|c)    EXE="client"         ;;
+        server|s)    EXE="server"         ;;
+        wasm|w)      EXE="wasm"           ;;
+        run|r)       MODE="run"           ;;
+        build|b)     MODE="build"         ;;
         release|rel) BUILD_TYPE="release" ;;
-        debug|d)     BUILD_TYPE="debug" ;;
-        tracy|t)     ENABLE_TRACY=true ;;
+        debug|d)     BUILD_TYPE="debug"   ;;
+        tracy|t)     ENABLE_TRACY=true    ;;
     esac
 done
 
-if [[ "$EXE" == "server" ]]; then
+if [[ "$EXE" == "client" ]]; then
+    SRC_DIR="src/client_desktop/"
+elif [[ "$EXE" == "wasm" ]]; then
+    SRC_DIR="src/client_web/"
+    FLAGS+=" -define:IMGUI=false"
+elif [[ "$EXE" == "server" ]]; then
+    SRC_DIR="src/server/"
     FLAGS+=" -define:SERVER=true"
 fi
 
 OUT_DIR="bin/$BUILD_TYPE/$EXE"
 
 if [[ "$BUILD_TYPE" == "release" ]]; then
-    # FLAGS+="-microarch:native"
+    FLAGS+="-microarch:native"
     FLAGS+=" -o:speed"
 elif [[ "$BUILD_TYPE" == "debug" ]]; then
     FLAGS+=" -debug"
@@ -44,7 +51,7 @@ else
 fi
 
 # Build Tracy
-if [[ "$ENABLE_TRACY" == true ]]; then
+if [[ "$ENABLE_TRACY" == true && "$EXE" != "wasm" ]]; then
     if [[ ! -f "thirdparty/tracy/tracy.so" ]]; then
         echo "Building Tracy library"
         (cd "thirdparty/tracy/" && c++ -DTRACY_ENABLE -O2 tracy/public/TracyClient.cpp -shared -fPIC -o tracy.so)

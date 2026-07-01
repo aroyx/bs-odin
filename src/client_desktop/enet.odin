@@ -1,4 +1,4 @@
-package network
+package main
 
 import "core:fmt"
 import "core:time"

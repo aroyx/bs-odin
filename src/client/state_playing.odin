@@ -1,13 +1,11 @@
 package client
 
-import "core:fmt"
-
 import "../camera"
-import "../network"
 import "../physics"
 import "../terrain"
 import "../types"
 import "../utils"
+import "core:math/rand"
 
 import "core:math"
 import "core:math/linalg"
@@ -15,19 +13,27 @@ import "core:math/linalg"
 import rl "vendor:raylib"
 
 playing_state: ClientState = {
-	on_enter         = on_enter,
-	on_exit          = on_exit,
-	on_network_event = on_network_event,
-	on_update        = on_update,
-	on_render        = on_render,
+	on_enter  = on_enter,
+	on_exit   = on_exit,
+	// on_network_event = on_network_event,
+	on_update = on_update,
+	on_render = on_render,
 }
 
 @(private = "file")
 lock_camera := false
 
+Entity :: struct {
+	pos: linalg.Vector2f32,
+	col: rl.Color,
+}
+
+@(private = "file")
+entities: [128]Entity
+
 @(private = "file")
 on_enter :: proc() {
-	rl.SetExitKey(.KEY_NULL) // whatif they prees accidentially while parkouring?
+	rl.SetExitKey(.KEY_NULL) // whatif they esc prees accidentially while parkouring?
 
 	w := rl.GetScreenWidth()
 	h := rl.GetScreenHeight()
@@ -37,10 +43,18 @@ on_enter :: proc() {
 	terrain.createTerrain()
 	physics.initPhysics()
 
-	ready: types.ClientReady = {
-		type = .CLIENT_READY,
+	for i in 0 ..< 128 {
+		entities[i].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
+		entities[i].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
+
+		entities[i].col = {u8(rand.int31()), u8(rand.int31()), u8(rand.int31()), 255}
 	}
-	network.Send(&ready, size_of(ready), true)
+
+	camera.StartTagAlong(entities[0].pos)
+	// ready: types.ClientReady = {
+	// 	type = .CLIENT_READY,
+	// }
+	// network.Send(&ready, size_of(ready), true)
 }
 
 @(private = "file")
@@ -50,29 +64,29 @@ on_exit :: proc() {
 	physics.closePhysics()
 }
 
-@(private = "file")
-on_network_event :: proc(pEvent: network.ReceivedStruct) {
-	#partial switch packet in pEvent {
-	case types.ServerOutput:
-		global.render_state = packet
-		updatePlayerPos()
-
-		if !lock_camera {
-			camera.StartTagAlong(gPlayer.pos)
-			lock_camera = true
-		}
-	case types.MatchStartOutput:
-		fmt.println("match really started nw")
-	// do smth idk
-	}
-}
+// @(private = "file")
+// on_network_event :: proc(pEvent: network.ReceivedStruct) {
+// 	#partial switch packet in pEvent {
+// 	case types.ServerOutput:
+// 		global.render_state = packet
+// 		updatePlayerPos()
+//
+// 		if !lock_camera {
+// 			camera.StartTagAlong(gPlayer.pos)
+// 			lock_camera = true
+// 		}
+// 	case types.MatchStartOutput:
+// 		fmt.println("match really started nw")
+// 	// do smth idk
+// 	}
+// }
 
 @(private = "file")
 on_update :: proc(dt: f32) {
 	physics.physicsTick()
 
 	camera.Update()
-	sendInputsToServer()
+	// sendInputsToServer()
 
 	if rl.IsWindowResized() {
 		w := rl.GetScreenWidth()
@@ -93,9 +107,19 @@ on_update :: proc(dt: f32) {
 	global.input.y_axis = y_axis
 	global.input.type = .PLAYER_INPUT
 
+	if x_axis != 0 || y_axis != 0 {
+		speed: f32 = 5.0
+		entities[0].pos.x += x_axis * speed
+		entities[0].pos.y += y_axis * speed
+		camera.StartTagAlong(entities[0].pos)
+	}
+
 	if rl.IsKeyPressed(.R) {
 		draw_physics = !draw_physics
+	} else if rl.IsKeyPressed(.Q) {
+        changeState(&end_screen_state)
 	}
+
 }
 
 @(private = "file")
@@ -123,8 +147,16 @@ on_render :: proc() {
 		),
 	}
 
-	for i in 0 ..< global.render_state.player_count {
-		player := global.render_state.states[i]
+	rekt: rl.Rectangle = {
+		height = camera.state.cs * camera.state.vcc,
+		width  = camera.state.cs * camera.state.hcc,
+		x      = camera.state.x_offset,
+		y      = camera.state.y_offset,
+	}
+	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
+
+	for i in 0 ..< len(entities) {
+		player := entities[i]
 		rect: rl.Rectangle
 
 		dim :: 30
@@ -133,13 +165,12 @@ on_render :: proc() {
 		rect.x = player.pos.x - (dim * 0.5) - camTopLeft.x + camera.state.x_offset
 		rect.y = player.pos.y - (dim * 0.5) - camTopLeft.y + camera.state.y_offset
 
-		rl.DrawRectangleRec(
-			rect,
-			{0, u8((player.pos.x / 800.0) * 255.0), u8((player.pos.y / 600.0) * 255.0), 255},
-		)
+		rl.DrawRectangleRec(rect, player.col)
 	}
 
-	if draw_physics {
+	if draw_physics { 	// due to me using rl.Camera in drawPhysics, I can't clip it. It is not a feature to be used by players so idk, whatever
 		physics.drawPhysics()
 	}
+
+	rl.EndScissorMode()
 }

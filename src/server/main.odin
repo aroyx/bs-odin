@@ -1,8 +1,8 @@
-package server
+package main
 
 import "core:fmt"
 
-BootServer :: proc() {
+main :: proc() {
 	if defaultState() != true {
 		fmt.println("Unable to Initialise the server state")
 		return

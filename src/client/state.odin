@@ -2,11 +2,9 @@ package client
 
 import "core:encoding/ini"
 import "core:fmt"
-import "core:math/linalg"
 import "core:strconv"
 import "core:strings"
 
-import "../network"
 import "../types"
 
 // MatchMakingState :: enum u8 {
@@ -15,11 +13,10 @@ import "../types"
 // }
 
 GlobalState :: struct {
-	quit:         bool,
-	net:          Network,
-	time:         Time,
-	input:        types.PlayerInput,
-	render_state: types.ServerOutput,
+	quit:  bool,
+	net:   Network,
+	time:  Time,
+	input: types.PlayerInput,
 }
 
 Time :: struct {
@@ -41,7 +38,7 @@ client_state: ^ClientState
 ClientState :: struct {
 	on_enter:  proc(),
 	on_exit:   proc(),
-    on_network_event: proc(event: network.ReceivedStruct),
+	// on_network_event: proc(event: network.ReceivedStruct),
 	on_update: proc(dt: f32),
 	on_render: proc(),
 }
@@ -50,7 +47,6 @@ stateInit :: proc() -> bool {
 	global.quit = false
 	global.time.show_fps = true
 	global.input = {}
-	global.render_state = {}
 	global.time.countdown = {}
 
 	config, alloc_error := ini.load_map_from_path("config.ini", context.allocator) or_return
@@ -82,7 +78,10 @@ stateInit :: proc() -> bool {
 }
 
 changeState :: proc(new_state: ^ClientState) {
-    if client_state == new_state do return
+	if client_state == new_state {
+		fmt.println("Trying to change to the same state!")
+		return
+	}
 
 	if client_state != nil && client_state.on_exit != nil {
 		client_state.on_exit()
@@ -94,10 +93,10 @@ changeState :: proc(new_state: ^ClientState) {
 	}
 }
 
-updatePlayerPos :: proc() {
-	for i in global.render_state.states {
-		if i.id == network.GetServerID() {
-			gPlayer.pos = {i.pos.x, i.pos.y}
-		}
-	}
-}
+// updatePlayerPos :: proc() {
+// 	for i in global.render_state.states {
+// 		if i.id == network.GetServerID() {
+// 			gPlayer.pos = {i.pos.x, i.pos.y}
+// 		}
+// 	}
+// }
