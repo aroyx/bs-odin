@@ -29,21 +29,21 @@ Points :: enum i32 {
 // But fortunately I can just push the triangles in reverse order :)
 
 @(private = "file")
-lookup: [15][]Points = {
-	{.D, .C, .C4},
-	{.B, .C3, .C},
-	{.D, .B, .C4, .C4, .B, .C3},
-	{.A, .C2, .B},
-	{.D, .A, .C2, .C4, .D, .C2, .C2, .C, .C4, .C2, .B, .C},
-	{.C2, .C3, .C, .C, .A, .C2},
-	{.A, .C2, .C3, .A, .C3, .C4, .A, .C4, .D},
-	{.C1, .A, .D},
-	{.C1, .A, .C, .C1, .C, .C4},
-	{.C1, .A, .B, .C1, .B, .C3, .C1, .C3, .C, .C1, .C, .D},
-	{.C1, .A, .B, .C1, .B, .C3, .C1, .C3, .C4},
-	{.C1, .C2, .D, .D, .C2, .B},
-	{.B, .C, .C4, .B, .C4, .C1, .B, .C1, .C2},
-	{.C, .D, .C1, .C, .C1, .C2, .C, .C2, .C3},
+lookup: [15][]Points : {
+	{.D,  .C,  .C4},
+	{.B,  .C3, .C},
+	{.D,  .B,  .C4, .C4, .B,  .C3},
+	{.A,  .C2, .B},
+	{.D,  .A,  .C2, .C4, .D,  .C2, .C2, .C,  .C4, .C2, .B, .C},
+	{.C2, .C3, .C,  .C,  .A,  .C2},
+	{.A,  .C2, .C3, .A,  .C3, .C4, .A,  .C4, .D},
+	{.C1, .A,  .D},
+	{.C1, .A,  .C,  .C1, .C,  .C4},
+	{.C1, .A,  .B,  .C1, .B,  .C3, .C1, .C3, .C,  .C1, .C, .D},
+	{.C1, .A,  .B,  .C1, .B,  .C3, .C1, .C3, .C4},
+	{.C1, .C2, .D,  .D,  .C2, .B},
+	{.B,  .C,  .C4, .B,  .C4, .C1, .B,  .C1, .C2},
+	{.C,  .D,  .C1, .C,  .C1, .C2, .C,  .C2, .C3},
 	{.C1, .C2, .C3, .C1, .C3, .C4},
 }
 
@@ -82,7 +82,8 @@ marching_squares :: proc(x, y, threshold: f32, i, j: int, color: rl.Color) {
 	// }
 
 	// anti-clockwise (allegedly)
-	shape := lookup[total - 1]
+	l := lookup
+	shape := l[total - 1]
 	for k := 0; k < len(shape); k += 3 {
 		pushTriangle(points[shape[k + 2]], points[shape[k + 1]], points[shape[k]], color)
 	}

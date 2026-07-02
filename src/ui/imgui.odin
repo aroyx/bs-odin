@@ -1,3 +1,4 @@
+#+build !js, !wasm32
 package ui
 
 import "thirdparty:imgui"

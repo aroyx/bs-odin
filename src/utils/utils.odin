@@ -1,35 +1,51 @@
 package utils
 
 import "core:time"
+import rl "vendor:raylib"
 
 @(private = "file")
 last_time: time.Time
 
-InitTimer :: proc() {
-	last_time = time.now()
-}
+frame_time, fps, dt: f64 = 0, 0, 0
 
-@(private = "file")
-TARGET_FPS :: 60.0
-@(private = "file")
-TARGET_FRAME_DUR :: time.Duration(time.Second / TARGET_FPS)
+when ODIN_OS == .JS {
+	InitTimer :: proc() {
+		last_time = time.now()
+	}
 
-frame_time, fps, dt : f64 = 0,0,0
+	StopTimer :: proc() {
+		curr_time := time.now()
+		dur := time.diff(last_time, curr_time)
+		frame_time = time.duration_milliseconds(dur)
 
-StopTimer :: proc() {
-	curr_time := time.now()
-	dur := time.diff(last_time, curr_time)
+        // no need to sleep, raylib does that for us (let's pray it does)
 
-	frame_time = time.duration_milliseconds(dur)
+		fps = f64(rl.GetFPS())
+		dt = f64(rl.GetFrameTime())
+	}
 
-	sleep_for := TARGET_FRAME_DUR - dur
-	time.sleep(sleep_for) // I wanna see what happens if `sleep_for` is negative, but for that to happen I'd need to make a slow application, I think, never gonna happen. UNLESS!
+} else {
+	@(private = "file")
+	TARGET_FPS :: 60.0
+	@(private = "file")
+	TARGET_FRAME_DUR :: time.Duration(time.Second / TARGET_FPS)
 
-	curr_time = time.now()
-	dur = time.diff(last_time, curr_time)
+	InitTimer :: proc() {
+		last_time = time.now()
+	}
 
-	fps = 1.0 / time.duration_seconds(dur)
-	dt = time.duration_seconds(dur)
+	StopTimer :: proc() {
+		curr_time := time.now()
+		dur := time.diff(last_time, curr_time)
+		frame_time = time.duration_milliseconds(dur)
 
-	return
+		sleep_for := TARGET_FRAME_DUR - dur
+		time.sleep(sleep_for) // I wanna see what happens if `sleep_for` is negative, but for that to happen I'd need to make a slow application, I think, never gonna happen. UNLESS!
+
+		curr_time = time.now()
+		dur = time.diff(last_time, curr_time)
+
+		fps = 1.0 / time.duration_seconds(dur)
+		dt = time.duration_seconds(dur)
+	}
 }

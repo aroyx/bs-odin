@@ -1,6 +1,6 @@
 package utils
 
-IMGUI :: #config(IMGUI, true)
+IMGUI :: #config(IMGUI, false)
 SERVER :: #config(SERVER, false)
 
 map_size :: 256 + 1

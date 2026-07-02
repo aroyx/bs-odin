@@ -16,6 +16,8 @@ ENABLE_TRACY=false
 BUILD_TYPE="" # no need for super fast release
 SRC_DIR="src/"
 
+EMSCRIPTEN_SDK_DIR="$HOME/repos/emsdk"
+
 for arg in "$@"; do
     case $arg in
         client|c)    EXE="client"         ;;
@@ -31,23 +33,32 @@ done
 
 if [[ "$EXE" == "client" ]]; then
     SRC_DIR="src/client_desktop/"
-elif [[ "$EXE" == "wasm" ]]; then
-    SRC_DIR="src/client_web/"
-    FLAGS+=" -define:IMGUI=false"
 elif [[ "$EXE" == "server" ]]; then
     SRC_DIR="src/server/"
     FLAGS+=" -define:SERVER=true"
+elif [[ "$EXE" == "wasm" ]]; then
+    SRC_DIR="src/client_web/"
+    FLAGS+=" -define:IMGUI=false"
+    FLAGS+=" -target:js_wasm32 -build-mode:obj -no-entry-point -define:RAYLIB_WASM_LIB=env.o -define:RAYGUI_WASM_LIB=env.o"
 fi
 
 OUT_DIR="bin/$BUILD_TYPE/$EXE"
+if [[ "$BUILD_TYPE" == "" ]]; then
+    OUT_DIR="bin/$EXE"
+    if [[ "$EXE" != "wasm" ]]; then
+        FLAGS+=" -define:IMGUI=true"
+    fi
+fi
+
+mkdir -p $OUT_DIR
 
 if [[ "$BUILD_TYPE" == "release" ]]; then
-    FLAGS+="-microarch:native"
+    if [[ "$EXE" != "wasm" ]]; then
+        FLAGS+=" -microarch:native"
+    fi
     FLAGS+=" -o:speed"
 elif [[ "$BUILD_TYPE" == "debug" ]]; then
     FLAGS+=" -debug"
-else
-    OUT_DIR="bin/$EXE"
 fi
 
 # Build Tracy
@@ -65,18 +76,39 @@ fi
 COLLECTION+=" -collection:thirdparty=./thirdparty/"
 
 # RUN ODIN!!
-if [[ "$MODE" == "run" ]]; then
-    # we don't run the executable by `odin run` command because odin doesn't
-    # spawn an orphan process and goes away, instead it hogs 400-500mb ram and
-    # stays until the executable is done running
-    echo "odin build $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR"
-    odin build $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR
+if [[ "$EXE" == "wasm" ]]; then
+    # export EMSDK_QUIET=1
+    [[ -f "$EMSCRIPTEN_SDK_DIR/emsdk_env.sh" ]] && . "$EMSCRIPTEN_SDK_DIR/emsdk_env.sh"
+
+    ODIN_PATH=$(odin root)
+    cp $ODIN_PATH/core/sys/wasm/js/odin.js $OUT_DIR
+
+    echo "odin build $SRC_DIR $COLLECTION $FLAGS -out:\"$OUT_DIR/game.wasm.o\""
+    odin build $SRC_DIR $COLLECTION $FLAGS -out:"$OUT_DIR/game.wasm.o"
 
     if [[ $? == 0 ]]; then
-        echo ./$OUT_DIR
-        ./$OUT_DIR
+        FILES="$OUT_DIR/game.wasm.o ${ODIN_PATH}/vendor/raylib/wasm/libraylib.a ${ODIN_PATH}/vendor/raylib/wasm/libraygui.a ${ODIN_PATH}vendor/box2d/lib/box2d_wasm.o"
+
+        EMCC_FLAGS="-s EXPORTED_RUNTIME_METHODS=['HEAPF32'] -s USE_GLFW=3 -s WASM_BIGINT -s ASSERTIONS=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=1 -s STACK_SIZE=33554432 --shell-file $SRC_DIR/index_template.html --preload-file res"
+
+        # For debugging: Add `-g` to `emcc` (gives better error callstack in chrome)
+        emcc -o $OUT_DIR/index.html $FILES $EMCC_FLAGS
+        rm $OUT_DIR/game.wasm.o
     fi
 else
-    echo "odin $MODE $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR"
-    odin $MODE $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR
+    if [[ "$MODE" == "run" ]]; then
+        # we don't run the executable by `odin run` command because odin doesn't
+        # spawn an orphan process and goes away, instead it hogs 400-500mb ram and
+        # stays until the executable is done running
+        echo "odin build $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR/$EXE"
+        odin build $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR/$EXE
+
+        if [[ $? == 0 ]]; then
+            echo ./$OUT_DIR/$EXE
+            ./$OUT_DIR/$EXE
+        fi
+    else
+        echo "odin $MODE $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR/$EXE"
+        odin $MODE $SRC_DIR $COLLECTION $FLAGS -out:$OUT_DIR/$EXE
+    fi
 fi

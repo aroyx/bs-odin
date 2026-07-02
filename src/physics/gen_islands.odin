@@ -1,8 +1,8 @@
 package physics
 
 import "../camera"
-import "vendor:box2d"
 import "../utils"
+import "vendor:box2d"
 
 import "core:math/linalg"
 
@@ -15,7 +15,7 @@ Points :: enum i32 {
 }
 
 @(private = "file")
-lookup: [16][]Points = {
+lookup: [16][]Points : {
 	{}, // 0000
 	{.D, .C}, // 0001
 	{.C, .B}, // 0010
@@ -48,10 +48,10 @@ f: bool = true
 @(private = "file")
 physics_gen_done: bool = false
 insertEdgePolygon :: proc(pa, pb, pc, pd: linalg.Vector2f32, total: int) {
-    if physics_gen_done do return
+	if physics_gen_done do return
 
 	if f {
-        clear(&vedges)
+		clear(&vedges)
 		reserve(&vedges, utils.MAP_SIZE * utils.MAP_SIZE)
 		f = false
 	}
@@ -63,7 +63,8 @@ insertEdgePolygon :: proc(pa, pb, pc, pd: linalg.Vector2f32, total: int) {
 	d := pd / cs
 
 	points: [4]linalg.Vector2f32 = {a, b, c, d}
-	edges := lookup[total]
+	l := lookup
+	edges := l[total]
 
 	for i := 0; i < len(edges); i += 2 {
 		append(&vedges, Edge{p1 = points[edges[i]], p2 = points[edges[i + 1]]})
@@ -139,17 +140,17 @@ pushIslandsToPhysics :: proc() {
 		islandChainDef.count = i32(len(island))
 		islandChainDef.points = raw_data(island)
 
-        head := island[len(island) - 1]
-        tail := island[0]
+		head := island[len(island) - 1]
+		tail := island[0]
 
-        if linalg.distance(head, tail) < 0.001 {
-            islandChainDef.isLoop = true
-        } else {
-            islandChainDef.isLoop = false
-        }
+		if linalg.distance(head, tail) < 0.001 {
+			islandChainDef.isLoop = true
+		} else {
+			islandChainDef.isLoop = false
+		}
 
 		chainId := box2d.CreateChain(islandId, islandChainDef)
 	}
 
-    physics_gen_done = true
+	physics_gen_done = true
 }

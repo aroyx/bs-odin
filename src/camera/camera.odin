@@ -70,7 +70,8 @@ elapsed: f32 = 0.0
 @(private = "file")
 dur: f32 = 0.5 // sec
 
-StartTagAlong :: proc(pos: linalg.Vector2f32) {
+StartTagAlong :: proc(pos: linalg.Vector2f32, pDur: f32 = 0.5) {
+    dur = pDur
 	elapsed = 0
 	startPos = camPos
 	targetPos = pos

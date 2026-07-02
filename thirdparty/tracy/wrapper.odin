@@ -1,7 +1,7 @@
+#+build !js, !wasm32
 package tracy
 
 import "core:c"
-import "core:strings"
 
 TRACY_ENABLE        :: #config(TRACY_ENABLE, false)
 TRACY_CALLSTACK     :: #config(TRACY_CALLSTACK, 5)

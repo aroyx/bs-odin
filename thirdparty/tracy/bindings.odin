@@ -1,3 +1,4 @@
+#+build !js, !wasm32
 package tracy
 
 import "core:c"

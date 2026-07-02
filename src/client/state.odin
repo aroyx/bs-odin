@@ -1,9 +1,6 @@
 package client
 
-import "core:encoding/ini"
-import "core:fmt"
-import "core:strconv"
-import "core:strings"
+// import "core:encoding/ini"
 
 import "../types"
 
@@ -49,24 +46,27 @@ stateInit :: proc() -> bool {
 	global.input = {}
 	global.time.countdown = {}
 
-	config, alloc_error := ini.load_map_from_path("config.ini", context.allocator) or_return
+	global.net.host = ""
+	global.net.port = 0
 
-	defer ini.delete_map(config)
+	// confit_str := string(#load("../../config.ini"))
+	// config, alloc_error := ini.load_map_from_string(confit_str, context.allocator)
+	// defer ini.delete_map(config)
 
-	if alloc_error != .None {
-		fmt.println("Unable to allocate memory!")
-		return false
-	}
+	// if alloc_error != .None {
+	// 	fmt.println("Unable to allocate memory!")
+	// 	return false
+	// }
 
-	network := config["network"] or_return
-	port := network["port"] or_return
-	port_int := strconv.parse_int(port) or_return
-	host := network["host"] or_return
+	// network := config["network"] or_return
+	// port := network["port"] or_return
+	// port_int := strconv.parse_int(port) or_return
+	// host := network["host"] or_return
 
-	chost := strings.clone_to_cstring(host)
-
-	global.net.host = chost
-	global.net.port = u16(port_int)
+	// chost := strings.clone_to_cstring(host)
+	//
+	// global.net.host = chost
+	// global.net.port = u16(port_int)
 
 	changeState(&main_menu_state)
 
@@ -79,7 +79,7 @@ stateInit :: proc() -> bool {
 
 changeState :: proc(new_state: ^ClientState) {
 	if client_state == new_state {
-		fmt.println("Trying to change to the same state!")
+		// fmt.println("Trying to change to the same state!")
 		return
 	}
 

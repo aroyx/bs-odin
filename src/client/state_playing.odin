@@ -50,7 +50,7 @@ on_enter :: proc() {
 		entities[i].col = {u8(rand.int31()), u8(rand.int31()), u8(rand.int31()), 255}
 	}
 
-	camera.StartTagAlong(entities[0].pos)
+	camera.StartTagAlong(entities[0].pos, 4.0)
 	// ready: types.ClientReady = {
 	// 	type = .CLIENT_READY,
 	// }

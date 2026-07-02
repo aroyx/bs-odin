@@ -1,3 +1,4 @@
+#+build !js, !wasm32
 package tracy
 
 import "core:c"
@@ -9,6 +10,7 @@ ProfiledAllocatorData :: struct {
 	callstack_size:     i32,
 	secure:             b32,
 }
+
 
 MakeProfiledAllocator :: proc(
 	self: ^ProfiledAllocatorData,
