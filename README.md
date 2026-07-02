@@ -19,7 +19,7 @@ Features:
         - [x] Keyboard inputs
         - [ ] Mouse inputs
     - [ ] Procedural Animations
-- [ ] Offline mode
+- [x] Offline mode
     - Offline mode is important, because I am lazy and I probably have my server messed up. And the ENet library I use for networking won't work in WASM that I plan to support.
 
 ### AI Usage
