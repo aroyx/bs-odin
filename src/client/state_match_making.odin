@@ -16,7 +16,7 @@ on_update :: proc(dt: f32) {
 		// toggleConnection()
 	}
 	if rl.IsKeyPressed(.O) {
-		changeState(&playing_state)
+		changeState(&loading_state)
 	}
 }
 

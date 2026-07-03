@@ -31,30 +31,23 @@ Entity :: struct {
 @(private = "file")
 entities: [128]Entity
 
-@(private = "file")
-on_enter :: proc() {
-	rl.SetExitKey(.KEY_NULL) // whatif they esc prees accidentially while parkouring?
-
-	w := rl.GetScreenWidth()
-	h := rl.GetScreenHeight()
-	camera.Init(w, h, utils.MAP_SIZE)
-	lock_camera = false
-
-	terrain.createTerrain()
-	physics.initPhysics()
-
+@(private)
+generateEntities :: proc() {
 	for i in 0 ..< 128 {
 		entities[i].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
 		entities[i].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
 
 		entities[i].col = {u8(rand.int31()), u8(rand.int31()), u8(rand.int31()), 255}
 	}
+}
 
-	camera.StartTagAlong(entities[0].pos, 4.0)
-	// ready: types.ClientReady = {
-	// 	type = .CLIENT_READY,
-	// }
-	// network.Send(&ready, size_of(ready), true)
+@(private)
+getPlayer :: proc() -> Entity {
+    return entities[0]
+}
+
+@(private = "file")
+on_enter :: proc() {
 }
 
 @(private = "file")
@@ -117,7 +110,7 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.R) {
 		draw_physics = !draw_physics
 	} else if rl.IsKeyPressed(.Q) {
-        changeState(&end_screen_state)
+		changeState(&end_screen_state)
 	}
 
 }
