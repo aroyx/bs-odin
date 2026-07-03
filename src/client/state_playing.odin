@@ -13,7 +13,6 @@ import "core:math/linalg"
 import rl "vendor:raylib"
 
 playing_state: ClientState = {
-	on_enter  = on_enter,
 	on_exit   = on_exit,
 	// on_network_event = on_network_event,
 	on_update = on_update,
@@ -44,10 +43,6 @@ generateEntities :: proc() {
 @(private)
 getPlayer :: proc() -> Entity {
     return entities[0]
-}
-
-@(private = "file")
-on_enter :: proc() {
 }
 
 @(private = "file")

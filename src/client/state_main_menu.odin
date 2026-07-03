@@ -1,6 +1,8 @@
 package client
 
-import "../utils"
+import "core:fmt"
+import "core:math"
+import "core:math/linalg"
 import rl "vendor:raylib"
 
 main_menu_state: ClientState = {
@@ -13,17 +15,56 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.Q) {
 		global.quit = true
 	}
-	if rl.IsKeyPressed(.P) {
-		changeState(&match_making_state)
-		// toggleConnection()
+
+	// change this if you add new buttons!!! This is used to calculate the anchor position!!!
+	buttons_count: f32 = 4.0
+
+	// this math is easy, but I bet I won't know what is going on the very next day.
+	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
+
+	gap: f32 = 50.0
+	height: f32 = 40.0
+	min_width: f32 = 200
+
+	anchor: linalg.Vector2f32 = {
+		math.min(win_w * 0.65, win_w - min_width),
+		(win_h - gap * (buttons_count - 1) - height) * 0.5,
 	}
+
+	bounds: rl.Rectangle = {
+		x      = anchor.x,
+		y      = anchor.y,
+		width  = math.max(win_w * 0.3, min_width),
+		height = height,
+	}
+
+	mouse := rl.GetMousePosition()
+
+	if rl.GuiButton(bounds, "Start :)") {
+		changeState(&match_making_state)
+	}
+
+	bounds.y += gap
+	if rl.GuiButton(bounds, "Options :|") {
+		fmt.println("Yay!2")
+		// changeState(&state_option)
+	}
+
+	bounds.y += gap
+	if rl.GuiButton(bounds, "Avatar :D") {
+		fmt.println("Yay!3")
+		// changeState(&character_customisation_state)
+	}
+
+	bounds.y += gap
+	if rl.GuiButton(bounds, "Quit :(") {
+		global.quit = true
+	}
+
+	rl.GuiDisableTooltip()
 }
 
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground({200, 100, 240, 255})
-	utils.drawCenteredText("Welcome To BS Brawl Starts!", y_offset = -24)
-	utils.drawCenteredText("Press 'P' to Play! :D", y_offset = 0)
-	utils.drawCenteredText("Press 'Q' to Quit :(", y_offset = 24)
-	utils.drawCenteredText("Hope you enjoy playing! :)", y_offset = 72)
 }

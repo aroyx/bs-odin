@@ -19,6 +19,9 @@ init :: proc() {
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
 	rl.InitWindow(800, 600, "BS-Odin")
 
+    rl.GuiLoadStyle("res/rgui/style_genesis.rgs")
+    rl.GuiSetStyle(.DEFAULT, i32(rl.GuiDefaultProperty.TEXT_SIZE), 32)
+
 	utils.initFont()
 
 	ui.ImGuiInit()
