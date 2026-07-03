@@ -77,7 +77,7 @@ COLLECTION+=" -collection:thirdparty=./thirdparty/"
 
 # RUN ODIN!!
 if [[ "$EXE" == "wasm" ]]; then
-    # export EMSDK_QUIET=1
+    export EMSDK_QUIET=1
     [[ -f "$EMSCRIPTEN_SDK_DIR/emsdk_env.sh" ]] && . "$EMSCRIPTEN_SDK_DIR/emsdk_env.sh"
 
     ODIN_PATH=$(odin root)

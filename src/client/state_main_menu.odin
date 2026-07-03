@@ -3,6 +3,7 @@ package client
 import "core:fmt"
 import "core:math"
 import "core:math/linalg"
+
 import rl "vendor:raylib"
 
 main_menu_state: ClientState = {
@@ -40,6 +41,17 @@ on_update :: proc(dt: f32) {
 
 	mouse := rl.GetMousePosition()
 
+	// the bg rect
+	grow: i32 = 20
+
+	rl.DrawRectangle(
+		i32(anchor.x) - grow,
+		i32(anchor.y) - grow,
+		i32(bounds.width) + grow * 2,
+		i32(gap * (buttons_count - 1) + height) + grow * 2,
+		{181, 234, 192, 61},
+	)
+
 	if rl.GuiButton(bounds, "Start :)") {
 		changeState(&match_making_state)
 	}
@@ -62,6 +74,7 @@ on_update :: proc(dt: f32) {
 	}
 
 	rl.GuiDisableTooltip()
+
 }
 
 @(private = "file")
