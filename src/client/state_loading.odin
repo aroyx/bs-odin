@@ -18,22 +18,12 @@ LoadingState :: enum u8 {
 }
 
 loading_state: ClientState = {
-	on_enter  = on_enter,
-	on_exit   = on_exit,
 	on_update = on_update,
 	on_render = on_render,
 }
 
 @(private = "file")
 lState := LoadingState.INIT
-
-@(private = "file")
-on_enter :: proc() {
-}
-
-@(private = "file")
-on_exit :: proc() {
-}
 
 @(private = "file")
 on_update :: proc(dt: f32) {
@@ -71,12 +61,12 @@ on_update :: proc(dt: f32) {
 	// network.Send(&ready, size_of(ready), true)
 	}
 
-	time.sleep(500 * time.Millisecond) // to see the loading screen
+	time.sleep(500 * time.Millisecond) // to see the loading screen :)
 }
 
 @(private = "file")
 on_render :: proc() {
-	rl.ClearBackground(rl.LIME)
+	rl.ClearBackground({174, 226, 255, 255})
 	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
 
 	w := i32(win_w * 0.8)
@@ -84,21 +74,29 @@ on_render :: proc() {
 	y := i32(win_h * 0.8)
 	h := math.min(20, i32(win_h * 0.2))
 
+	text: cstring
+
 	tiny_w: i32 = 10
 	progress: f32 = 0.0
 	switch (lState) {
 	case .INIT:
+        text = "Initialising stuff...the brick is working hard!"
 		tiny_w = 0
 		progress = 0.0
 	case .CAMERA:
+        text = "Lights, camera...loading and Action!"
 		progress = 0.1
 	case .TERRAIN:
+        text = "Like the god I am, I create thy land"
 		progress = 0.2
 	case .PHYSICS:
+        text = "Newton go brr... initialising physics"
 		progress = 0.5
 	case .ENEMIES:
+        text = "To create balance, we need both evil and good"
 		progress = 0.8
 	case .DONE:
+        text = "We legit don now :)"
 		progress = 1.0
 	}
 
@@ -108,4 +106,9 @@ on_render :: proc() {
 	rl.DrawRectangle(x, y, progress_w, h, {216, 91, 63, 255})
 	rl.DrawRectangle(progress_w - tiny_w + x, y, tiny_w, h, {253, 218, 136, 255})
 	rl.DrawRectangleLines(x, y, w, h, rl.BLACK)
+
+	a, b := utils.getTextSize(text, .MEDIUM)
+	tx: f32 = (win_w - a) * 0.5
+	ty := f32(y + h) + 10
+	utils.drawText(text, .MEDIUM, {tx, ty}, rl.BLACK)
 }
