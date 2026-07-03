@@ -42,7 +42,7 @@ generateEntities :: proc() {
 
 @(private)
 getPlayer :: proc() -> Entity {
-    return entities[0]
+	return entities[0]
 }
 
 @(private = "file")
@@ -108,6 +108,9 @@ on_update :: proc(dt: f32) {
 		changeState(&end_screen_state)
 	}
 
+	if rl.GuiButton({f32(rl.GetRenderWidth()) - 40, 0, 40, 40}, "#113#") {
+		changeState(&end_screen_state)
+	}
 }
 
 @(private = "file")

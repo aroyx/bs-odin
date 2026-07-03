@@ -18,12 +18,18 @@ LoadingState :: enum u8 {
 }
 
 loading_state: ClientState = {
+	on_enter = on_enter,
 	on_update = on_update,
 	on_render = on_render,
 }
 
 @(private = "file")
 lState := LoadingState.INIT
+
+@(private = "file")
+on_enter :: proc() {
+    lState = .INIT
+}
 
 @(private = "file")
 on_update :: proc(dt: f32) {

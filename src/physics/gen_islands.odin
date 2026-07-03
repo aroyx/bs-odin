@@ -82,6 +82,7 @@ generateIslands :: proc() {
 		delete(island)
 	}
 	clear(&islands)
+
 	error: f32 = 0.001
 
 	for len(vedges) > 0 {
