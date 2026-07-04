@@ -13,6 +13,7 @@ import "core:math/linalg"
 import rl "vendor:raylib"
 
 playing_state: ClientState = {
+	on_enter  = on_enter,
 	on_exit   = on_exit,
 	// on_network_event = on_network_event,
 	on_update = on_update,
@@ -46,7 +47,28 @@ getPlayer :: proc() -> Entity {
 }
 
 @(private = "file")
+rotate_phone_raw :: #load("../../res/images/rotate_phone.png")
+
+@(private = "file")
+rotate_phone_texture: rl.Texture
+
+@(private = "file")
+on_enter :: proc() {
+	rotate_phone_img := rl.LoadImageFromMemory(
+		".png",
+		raw_data(rotate_phone_raw),
+		i32(len(rotate_phone_raw)),
+	)
+
+	rotate_phone_texture = rl.LoadTextureFromImage(rotate_phone_img)
+	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)
+
+	rl.UnloadImage(rotate_phone_img)
+}
+
+@(private = "file")
 on_exit :: proc() {
+	rl.UnloadTexture(rotate_phone_texture)
 	rl.SetExitKey(.ESCAPE)
 	terrain.destroyChunks()
 	physics.closePhysics()
@@ -118,7 +140,19 @@ draw_physics := false
 
 @(private = "file")
 on_render :: proc() {
-	rl.ClearBackground(rl.BLACK)
+	rl.ClearBackground({2, 5, 17, 255})
+
+	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
+
+	if global.on_mobile && win_w / win_h < 1.0 { 	// in potrait mode
+		tw, th := f32(rotate_phone_texture.width), f32(rotate_phone_texture.height)
+
+		scale: f32 = math.min(win_w / tw, win_h / th)
+		pos := rl.Vector2{(win_w - tw * scale) / 2.0, (win_h - th * scale) / 2.0}
+
+		rl.DrawTextureEx(rotate_phone_texture, pos, 0.0, scale, rl.WHITE)
+		return
+	}
 
 	terrain.renderTerrain()
 
