@@ -10,10 +10,11 @@ import "../types"
 // }
 
 GlobalState :: struct {
-	quit:  bool,
-	net:   Network,
-	time:  Time,
-	input: types.PlayerInput,
+	quit:      bool,
+	on_mobile: bool,
+	net:       Network,
+	time:      Time,
+	input:     types.PlayerInput,
 }
 
 Time :: struct {
@@ -26,7 +27,13 @@ Network :: struct {
 	host: cstring,
 }
 
-global: GlobalState = {}
+global: GlobalState = {
+	quit = false,
+	on_mobile = false,
+	input = {},
+	time = {show_fps = true, countdown = {}},
+	net = {host = "", port = 0},
+}
 
 gPlayer: types.PlayerState = {}
 
@@ -41,14 +48,6 @@ ClientState :: struct {
 }
 
 stateInit :: proc() -> bool {
-	global.quit = false
-	global.time.show_fps = true
-	global.input = {}
-	global.time.countdown = {}
-
-	global.net.host = ""
-	global.net.port = 0
-
 	// confit_str := string(#load("../../config.ini"))
 	// config, alloc_error := ini.load_map_from_string(confit_str, context.allocator)
 	// defer ini.delete_map(config)

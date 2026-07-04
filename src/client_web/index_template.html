@@ -60,7 +60,8 @@
 
 				// See source/main_web/main_web.odin for main_start,
 				// main_update and main_end.
-				e.main_start();
+                const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+				e.main_start(isMobileDevice ? 1 : 0);
 
 				function send_resize() {
 					var canvas = document.getElementById('canvas');

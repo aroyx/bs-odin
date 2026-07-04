@@ -12,14 +12,14 @@ import "../client"
 web_context: runtime.Context
 
 @(export)
-main_start :: proc "c" () {
+main_start :: proc "c" (on_mobile: bool) {
 	context = runtime.default_context()
 
 	// The WASM allocator doesn't seem to work properly in combination with
 	// emscripten. There is some kind of conflict with how the manage memory.
 	// So this sets up an allocator that uses emscripten's malloc.
 	context.allocator = emscripten_allocator()
-	runtime.init_global_temporary_allocator(1*mem.Megabyte)
+	runtime.init_global_temporary_allocator(1 * mem.Megabyte)
 
 	// Since we now use js_wasm32 we should be able to remove this and use
 	// context.logger = log.create_console_logger(). However, that one produces
@@ -29,6 +29,7 @@ main_start :: proc "c" () {
 
 	web_context = context
 
+    client.global.on_mobile = on_mobile
 	client.init()
 }
 
