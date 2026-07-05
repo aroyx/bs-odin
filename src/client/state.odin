@@ -1,43 +1,32 @@
 package client
 
-// import "core:encoding/ini"
-
-import "../types"
-
-// MatchMakingState :: enum u8 {
-// 	CONNECTING_PLAYERS,
-// 	GAME_START_COUNTDOWN,
-// }
-
-GlobalState :: struct {
-	quit:      bool,
-	on_mobile: bool,
-	net:       Network,
-	time:      Time,
-	input:     types.PlayerInput,
-}
-
-Time :: struct {
-	show_fps:  bool,
-	countdown: types.CountDownOutput,
-}
-
-Network :: struct {
-	port: u16,
-	host: cstring,
-}
+import "core:fmt"
+import "core:math/linalg"
 
 global: GlobalState = {
 	quit = false,
-	on_mobile = false,
-	input = {},
-	time = {show_fps = true, countdown = {}},
-	net = {host = "", port = 0},
+	options = {show_fps = true, on_mobile = false},
 }
 
-gPlayer: types.PlayerState = {}
+input: struct {
+	x_axis: f32,
+	y_axis: f32,
+	mouse:  linalg.Vector2f32,
+} = {
+	x_axis = 0,
+	y_axis = 0,
+	mouse  = {},
+}
 
 client_state: ^ClientState
+
+GlobalState :: struct {
+	quit:    bool,
+	options: struct {
+		on_mobile: bool,
+		show_fps:  bool,
+	},
+}
 
 ClientState :: struct {
 	on_enter:  proc(),
@@ -48,25 +37,6 @@ ClientState :: struct {
 }
 
 stateInit :: proc() -> bool {
-	// confit_str := string(#load("../../config.ini"))
-	// config, alloc_error := ini.load_map_from_string(confit_str, context.allocator)
-	// defer ini.delete_map(config)
-
-	// if alloc_error != .None {
-	// 	fmt.println("Unable to allocate memory!")
-	// 	return false
-	// }
-
-	// network := config["network"] or_return
-	// port := network["port"] or_return
-	// port_int := strconv.parse_int(port) or_return
-	// host := network["host"] or_return
-
-	// chost := strings.clone_to_cstring(host)
-	//
-	// global.net.host = chost
-	// global.net.port = u16(port_int)
-
 	changeState(&main_menu_state)
 
 	if client_state != nil && client_state.on_enter != nil {
@@ -78,7 +48,7 @@ stateInit :: proc() -> bool {
 
 changeState :: proc(new_state: ^ClientState) {
 	if client_state == new_state {
-		// fmt.println("Trying to change to the same state!")
+		fmt.println("Trying to change to the same state!")
 		return
 	}
 
@@ -91,11 +61,3 @@ changeState :: proc(new_state: ^ClientState) {
 		client_state.on_enter()
 	}
 }
-
-// updatePlayerPos :: proc() {
-// 	for i in global.render_state.states {
-// 		if i.id == network.GetServerID() {
-// 			gPlayer.pos = {i.pos.x, i.pos.y}
-// 		}
-// 	}
-// }

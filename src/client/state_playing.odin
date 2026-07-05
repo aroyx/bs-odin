@@ -3,7 +3,6 @@ package client
 import "../camera"
 import "../physics"
 import "../terrain"
-import "../types"
 import "../utils"
 import "core:math/rand"
 
@@ -15,7 +14,6 @@ import rl "vendor:raylib"
 playing_state: ClientState = {
 	on_enter  = on_enter,
 	on_exit   = on_exit,
-	// on_network_event = on_network_event,
 	on_update = on_update,
 	on_render = on_render,
 }
@@ -74,33 +72,15 @@ on_exit :: proc() {
 	physics.closePhysics()
 }
 
-// @(private = "file")
-// on_network_event :: proc(pEvent: network.ReceivedStruct) {
-// 	#partial switch packet in pEvent {
-// 	case types.ServerOutput:
-// 		global.render_state = packet
-// 		updatePlayerPos()
-//
-// 		if !lock_camera {
-// 			camera.StartTagAlong(gPlayer.pos)
-// 			lock_camera = true
-// 		}
-// 	case types.MatchStartOutput:
-// 		fmt.println("match really started nw")
-// 	// do smth idk
-// 	}
-// }
-
 @(private = "file")
 on_update :: proc(dt: f32) {
 	physics.physicsTick()
 
 	camera.Update()
-	// sendInputsToServer()
 
 	if rl.IsWindowResized() {
-		w := rl.GetScreenWidth()
-		h := rl.GetScreenHeight()
+		w := rl.GetRenderWidth()
+		h := rl.GetRenderHeight()
 		camera.SizeUpdate(w, h)
 		terrain.generateRenderChunks()
 	}
@@ -113,9 +93,9 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyDown(.A) || rl.IsKeyDown(.LEFT) do x_axis = -1
 	if rl.IsKeyDown(.D) || rl.IsKeyDown(.RIGHT) do x_axis = 1
 
-	global.input.x_axis = x_axis
-	global.input.y_axis = y_axis
-	global.input.type = .PLAYER_INPUT
+	input.x_axis = x_axis
+	input.y_axis = y_axis
+	input.mouse = {}
 
 	if x_axis != 0 || y_axis != 0 {
 		speed: f32 = 5.0
@@ -144,7 +124,7 @@ on_render :: proc() {
 
 	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
 
-	if global.on_mobile && win_w / win_h < 1.0 { 	// in potrait mode
+	if global.options.on_mobile && win_w / win_h < 1.0 { 	// in potrait mode
 		tw, th := f32(rotate_phone_texture.width), f32(rotate_phone_texture.height)
 
 		scale: f32 = math.min(win_w / tw, win_h / th)

@@ -40,8 +40,8 @@ on_update :: proc(dt: f32) {
 		lState = .CAMERA
 
 	case .CAMERA:
-		w := rl.GetScreenWidth()
-		h := rl.GetScreenHeight()
+		w := rl.GetRenderWidth()
+		h := rl.GetRenderHeight()
 		camera.Init(w, h, utils.MAP_SIZE)
 		lState = .TERRAIN
 

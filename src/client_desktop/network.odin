@@ -3,7 +3,6 @@ package main
 import "core:fmt"
 
 import "../client/"
-import "../camera"
 
 @(private)
 establishConnectionWithServer :: proc() -> int {
@@ -22,12 +21,11 @@ sendInputsToServer :: proc() {
 		return
 	}
 
-	if client.global.input.x_axis == 0.0 && client.global.input.y_axis == 0.0 {
+	if client.input.x_axis == 0.0 && client.input.y_axis == 0.0 {
 		return
 	}
 
-	camera.StartTagAlong(client.gPlayer.pos)
-	Send(&client.global.input, size_of(client.global.input))
+	Send(&client.input, size_of(client.input))
 }
 
 handleNetworkInputs :: proc() {
@@ -52,6 +50,6 @@ handleNetworkInputs :: proc() {
 
 toggleConnection :: proc() {
 	if !IsConnected() {
-		Connect(client.global.net.host, client.global.net.port)
+		// Connect(client.global.net.host, client.global.net.port)
 	} else do Disconnect()
 }

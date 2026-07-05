@@ -72,8 +72,8 @@ drawCenteredText :: proc(
 ) {
 	if text == nil do return
 
-	w := f32(rl.GetScreenWidth())
-	h := f32(rl.GetScreenHeight())
+	w := f32(rl.GetRenderWidth())
+	h := f32(rl.GetRenderHeight())
 
 	s := rl.MeasureTextEx(font[size], text, font_sizes[size], 1)
 

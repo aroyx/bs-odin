@@ -34,7 +34,7 @@ cft := 16.0
 alpha :: 1.0 / 10.0
 
 renderFps :: proc() {
-	if !global.time.show_fps do return
+	if !global.options.show_fps do return
 
 	cfps = cfps + alpha * (utils.fps - cfps) // exponential moving avg
 	cft = cft + alpha * (utils.frame_time - cft) // exponential moving avg

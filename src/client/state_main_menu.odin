@@ -58,8 +58,7 @@ on_update :: proc(dt: f32) {
 
 	bounds.y += gap
 	if rl.GuiButton(bounds, "Options :|") {
-		fmt.println("Yay!2")
-		// changeState(&state_option)
+		changeState(&options_state)
 	}
 
 	bounds.y += gap
