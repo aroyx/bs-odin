@@ -29,7 +29,7 @@ main_start :: proc "c" (on_mobile: bool) {
 
 	web_context = context
 
-    client.global.on_mobile = on_mobile
+    client.global.options.on_mobile = on_mobile
 	client.init()
 }
 
