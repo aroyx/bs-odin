@@ -4,7 +4,9 @@ import "../camera"
 import "../physics"
 import "../terrain"
 import "../utils"
+
 import "core:math/rand"
+import "vendor:box2d"
 
 import "core:math"
 import "core:math/linalg"
@@ -29,6 +31,9 @@ Entity :: struct {
 @(private = "file")
 entities: [128]Entity
 
+@(private = "file")
+playerId: box2d.BodyId
+
 @(private)
 generateEntities :: proc() {
 	for i in 0 ..< 128 {
@@ -37,6 +42,21 @@ generateEntities :: proc() {
 
 		entities[i].col = {u8(rand.int31()), u8(rand.int31()), u8(rand.int31()), 255}
 	}
+
+	playerBody := box2d.DefaultBodyDef()
+	playerBody.position = {
+		entities[0].pos.x / camera.state.cs,
+		entities[0].pos.y / camera.state.cs,
+	}
+	playerBody.type = .dynamicBody
+    playerBody.fixedRotation = true
+
+	playerId = box2d.CreateBody(physics.phyWorld, playerBody)
+
+	playerBox := box2d.MakeRoundedBox(0.5, 0.5, 0.2)
+	playerShapeDef := box2d.DefaultShapeDef()
+
+	_ = box2d.CreatePolygonShape(playerId, playerShapeDef, playerBox)
 }
 
 @(private)
@@ -49,7 +69,7 @@ rotate_phone_texture: rl.Texture
 
 @(private = "file")
 on_enter :: proc() {
-    rotate_phone_img := rl.LoadImage("../../res/images/rotate_phone.png")
+	rotate_phone_img := rl.LoadImage("res/images/rotate_phone.png")
 
 	rotate_phone_texture = rl.LoadTextureFromImage(rotate_phone_img)
 	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)
@@ -62,12 +82,20 @@ on_exit :: proc() {
 	rl.UnloadTexture(rotate_phone_texture)
 	rl.SetExitKey(.ESCAPE)
 	terrain.destroyChunks()
+	box2d.DestroyBody(playerId)
 	physics.closePhysics()
 }
 
 @(private = "file")
 on_update :: proc(dt: f32) {
 	physics.physicsTick()
+
+	body_pos := box2d.Body_GetPosition(playerId)
+	entities[0].pos = {body_pos.x * camera.state.cs, body_pos.y * camera.state.cs}
+	// entities[0].pos = {body_pos.x, body_pos.y}
+
+	// fmt.println(body_pos)
+	// fmt.println(entities[0].pos)
 
 	camera.Update()
 
@@ -90,10 +118,12 @@ on_update :: proc(dt: f32) {
 	input.y_axis = y_axis
 	input.mouse = {}
 
+	speed: f32 = 10.0
+	force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
+
+	box2d.Body_SetLinearVelocity(playerId, force)
+
 	if x_axis != 0 || y_axis != 0 {
-		speed: f32 = 5.0
-		entities[0].pos.x += x_axis * speed
-		entities[0].pos.y += y_axis * speed
 		camera.StartTagAlong(entities[0].pos)
 	}
 

@@ -17,20 +17,20 @@ Points :: enum i32 {
 @(private = "file")
 lookup: [16][]Points : {
 	{}, // 0000
-	{.D, .C}, // 0001
-	{.C, .B}, // 0010
-	{.D, .B}, // 0011
-	{.A, .B}, // 0100
-	{.D, .C, .A, .B}, // 0101
-	{.C, .A}, // 0110
-	{.D, .A}, // 0111
-	{.D, .A}, // 1000
-	{.C, .A}, // 1001
-	{.D, .A, .C, .B}, // 1010
-	{.B, .A}, // 1011
-	{.D, .B}, // 1100
-	{.B, .C}, // 1101
-	{.D, .C}, // 1110
+	{.C, .D}, // 0001
+	{.B, .C}, // 0010
+	{.B, .D}, // 0011
+	{.B, .A}, // 0100
+	{.C, .D, .B, .A}, // 0101
+	{.A, .C}, // 0110
+	{.A, .D}, // 0111
+	{.A, .D}, // 1000
+	{.A, .C}, // 1001
+	{.A, .D, .B, .C}, // 1010
+	{.A, .B}, // 1011
+	{.B, .D}, // 1100
+	{.C, .B}, // 1101
+	{.C, .D}, // 1110
 	{}, // 1111
 }
 
@@ -45,11 +45,7 @@ vedges: [dynamic]Edge
 @(private = "file")
 f: bool = true
 
-@(private = "file")
-physics_gen_done: bool = false
 insertEdgePolygon :: proc(pa, pb, pc, pd: linalg.Vector2f32, total: int) {
-	if physics_gen_done do return
-
 	if f {
 		clear(&vedges)
 		reserve(&vedges, utils.MAP_SIZE * utils.MAP_SIZE)
@@ -138,21 +134,22 @@ pushIslandsToPhysics :: proc() {
 		islandBody.type = .staticBody
 		islandId := box2d.CreateBody(phyWorld, islandBody)
 
-		islandChainDef := box2d.DefaultChainDef()
-		islandChainDef.count = i32(len(island))
-		islandChainDef.points = raw_data(island)
+		islandShapeDef := box2d.DefaultShapeDef()
+		islandShapeDef.isSensor = true
 
 		head := island[len(island) - 1]
 		tail := island[0]
+		loop := linalg.distance(head, tail) < 0.001
 
-		if linalg.distance(head, tail) < 0.001 {
-			islandChainDef.isLoop = true
-		} else {
-			islandChainDef.isLoop = false
+		segment_count := loop ? len(island) : len(island) - 1
+
+		for j in 0 ..< segment_count {
+			p1 := island[j]
+			p2 := island[(j + 1) % len(island)]
+
+			segment := box2d.Segment{p1, p2}
+			_ = box2d.CreateSegmentShape(islandId, islandShapeDef, segment)
 		}
-
-		_ = box2d.CreateChain(islandId, islandChainDef)
 	}
-
-	physics_gen_done = true
+	clear(&vedges)
 }

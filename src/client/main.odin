@@ -2,8 +2,10 @@ package client
 
 import "core:c"
 import "core:fmt"
+import "core:math/rand"
 
 import "../client"
+import "../terrain"
 import "../ui"
 import "../utils"
 
@@ -21,13 +23,22 @@ init :: proc() {
 
 	// utils.loadRayGuiStyleFromMemory(style_genesis_raw)
 
-    rl.GuiLoadStyle("res/rgui/style_genesis.rgs")
+	rl.GuiLoadStyle("res/rgui/style_genesis.rgs")
 	rl.GuiSetStyle(.DEFAULT, i32(rl.GuiDefaultProperty.TEXT_SIZE), 32)
-    rl.GuiSetStyle(.CHECKBOX, i32(rl.GuiControlProperty.TEXT_COLOR_FOCUSED), transmute(i32)u32(0xDEDEDEFF))
+	rl.GuiSetStyle(
+		.CHECKBOX,
+		i32(rl.GuiControlProperty.TEXT_COLOR_FOCUSED),
+		transmute(i32)u32(0xDEDEDEFF),
+	)
 
 	utils.initFont()
 
 	ui.ImGuiInit()
+
+	a: i32 = rand.int31()
+	a = 1667919536
+	terrain.setSeed(a)
+	fmt.println("seed:", a)
 
 	// if establishConnectionWithServer() != 0 {
 	// 	fmt.println("Unable to open start enet")
