@@ -24,9 +24,45 @@
 			margin-right: auto;
 			display: block;
 		}
+        
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #1e1e2e;
+            color: #cdd6f4;
+            z-index: 1000;
+            display: grid;
+            place-content: center;
+            place-items: center;
+            font-family: monospace;
+            font-size: 4em;
+            transition: 400ms ease-out;
+        }
+
+        /* had to ask ai for the spinner, I don't know css like that :( */
+        .spinner { 
+            width: 4em;
+            height: 4em;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: #88c0d0;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 	</style>
 </head>
 <body>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        Loading WASM!...
+    </div>
 	<canvas class="game_canvas" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1" onmousedown="event.target.focus()" onkeydown="event.preventDefault()"></canvas>
 	<script type="text/javascript" src="odin.js"></script>
 	<script>
@@ -62,6 +98,12 @@
 				// main_update and main_end.
                 const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 				e.main_start(isMobileDevice ? 1 : 0);
+
+                const loading = document.getElementById('loading-screen');
+                if (loading) {
+                    loading.style.opacity = '0';
+                    setTimeout(() => {loading.style.display = 'none';}, 400);
+                }
 
 				function send_resize() {
 					var canvas = document.getElementById('canvas');
