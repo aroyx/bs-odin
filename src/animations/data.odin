@@ -1,0 +1,64 @@
+package animation
+
+@(private)
+BodyPart :: enum u8 {
+	BODY, // the torso
+	HEAD,
+	// face is usually the eyes
+	FACE_IDLE,
+	FACE_BLINK,
+	FACE_HURT,
+	RIGHT_ARM,
+	RIGHT_HAND,
+	RIGHT_LEG,
+	LEFT_ARM,
+	LEFT_HAND,
+	LEFT_LEG,
+	WEAPON, // sword.png
+	SLASH_EFFECT,
+}
+
+@(private)
+CharacterType :: enum u8 {
+	SKELETON,
+	// GOBLIN,
+	// GOLEM
+}
+
+@(private)
+CharacterTier :: enum u8 {
+	T1,
+	// T2,
+	// T3,
+}
+
+@(private)
+part_lookup := [BodyPart]string {
+	.BODY         = "Body.png",
+	.HEAD         = "Head.png",
+	.FACE_IDLE    = "Face 01.png",
+	.FACE_BLINK   = "Face 02.png",
+	.FACE_HURT    = "Face 03.png",
+	.RIGHT_ARM    = "Right Arm.png",
+	.RIGHT_HAND   = "Right Hand.png",
+	.RIGHT_LEG    = "Right Leg.png",
+	.LEFT_ARM     = "Left Arm.png",
+	.LEFT_HAND    = "Left Hand.png",
+	.LEFT_LEG     = "Left Leg.png",
+	.WEAPON       = "Sword.png",
+	.SLASH_EFFECT = "SlashFX.png",
+}
+
+@(private)
+type_lookup := [CharacterType]string{
+	.SKELETON = "skeleton",
+	// .GOBLIN = "goblin",
+	// .GOLEM = "golem",
+}
+
+@(private)
+tier_lookup := [CharacterTier]string{
+	.T1 = "1",
+	// .T2 = "2",
+	// .T3 = "3",
+}

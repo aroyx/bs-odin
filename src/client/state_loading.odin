@@ -1,5 +1,6 @@
 package client
 
+import "../animations"
 import "../camera"
 import "../physics"
 import "../terrain"
@@ -44,6 +45,7 @@ on_update :: proc(dt: f32) {
 		h := rl.GetRenderHeight()
 		camera.Init(w, h, utils.MAP_SIZE)
 		lState = .TERRAIN
+        animations.init()
 
 	case .TERRAIN:
 		terrain.createTerrain()

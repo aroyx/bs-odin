@@ -1,5 +1,6 @@
 package client
 
+import "../animations"
 import "../camera"
 import "../physics"
 import "../terrain"
@@ -84,6 +85,8 @@ on_exit :: proc() {
 	terrain.destroyChunks()
 	box2d.DestroyBody(playerId)
 	physics.closePhysics()
+
+    animations.close()
 }
 
 @(private = "file")
