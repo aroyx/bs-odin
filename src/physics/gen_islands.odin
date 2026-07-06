@@ -135,6 +135,7 @@ pushIslandsToPhysics :: proc() {
 		}
 
 		islandBody := box2d.DefaultBodyDef()
+		islandBody.type = .staticBody
 		islandId := box2d.CreateBody(phyWorld, islandBody)
 
 		islandChainDef := box2d.DefaultChainDef()
@@ -150,7 +151,7 @@ pushIslandsToPhysics :: proc() {
 			islandChainDef.isLoop = false
 		}
 
-		chainId := box2d.CreateChain(islandId, islandChainDef)
+		_ = box2d.CreateChain(islandId, islandChainDef)
 	}
 
 	physics_gen_done = true

@@ -89,6 +89,7 @@ on_render :: proc() {
 	}
 
 	rl.GuiScrollPanel(panel_bounds, "", panel_content, &scroll_pos, &view_zone)
+
 	rl.BeginScissorMode(
 		i32(view_zone.x),
 		i32(view_zone.y),
@@ -105,41 +106,11 @@ on_render :: proc() {
 
 	switch (menu) {
 	case .DISPLAY:
-		rl.GuiCheckBox(bounds, "Show FPS", &local_global.options.show_fps)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "Mobile Navigation", &local_global.options.on_mobile)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "This doesn't work :)", &e)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "Don't press this :O", &b)
+		display_menu_show(&bounds)
 	case .GAME:
-		rl.GuiCheckBox(bounds, "Tails", &a)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "Head", &b)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "Makes a ", &c)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "vector together", &d)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "These's nothign to look here", &e)
+		game_menu_show(&bounds)
 	case .MISC:
-		rl.GuiCheckBox(bounds, "God", &e)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "please forbdid a child", &d)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "a child who has", &b)
-
-		bounds.y += bounds.width * 2
-		rl.GuiCheckBox(bounds, "Too much fun", &a)
+		misc_menu_show(&bounds)
 	}
 
 	rl.EndScissorMode()
@@ -163,6 +134,54 @@ on_render :: proc() {
 	if rl.GuiButton(button_bounds, "#2# Save") {
 		global = local_global
 	}
+}
+
+@(private = "file")
+display_menu_show :: proc(bounds: ^rl.Rectangle) {
+	bounds := bounds^
+	rl.GuiCheckBox(bounds, "Show FPS", &local_global.options.show_fps)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "Mobile Navigation", &local_global.options.on_mobile)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "This doesn't work :)", &e)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "Don't press this :O", &b)
+}
+@(private = "file")
+game_menu_show :: proc(bounds: ^rl.Rectangle) {
+	bounds := bounds^
+	rl.GuiCheckBox(bounds, "Tails", &a)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "Head", &b)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "Makes a ", &c)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "vector together", &d)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "These's nothign to look here", &e)
+}
+
+@(private = "file")
+misc_menu_show :: proc(bounds: ^rl.Rectangle) {
+	bounds := bounds^
+	rl.GuiCheckBox(bounds, "God", &e)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "please forbdid a child", &d)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "a child who has", &b)
+
+	bounds.y += bounds.width * 2
+	rl.GuiCheckBox(bounds, "Too much fun", &a)
+
 }
 
 @(private = "file")

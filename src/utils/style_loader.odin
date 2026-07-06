@@ -1,6 +1,8 @@
 package utils
 
 import "vendor:raylib"
+
+// not used currently
 loadRayGuiStyleFromMemory :: proc(data: []u8) {
 	// https://github.com/raysan5/raylib/blob/master/examples/core/raygui.h#L4844
 	if len(data) < 12 do return // too small to even have the initial things

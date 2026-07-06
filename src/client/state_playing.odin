@@ -45,18 +45,11 @@ getPlayer :: proc() -> Entity {
 }
 
 @(private = "file")
-rotate_phone_raw :: #load("../../res/images/rotate_phone.png")
-
-@(private = "file")
 rotate_phone_texture: rl.Texture
 
 @(private = "file")
 on_enter :: proc() {
-	rotate_phone_img := rl.LoadImageFromMemory(
-		".png",
-		raw_data(rotate_phone_raw),
-		i32(len(rotate_phone_raw)),
-	)
+    rotate_phone_img := rl.LoadImage("../../res/images/rotate_phone.png")
 
 	rotate_phone_texture = rl.LoadTextureFromImage(rotate_phone_img)
 	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)

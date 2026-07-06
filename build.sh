@@ -89,7 +89,7 @@ if [[ "$EXE" == "wasm" ]]; then
     if [[ $? == 0 ]]; then
         FILES="$OUT_DIR/game.wasm.o ${ODIN_PATH}/vendor/raylib/wasm/libraylib.a ${ODIN_PATH}/vendor/raylib/wasm/libraygui.a ${ODIN_PATH}vendor/box2d/lib/box2d_wasm.o"
 
-        EMCC_FLAGS="-s EXPORTED_RUNTIME_METHODS=['HEAPF32'] -s USE_GLFW=3 -s WASM_BIGINT -s ASSERTIONS=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=1 -s STACK_SIZE=33554432 --shell-file $SRC_DIR/index_template.html"
+        EMCC_FLAGS="-s EXPORTED_RUNTIME_METHODS=['HEAPF32'] -s USE_GLFW=3 -s WASM_BIGINT -s ASSERTIONS=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=1 -s STACK_SIZE=33554432 --shell-file $SRC_DIR/index_template.html --preload-file res"
 
         # For debugging: Add `-g` to `emcc` (gives better error callstack in chrome)
         emcc -o $OUT_DIR/index.html $FILES $EMCC_FLAGS

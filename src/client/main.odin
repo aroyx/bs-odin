@@ -9,11 +9,6 @@ import "../utils"
 
 import rl "vendor:raylib"
 
-@(private = "file")
-style_genesis_raw :: #load("../../res/rgui/style_genesis.rgs")
-@(private = "file")
-pixel_operator_font :: #load("../../res/fonts/PixelOperator.ttf")
-
 init :: proc() {
 	if client.stateInit() != true {
 		fmt.println("Unable to do shti")
@@ -24,20 +19,11 @@ init :: proc() {
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
 	rl.InitWindow(800, 600, "BS-Odin")
 
-	utils.loadRayGuiStyleFromMemory(style_genesis_raw)
+	// utils.loadRayGuiStyleFromMemory(style_genesis_raw)
 
-	font: rl.Font = rl.LoadFontFromMemory(
-		".otf",
-		raw_data(pixel_operator_font),
-		i32(len(pixel_operator_font)),
-		32,
-		nil,
-		0,
-	)
-
-	rl.GuiSetFont(font)
-
+    rl.GuiLoadStyle("res/rgui/style_genesis.rgs")
 	rl.GuiSetStyle(.DEFAULT, i32(rl.GuiDefaultProperty.TEXT_SIZE), 32)
+    rl.GuiSetStyle(.CHECKBOX, i32(rl.GuiControlProperty.TEXT_COLOR_FOCUSED), transmute(i32)u32(0xDEDEDEFF))
 
 	utils.initFont()
 

@@ -19,34 +19,10 @@ font_sizes: [FontSize]f32 = {
 	.LARGE  = 48,
 }
 
-@(private = "file")
-sfont :: #load("../../res/fonts/supercell.otf")
-
 initFont :: proc() {
-	font[.SMALL] = rl.LoadFontFromMemory(
-		".otf",
-		raw_data(sfont),
-		i32(len(sfont)),
-		i32(font_sizes[.SMALL]),
-		nil,
-		0,
-	)
-	font[.MEDIUM] = rl.LoadFontFromMemory(
-		".otf",
-		raw_data(sfont),
-		i32(len(sfont)),
-		i32(font_sizes[.MEDIUM]),
-		nil,
-		0,
-	)
-	font[.LARGE] = rl.LoadFontFromMemory(
-		".otf",
-		raw_data(sfont),
-		i32(len(sfont)),
-		i32(font_sizes[.LARGE]),
-		nil,
-		0,
-	)
+	font[.SMALL] = rl.LoadFontEx("./res/fonts/supercell.otf", i32(font_sizes[.SMALL]), nil, 0)
+	font[.MEDIUM] = rl.LoadFontEx("./res/fonts/supercell.otf", i32(font_sizes[.MEDIUM]), nil, 0)
+	font[.LARGE] = rl.LoadFontEx("./res/fonts/supercell.otf", i32(font_sizes[.LARGE]), nil, 0)
 
 	rl.SetTextureFilter(font[.SMALL].texture, .BILINEAR)
 	rl.SetTextureFilter(font[.MEDIUM].texture, .BILINEAR)

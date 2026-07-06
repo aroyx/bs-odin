@@ -18,7 +18,7 @@ LoadingState :: enum u8 {
 }
 
 loading_state: ClientState = {
-	on_enter = on_enter,
+	on_enter  = on_enter,
 	on_update = on_update,
 	on_render = on_render,
 }
@@ -28,7 +28,7 @@ lState := LoadingState.INIT
 
 @(private = "file")
 on_enter :: proc() {
-    lState = .INIT
+	lState = .INIT
 }
 
 @(private = "file")
@@ -58,6 +58,10 @@ on_update :: proc(dt: f32) {
 		camera.StartTagAlong(getPlayer().pos, 4.0)
 		lState = .DONE
 
+	// todo
+	// case .Animations:
+	// 	animations.init()
+
 	case .DONE:
 		changeState(&playing_state)
 	// for network
@@ -86,23 +90,23 @@ on_render :: proc() {
 	progress: f32 = 0.0
 	switch (lState) {
 	case .INIT:
-        text = "Initialising stuff...the brick is working hard!"
+		text = "Initialising stuff...the brick is working hard!"
 		tiny_w = 0
 		progress = 0.0
 	case .CAMERA:
-        text = "Lights, camera...loading and Action!"
+		text = "Lights, camera...loading and Action!"
 		progress = 0.1
 	case .TERRAIN:
-        text = "Like the god I am, I create thy land"
+		text = "Like the god I am, I create thy land"
 		progress = 0.2
 	case .PHYSICS:
-        text = "Newton go brr... initialising physics"
+		text = "Newton go brr... initialising physics"
 		progress = 0.5
 	case .ENEMIES:
-        text = "To create balance, we need both evil and good"
+		text = "To create balance, we need both evil and good"
 		progress = 0.8
 	case .DONE:
-        text = "We legit don now :)"
+		text = "We legit don now :)"
 		progress = 1.0
 	}
 
