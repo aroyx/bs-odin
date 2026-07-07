@@ -6,7 +6,7 @@ import rl "vendor:raylib"
 @(private = "file")
 last_time: time.Time
 
-frame_time, fps, dt: f64 = 0, 0, 0
+total_time, frame_time, fps, dt: f64 = 0, 0, 0, 0
 
 when ODIN_OS == .JS {
 	InitTimer :: proc() {
@@ -22,6 +22,7 @@ when ODIN_OS == .JS {
 
 		fps = f64(rl.GetFPS())
 		dt = f64(rl.GetFrameTime())
+        total_time += dt * 1000.0
 	}
 
 } else {
@@ -47,5 +48,6 @@ when ODIN_OS == .JS {
 
 		fps = 1.0 / time.duration_seconds(dur)
 		dt = time.duration_seconds(dur)
+        total_time += dt * 1000.0
 	}
 }

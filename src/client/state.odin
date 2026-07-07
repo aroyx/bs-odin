@@ -36,16 +36,6 @@ ClientState :: struct {
 	on_render: proc(),
 }
 
-stateInit :: proc() -> bool {
-	changeState(&main_menu_state)
-
-	if client_state != nil && client_state.on_enter != nil {
-		client_state.on_enter()
-	}
-
-	return true
-}
-
 changeState :: proc(new_state: ^ClientState) {
 	if client_state == new_state {
 		fmt.println("Trying to change to the same state!")
