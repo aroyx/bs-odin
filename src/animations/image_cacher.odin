@@ -20,7 +20,7 @@ loadAllParts :: proc() {
 
 @(private = "file")
 loadPart :: proc(type: CharacterType, tier: CharacterTier, part: BodyPart) {
-	BASE :: "res/images/sprite/character"
+	BASE :: "res/images/character"
 	type_str := type_lookup[type]
 	tier_str := tier_lookup[tier]
 	part_str := part_lookup[part]
