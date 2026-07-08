@@ -220,7 +220,7 @@ parse_timeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
 
 		key: TimeLineKey = {
 			id   = u8(get_attrib_int(child_node, "id")),
-			spin = i8(get_attrib_int(child_node, "spin", -1)),
+			spin = i8(get_attrib_int(child_node, "spin", 1)),
 			time = get_attrib_float(child_node, "time"),
 		}
 
@@ -236,6 +236,8 @@ parse_timeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
 		key.scale_x = get_attrib_float(childer_node, "scale_x", 1)
 		key.scale_y = get_attrib_float(childer_node, "scale_y", 1)
 		key.alpha = get_attrib_float(childer_node, "a", 1)
+
+		append(&timeline.keys, key)
 	}
 	return timeline
 }

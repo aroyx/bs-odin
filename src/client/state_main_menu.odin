@@ -84,7 +84,7 @@ on_update :: proc(dt: f32) {
 
 	rl.GuiDisableTooltip()
 
-	anim_time += dt * 1000.0
+	anim_time += dt * 1000 * 0.7
 }
 
 @(private = "file")
@@ -100,6 +100,7 @@ on_render :: proc() {
 		400,
 		200,
 	)
+	defer delete(draw_commands)
 
 	for cmd in draw_commands {
 		tex := animations.getPartTex(type, tier, cmd.part)

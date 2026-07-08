@@ -29,6 +29,8 @@ DrawCommand :: struct {
 }
 
 calculate_frame :: proc(anim: ^Animation, time_ms, root_x, root_y: f32) -> [dynamic]DrawCommand {
+	time_ms := math.mod(time_ms, f32(anim.length))
+
 	root := Transform {
 		x       = root_x,
 		y       = root_y,
@@ -75,13 +77,13 @@ calculate_frame :: proc(anim: ^Animation, time_ms, root_x, root_y: f32) -> [dyna
 			DrawCommand {
 				part = file.name,
 				x = final_trans.x,
-				y = final_trans.y,
+				y = root_y - (final_trans.y - root_y),
 				alpha = final_trans.alpha,
-				angle = final_trans.angle,
+				angle = -final_trans.angle,
 				scale_x = final_trans.scale_x,
 				scale_y = final_trans.scale_y,
-                pivot_x = file.pivot_x,
-                pivot_y = file.pivot_y,
+				pivot_x = file.pivot_x,
+				pivot_y = 1 - file.pivot_y,
 			},
 		)
 	}
