@@ -29,6 +29,48 @@ CharacterTier :: enum u8 {
 	// T3,
 }
 
+AnimationName :: enum u8 {
+    BASE,
+	IDLE,
+	IDLE_BLINKING,
+	KICKING,
+	WALKING,
+	RUNNING,
+	RUN_SLASHING,
+	RUN_THROWING,
+	SLIDING,
+	JUMP_START,
+	JUMP_LOOP,
+	FALLING_DOWN,
+	SLASHING,
+	SLASHING_IN_THE_AIR,
+	THROWING,
+	THROWING_IN_THE_AIR,
+	HURT,
+	DYING,
+}
+
+anim_lookup := [AnimationName]string {
+	.BASE                = "Base",
+	.IDLE                = "Idle",
+	.IDLE_BLINKING       = "Idle Blinking",
+	.KICKING             = "Kicking",
+	.WALKING             = "Walking",
+	.RUNNING             = "Running",
+	.RUN_SLASHING        = "Run Slashing",
+	.RUN_THROWING        = "Run Throwing",
+	.SLIDING             = "Sliding",
+	.JUMP_START          = "Jump Start",
+	.JUMP_LOOP           = "Jump Loop",
+	.FALLING_DOWN        = "Falling Down",
+	.SLASHING            = "Slashing",
+	.SLASHING_IN_THE_AIR = "Slashing in The Air",
+	.THROWING            = "Throwing",
+	.THROWING_IN_THE_AIR = "Throwing in The Air",
+	.HURT                = "Hurt",
+	.DYING               = "Dying",
+}
+
 @(private)
 part_lookup := [BodyPart]string {
 	.BODY         = "Body.png",
@@ -47,14 +89,14 @@ part_lookup := [BodyPart]string {
 }
 
 @(private)
-type_lookup := [CharacterType]string{
+type_lookup := [CharacterType]string {
 	.SKELETON = "skeleton",
 	// .GOBLIN = "goblin",
 	// .GOLEM = "golem",
 }
 
 @(private)
-tier_lookup := [CharacterTier]string{
+tier_lookup := [CharacterTier]string {
 	.T1 = "1",
 	// .T2 = "2",
 	// .T3 = "3",

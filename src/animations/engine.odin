@@ -1,5 +1,6 @@
 package animation
 
+import "core:fmt"
 import "core:math"
 import "core:math/linalg"
 import "core:time"
@@ -28,14 +29,28 @@ DrawCommand :: struct {
 	pivot_x, pivot_y: f32,
 }
 
-calculate_frame :: proc(anim: ^Animation, time_ms, root_x, root_y: f32) -> [dynamic]DrawCommand {
+calculate_frame :: proc(
+	entity: ^Entity,
+    animation: AnimationName,
+	time_ms: f32,
+	root_pos: linalg.Vector2f32,
+	scale: f32,
+) -> [dynamic]DrawCommand //
+{
+    anim_name := anim_lookup[animation] 
+    if !(anim_name in entity.animations) {
+        fmt.println("Animation not found! ", anim_name)
+        return {}
+    }
+
+    anim := &entity.animations[anim_name]
 	time_ms := math.mod(time_ms, f32(anim.length))
 
 	root := Transform {
-		x       = root_x,
-		y       = root_y,
-		scale_x = 1,
-		scale_y = 1,
+		x       = root_pos.x,
+		y       = root_pos.y,
+		scale_x = scale,
+		scale_y = scale,
 		alpha   = 1,
 		angle   = 0,
 	}
@@ -78,7 +93,7 @@ calculate_frame :: proc(anim: ^Animation, time_ms, root_x, root_y: f32) -> [dyna
 			DrawCommand {
 				part = file.name,
 				x = final_trans.x,
-				y = root_y - (final_trans.y - root_y),
+				y = root_pos.y - (final_trans.y - root_pos.y),
 				alpha = final_trans.alpha,
 				angle = -final_trans.angle,
 				scale_x = final_trans.scale_x,

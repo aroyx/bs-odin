@@ -5,7 +5,6 @@ import "core:math"
 import "core:math/linalg"
 
 import "../animations"
-import "../utils"
 
 import rl "vendor:raylib"
 
@@ -15,11 +14,9 @@ main_menu_state: ClientState = {
 	on_render = on_render,
 }
 
-anim_time: f32 = 0.0
-
 @(private = "file")
 on_enter :: proc() {
-	anim_time = 0
+	init_player()
 }
 
 @(private = "file")
@@ -84,8 +81,6 @@ on_update :: proc(dt: f32) {
 	}
 
 	rl.GuiDisableTooltip()
-
-	anim_time += dt * 1000 * 0.7
 }
 
 @(private = "file")
@@ -95,12 +90,18 @@ on_render :: proc() {
 	type := animations.CharacterType.SKELETON
 	tier := animations.CharacterTier.T1
 
-	draw_commands := animations.calculate_frame(
-		&animations.data.entity.animations["Kicking"],
-		f32(utils.total_time) * 0.7,
-		300,
-		500,
-	)
+	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
+	tex_w, tex_h: f32 = 230, 500 // approx
+
+	available_w := math.min(win_w * 0.65, win_w - 200)
+	available_h := math.min(win_h * 0.6, 400)
+
+	scale := math.min(available_w / tex_w, available_h / tex_h)
+
+    x := available_w * scale * 0.5
+    y := tex_h * scale + (win_h - available_h * scale) * 0.5
+
+	draw_commands := run_animation({x, y}, scale)
 	defer delete(draw_commands)
 
 	for cmd in draw_commands {
@@ -120,9 +121,7 @@ on_render :: proc() {
 			height = f32(tex.height) * cmd.scale_y,
 		}
 
-		origin: rl.Vector2 = {cmd.pivot_x * dest.width, cmd.pivot_y * dest.height}
-
 		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
-		rl.DrawTexturePro(tex, source, dest, origin, cmd.angle, color)
+		rl.DrawTexturePro(tex, source, dest, {}, cmd.angle, color)
 	}
 }
