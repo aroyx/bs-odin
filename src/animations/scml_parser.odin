@@ -39,7 +39,6 @@ parse_scml :: proc() {
 	}
 
 	parse_root(doc, root_id)
-	fmt.println(size_of(data))
 }
 
 @(private = "file")
@@ -110,14 +109,14 @@ parse_entity :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 		child_node := &doc.elements[child_id]
 		if child_node.ident == "obj_info" {
 			bone: Bone = {
-				name  = get_attrib_str(child_node, "name"),
+				name  = strings.clone(get_attrib_str(child_node, "name")),
 				width = get_attrib_float(child_node, "w"),
 			}
 			data.entity.obj_infos[bone_i] = bone
 			bone_i += 1
 		} else if child_node.ident == "animation" {
 			anim := parse_animation(doc, child_id)
-			anim_name := get_attrib_str(child_node, "name")
+			anim_name := strings.clone(get_attrib_str(child_node, "name"))
 			data.entity.animations[anim_name] = anim
 		}
 	}
@@ -236,7 +235,7 @@ parse_timeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
 			key.scale_x = get_attrib_float(childer_node, "scale_x", 1)
 			key.scale_y = get_attrib_float(childer_node, "scale_y", 1)
 			key.alpha = get_attrib_float(childer_node, "a", 1)
-            key.file_id = get_attrib_int(childer_node, "file", -1)
+			key.file_id = get_attrib_int(childer_node, "file", -1)
 		}
 
 		append(&timeline.keys, key)
