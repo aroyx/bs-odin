@@ -33,6 +33,8 @@ loadPart :: proc(type: CharacterType, tier: CharacterTier, part: BodyPart) {
 		return
 	}
 
+    rl.SetTextureFilter(tex, .BILINEAR)
+
 	global_cache[type][tier][part] = tex
 }
 

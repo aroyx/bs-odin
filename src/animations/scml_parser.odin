@@ -39,7 +39,7 @@ parse_scml :: proc() {
 	}
 
 	parse_root(doc, root_id)
-    fmt.println(size_of(data))
+	fmt.println(size_of(data))
 }
 
 @(private = "file")
@@ -117,8 +117,8 @@ parse_entity :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 			bone_i += 1
 		} else if child_node.ident == "animation" {
 			anim := parse_animation(doc, child_id)
-            anim_name := get_attrib_str(child_node, "name")
-            data.entity.animations[anim_name] = anim
+			anim_name := get_attrib_str(child_node, "name")
+			data.entity.animations[anim_name] = anim
 		}
 	}
 }
@@ -228,14 +228,16 @@ parse_timeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
 		if !ok2 do continue
 
 		childer_node := &doc.elements[childer_id]
-		if !(childer_node.ident == "bone" || childer_node.ident == "object") {continue}
 
-		key.x = get_attrib_float(childer_node, "x")
-		key.y = get_attrib_float(childer_node, "y")
-		key.angle = get_attrib_float(childer_node, "angle")
-		key.scale_x = get_attrib_float(childer_node, "scale_x", 1)
-		key.scale_y = get_attrib_float(childer_node, "scale_y", 1)
-		key.alpha = get_attrib_float(childer_node, "a", 1)
+		if childer_node.ident == "bone" || childer_node.ident == "object" {
+			key.x = get_attrib_float(childer_node, "x")
+			key.y = get_attrib_float(childer_node, "y")
+			key.angle = get_attrib_float(childer_node, "angle")
+			key.scale_x = get_attrib_float(childer_node, "scale_x", 1)
+			key.scale_y = get_attrib_float(childer_node, "scale_y", 1)
+			key.alpha = get_attrib_float(childer_node, "a", 1)
+            key.file_id = get_attrib_int(childer_node, "file", -1)
+		}
 
 		append(&timeline.keys, key)
 	}

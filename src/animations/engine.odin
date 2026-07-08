@@ -70,7 +70,8 @@ calculate_frame :: proc(anim: ^Animation, time_ms, root_x, root_y: f32) -> [dyna
 			final_trans = combine_transforms(root, trans)
 		}
 
-        file := get_file(tl.name)
+		if final_trans.file_id == -1 do continue
+		file := get_file(final_trans.file_id)
 
 		append(
 			&draw_commands,
@@ -97,6 +98,7 @@ Transform :: struct {
 	scale_x, scale_y: f32,
 	alpha:            f32,
 	angle:            f32,
+	file_id:          int,
 }
 
 @(private = "file") // AI Made
@@ -112,6 +114,7 @@ combine_transforms :: proc(parent, child: Transform) -> Transform {
 		scale_x = parent.scale_x * child.scale_x,
 		scale_y = parent.scale_y * child.scale_y,
 		alpha = parent.alpha * child.alpha,
+		file_id = child.file_id,
 	}
 }
 
@@ -129,6 +132,7 @@ get_timeline_transform :: proc(anim: ^Animation, timeline_id: u8, time_ms: f32) 
 			scale_y = a.scale_y,
 			alpha = a.alpha,
 			angle = a.angle,
+			file_id = a.file_id,
 		}
 	}
 
@@ -163,16 +167,30 @@ get_timeline_transform :: proc(anim: ^Animation, timeline_id: u8, time_ms: f32) 
 		angle = lerp_angle(a.angle, b.angle, t, a.spin),
 		scale_x = linalg.lerp(a.scale_x, b.scale_x, t),
 		scale_y = linalg.lerp(a.scale_y, b.scale_y, t),
+		file_id = a.file_id,
 	}
 }
 
+get_file :: proc {
+	get_file_by_part,
+	get_file_by_id,
+}
 @(private)
-get_file :: proc(part: BodyPart) -> File {
+get_file_by_part :: proc(part: BodyPart) -> File {
 	for file in data.folder.files {
 		if file.name == part {
 			return file
 		}
 	}
 
+	return {}
+}
+
+get_file_by_id :: proc(id: int) -> File {
+	for file in data.folder.files {
+		if int(file.id) == id {
+			return file
+		}
+	}
 	return {}
 }

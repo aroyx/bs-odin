@@ -5,6 +5,7 @@ import "core:math"
 import "core:math/linalg"
 
 import "../animations"
+import "../utils"
 
 import rl "vendor:raylib"
 
@@ -96,9 +97,9 @@ on_render :: proc() {
 
 	draw_commands := animations.calculate_frame(
 		&animations.data.entity.animations["Kicking"],
-		anim_time,
-		400,
-		200,
+		f32(utils.total_time) * 0.7,
+		300,
+		500,
 	)
 	defer delete(draw_commands)
 

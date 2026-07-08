@@ -96,20 +96,21 @@ Gline :: struct {
 
 @(private)
 TimeLine :: struct {
-    id: u8,
-    name: BodyPart,
-    keys: [dynamic]TimeLineKey
+	id:   u8,
+	name: BodyPart,
+	keys: [dynamic]TimeLineKey,
 }
 
 @(private)
 TimeLineKey :: struct {
-    id: u8,
-    spin: i8,
-    time: f32,
-    x: f32,
-    y: f32,
-    angle: f32,
-    scale_x: f32,
-    scale_y: f32,
-    alpha: f32,
+	id:      u8,
+	spin:    i8,
+	time:    f32,
+	x:       f32,
+	y:       f32,
+	angle:   f32,
+	scale_x: f32,
+	scale_y: f32,
+	alpha:   f32,
+	file_id: int,
 }
