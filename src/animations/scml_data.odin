@@ -21,12 +21,12 @@ data: SpriterData
 @(private)
 SpriterData :: struct {
 	folder: Folder,
-	entity: Entity,
+	entity: Entity, // will be an array if we add more entities
 }
 
 @(private)
 Folder :: struct {
-	files: [13]File,
+	files: [13]File, // should be dynamic
 }
 
 @(private)
@@ -97,7 +97,7 @@ Gline :: struct {
 @(private)
 TimeLine :: struct {
     id: u8,
-    name: string,
+    name: BodyPart,
     keys: [dynamic]TimeLineKey
 }
 

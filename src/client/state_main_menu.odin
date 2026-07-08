@@ -4,11 +4,21 @@ import "core:fmt"
 import "core:math"
 import "core:math/linalg"
 
+import "../animations"
+
 import rl "vendor:raylib"
 
 main_menu_state: ClientState = {
+	on_enter  = on_enter,
 	on_update = on_update,
 	on_render = on_render,
+}
+
+anim_time: f32 = 0.0
+
+@(private = "file")
+on_enter :: proc() {
+	anim_time = 0
 }
 
 @(private = "file")
@@ -74,9 +84,43 @@ on_update :: proc(dt: f32) {
 
 	rl.GuiDisableTooltip()
 
+	anim_time += dt * 1000.0
 }
 
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground({200, 100, 240, 255})
+
+	type := animations.CharacterType.SKELETON
+	tier := animations.CharacterTier.T1
+
+	draw_commands := animations.calculate_frame(
+		&animations.data.entity.animations["Kicking"],
+		anim_time,
+		400,
+		200,
+	)
+
+	for cmd in draw_commands {
+		tex := animations.getPartTex(type, tier, cmd.part)
+
+		source: rl.Rectangle = {
+			x      = 0,
+			y      = 0,
+			width  = f32(tex.width),
+			height = f32(tex.height),
+		}
+
+		dest: rl.Rectangle = {
+			x      = cmd.x,
+			y      = cmd.y,
+			width  = f32(tex.width) * cmd.scale_x,
+			height = f32(tex.height) * cmd.scale_y,
+		}
+
+		origin: rl.Vector2 = {cmd.pivot_x * dest.width, cmd.pivot_y * dest.height}
+
+		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
+		rl.DrawTexturePro(tex, source, dest, origin, cmd.angle, color)
+	}
 }

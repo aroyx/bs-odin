@@ -1,5 +1,6 @@
 package animation
 
+import "core:strings"
 // this initialises the `data` gloabl variable
 
 import "core:encoding/xml"
@@ -206,7 +207,7 @@ parse_timeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
 
 	timeline: TimeLine = {
 		id   = u8(get_attrib_int(tl_el, "id")),
-		name = get_attrib_str(tl_el, "name"),
+		name = get_part(get_attrib_str(tl_el, "name")),
 		keys = make([dynamic]TimeLineKey),
 	}
 
@@ -271,6 +272,18 @@ get_attrib_float :: proc(element: ^xml.Element, key: string, default: f32 = 0) -
 		}
 	}
 	return default
+}
+
+@(private = "file")
+get_part :: proc(name: string) -> BodyPart {
+	for file in data.folder.files {
+		lookup_str := part_lookup[file.name]
+
+		if strings.has_prefix(lookup_str, name) {
+			return file.name
+		}
+	}
+	return {}
 }
 
 @(private = "file")

@@ -1,6 +1,5 @@
 package animation
 
-@(private)
 BodyPart :: enum u8 {
 	BODY, // the torso
 	HEAD,
@@ -18,14 +17,12 @@ BodyPart :: enum u8 {
 	SLASH_EFFECT,
 }
 
-@(private)
 CharacterType :: enum u8 {
 	SKELETON,
 	// GOBLIN,
 	// GOLEM
 }
 
-@(private)
 CharacterTier :: enum u8 {
 	T1,
 	// T2,

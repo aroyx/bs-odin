@@ -37,7 +37,6 @@ loadPart :: proc(type: CharacterType, tier: CharacterTier, part: BodyPart) {
 }
 
 // will create Texture if not available
-@(private)
 getPartTex :: proc(type: CharacterType, tier: CharacterTier, part: BodyPart) -> rl.Texture {
 	tex := global_cache[type][tier][part]
 
