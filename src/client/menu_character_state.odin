@@ -5,7 +5,6 @@ import "core:math/rand"
 import "core:time"
 
 import anim "../animations"
-import "../utils"
 
 import "core:math/linalg"
 
@@ -36,6 +35,10 @@ init_player :: proc() {
 	player_skin.parts[.SLASH_EFFECT] = .T1
 }
 
+// **************************
+// PLAYER ANIMATION IN THE MENUs
+// **************************
+
 @(private = "file")
 curr_animation: anim.AnimationName = .IDLE
 
@@ -44,6 +47,21 @@ curr_animation_length: f32 = 2000
 
 @(private = "file")
 animation_start_time: time.Time
+
+@(private = "file")
+prev_animation: anim.AnimationName
+
+@(private = "file")
+prev_animation_length: f32
+
+@(private = "file")
+blending := false
+
+@(private = "file")
+blend_start_time: time.Time
+
+@(private = "file")
+blend_dur :: 150 // ms
 
 run_animation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawCommand {
 	animation_elapsed := f32(
@@ -55,15 +73,45 @@ run_animation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawC
 	if animation_elapsed > curr_animation_length {
 		switch_animation()
 		animation_start_time = time.now()
+		animation_elapsed = 0
 	}
 
-	return anim.calculate_frame(
+	curr_commands := anim.calculate_frame(
 		&anim.data.entity,
 		curr_animation,
-		f32(utils.total_time) * 0.6,
+		animation_elapsed * 1.0,
 		pos,
 		scale,
 	)
+
+	if !blending {
+		return curr_commands
+	}
+
+	blend_elapsed := f32(time.duration_milliseconds(time.diff(blend_start_time, time.now())))
+	t := blend_elapsed / blend_dur
+
+	if t > 1.0 {
+		blending = false
+		return curr_commands
+	}
+
+    prev_time := prev_animation_length + blend_elapsed
+
+	prev_commands := anim.calculate_frame(
+		&anim.data.entity,
+		prev_animation,
+		prev_time,
+		pos,
+		scale,
+	)
+
+	blended_commands := blend_commands(prev_commands, curr_commands, t)
+
+	if len(curr_commands) > 0 do delete(curr_commands)
+	if len(prev_commands) > 0 do delete(prev_commands)
+
+	return blended_commands
 }
 
 @(private = "file")
@@ -75,7 +123,7 @@ AnimeRule :: struct {
 @(private = "file")
 animation_ruleset: [anim.AnimationName]AnimeRule = {
 	.IDLE = { 	//
-		next_anims = {.WALKING, .IDLE_BLINKING, .IDLE_BLINKING, .RUNNING, .KICKING},
+		next_anims = {.WALKING, .IDLE_BLINKING, .IDLE_BLINKING, .RUNNING, .KICKING, .SLASHING},
 		min_loops  = 4,
 		max_loops  = 8,
 	},
@@ -168,7 +216,49 @@ switch_animation :: proc() {
 		return
 	}
 
+	prev_animation = curr_animation
+	blending = true
+	blend_start_time = time.now()
+
 	curr_animation = next_anim
 	anime := &anim.data.entity.animations[anim_name]
+
+    prev_animation_length = curr_animation_length
 	curr_animation_length = f32(anime.length) * f32(loops)
+}
+
+blend_commands :: proc(a, b: [dynamic]anim.DrawCommand, t: f32) -> [dynamic]anim.DrawCommand {
+	blended_cmds := make([dynamic]anim.DrawCommand, 0, len(a)) // hopefully they have the same draw command length :pray:
+
+	for cmd_b in b { 	// DIAGNOSE: There's a chance that the array is in different order, so need to check their part (cmd.part) to be same to blend first!
+
+		blended_cmd := cmd_b
+		for cmd_a in a {
+
+			if cmd_a.part != cmd_b.part do continue
+
+			blended_cmd.x = linalg.lerp(cmd_a.x, cmd_b.x, t)
+			blended_cmd.y = linalg.lerp(cmd_a.y, cmd_b.y, t)
+			blended_cmd.scale_x = linalg.lerp(cmd_a.scale_x, cmd_b.scale_x, t)
+			blended_cmd.scale_y = linalg.lerp(cmd_a.scale_y, cmd_b.scale_y, t)
+			blended_cmd.angle = angle_lerp_shortest(cmd_a.angle, cmd_b.angle, t)
+			// not blended (defaulted to b):
+			// pivot_x, pivot_y: f32,
+			// alpha:            f32,
+
+			break
+		}
+		append(&blended_cmds, blended_cmd)
+	}
+
+	return blended_cmds
+}
+
+angle_lerp_shortest :: proc(a, b, t: f32) -> f32 {
+	diff := b - a
+
+	if diff > 180 do diff -= 360
+	if diff < -180 do diff += 360
+
+	return a + (diff * t)
 }
