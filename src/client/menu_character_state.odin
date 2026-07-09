@@ -1,5 +1,7 @@
 package client
 
+// this file has character skin and random animations player in the home/menu screen
+
 import "core:fmt"
 import "core:math/rand"
 import "core:time"
@@ -14,14 +16,13 @@ CharacterSkin :: struct {
 	parts: [anim.BodyPart]anim.CharacterTier,
 }
 
-@(private = "file")
 player_skin: CharacterSkin = {
 	type = .SKELETON,
 }
 
 init_player :: proc() {
 	player_skin.parts[.BODY] = .T1
-	player_skin.parts[.HEAD] = .T1
+	player_skin.parts[.HEAD] = .T2
 	player_skin.parts[.FACE_IDLE] = .T1
 	player_skin.parts[.FACE_BLINK] = .T1
 	player_skin.parts[.FACE_HURT] = .T1
