@@ -129,7 +129,7 @@ on_render :: proc() {
 	}
 }
 
-@(private)
+@(private = "file")
 menu_button :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 	return orui.label(
 		orui.id(id), //

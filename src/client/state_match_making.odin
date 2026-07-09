@@ -34,7 +34,12 @@ on_render :: proc() {
 
 	{orui.container(
 			orui.id("main_thing"),
-			{direction = .TopToBottom, width = orui.grow(), height = orui.grow()},
+			{
+				direction = .TopToBottom,
+				width = orui.grow(),
+				height = orui.grow(),
+				align_cross = .Center,
+			},
 		)
 		{
 			orui.container(
@@ -47,8 +52,6 @@ on_render :: proc() {
 					align_cross = .Center,
 				},
 			)
-
-			orui.label(orui.id("filler"), "", {height = orui.grow()})
 
 			orui.label(
 				orui.id("matchmakign"),
@@ -77,11 +80,40 @@ on_render :: proc() {
 				orui.id("lower buttons"),
 				{
 					direction = .LeftToRight,
-					width = orui.grow(),
+					width = orui.fit(),
 					height = {type = .Percent, value = 0.2, min = 40},
-					background_color = rl.BLACK,
+					align_main = .Center,
 				},
 			)
+
+			if menu_button(1, "Continue :)", {0, 180, 216, 255}) {
+				changeState(&loading_state)
+			}
+			if menu_button(2, "Cancel :(", {249, 65, 68, 255}) {
+				changeState(&main_menu_state)
+			}
 		}
 	}
+}
+
+@(private = "file")
+menu_button :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
+	return orui.label(
+		orui.id(id), //
+		text,
+		{
+			width = orui.grow(),
+			height = orui.fit(),
+			margin = orui.margin(10, 20),
+			padding = orui.padding(20, 10),
+			font_size = 20,
+			align = {.Center, .Center},
+			background_color = orui.animate(
+				"bg-active",
+				orui.active() ? col : (orui.hovered() ? rl.ColorLerp(col, rl.BLACK, 0.05) : rl.ColorLerp(col, rl.BLACK, 0.1)),
+			),
+			color = rl.BLACK,
+			corner_radius = orui.corner(4),
+		},
+	)
 }
