@@ -9,26 +9,28 @@ import "../terrain"
 import "../ui"
 import "../utils"
 
+import "thirdparty:orui"
 import rl "vendor:raylib"
+
+@(private)
+ui_ctx: ^orui.Context
 
 init :: proc() {
 	// rl.SetConfigFlags({.WINDOW_RESIZABLE, .MSAA_4X_HINT})
-    rl.SetTraceLogLevel(.WARNING)
+	rl.SetTraceLogLevel(.WARNING)
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
 	rl.InitWindow(800, 600, "BS-Odin")
 
 	// utils.loadRayGuiStyleFromMemory(style_genesis_raw)
 
-	rl.GuiLoadStyle("res/rgui/style_genesis.rgs")
-	rl.GuiSetStyle(.DEFAULT, i32(rl.GuiDefaultProperty.TEXT_SIZE), 32)
-	rl.GuiSetStyle(
-		.CHECKBOX,
-		i32(rl.GuiControlProperty.TEXT_COLOR_FOCUSED),
-		transmute(i32)u32(0xDEDEDEFF),
-	)
-
 	utils.initFont()
+
+	ui_ctx = new(orui.Context)
+	orui.init(ui_ctx)
+	ui_ctx.default_font = utils.get_font(.MEDIUM)^
+
 	ui.ImGuiInit()
+
 	animations.init()
 
 	a: i32 = rand.int31()
@@ -69,6 +71,8 @@ close :: proc() {
 		client_state.on_exit()
 	}
 	// rewokeConnectionWithServer()
+
+	orui.destroy(ui_ctx)
 	animations.close()
 	ui.ImGuiClose()
 	utils.deinitFont()

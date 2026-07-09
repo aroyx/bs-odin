@@ -1,0 +1,614 @@
+package orui
+
+import "core:math/linalg"
+import "core:strings"
+import "core:unicode/utf8"
+import rl "vendor:raylib"
+
+TEXT_MULTI_CLICK_TIME: f64 : 0.5
+TEXT_MULTI_CLICK_DISTANCE: f32 : 6
+
+@(private)
+handle_input_state :: proc(ctx: ^Context) {
+	current := current_buffer(ctx)
+	previous := previous_buffer(ctx)
+	// processing previous frame's elements
+	// input runs at the start of the frame, before the current frame's elements are declared
+	// previous elements are the latest available state of the elements
+	elements := &ctx.elements[previous]
+
+	sync_focus_element(ctx)
+
+	position := rl.GetMousePosition()
+	mouse_down := rl.IsMouseButtonDown(.LEFT)
+	pressed := rl.IsMouseButtonPressed(.LEFT)
+	released := rl.IsMouseButtonReleased(.LEFT)
+	scroll := rl.GetMouseWheelMoveV()
+
+	ctx.prev_focus_id = ctx.focus_id
+	ctx.hover[current].count = 0
+	ctx.active[current].count = 0
+
+	if released {
+		ctx.pointer_capture = 0
+		ctx.pointer_capture_id = 0
+		if ctx.focus != 0 && ctx.caret_index == -1 {
+			ctx.caret_index = text_caret_from_point(ctx, &elements[ctx.focus], position)
+		}
+	}
+
+	// if ctx.pointer_capture != 0 && mouse_down {
+	// 	el := &elements[ctx.pointer_capture]
+	// 	count := ctx.active[current].count
+	// 	ctx.active[current].ids[count] = el.id
+	// 	ctx.active[current].count += 1
+	// 	return
+	// }
+
+	scroll_consumed := false
+	click_consumed := false
+
+	for i := ctx.sorted_count - 1; i >= 0; i -= 1 {
+		element := &elements[ctx.sorted[i]]
+
+		if ctx.pointer_capture != 0 && ctx.pointer_capture != ctx.sorted[i] {
+			continue
+		}
+
+		if element.disabled == .True {
+			continue
+		}
+
+		if !point_in_element(position, element) {
+			continue
+		}
+
+		if !scroll_consumed {
+			if scroll.x != 0 && scrolls_x(element) {
+				scroll_offset := get_scroll_offset(element)
+				old := scroll_offset.x
+				scroll_offset.x -= scroll.x * SCROLL_FACTOR
+				scroll_offset.x = clamp(
+					scroll_offset.x,
+					0,
+					element._content_size.x - inner_width(element),
+				)
+				// don't consume the scroll if it didn't change
+				if scroll_offset.x != old {
+					element.scroll.offset = scroll_offset
+					if element.block == .True {
+						scroll_consumed = true
+					}
+				}
+			}
+			if scroll.y != 0 && scrolls_y(element) {
+				scroll_offset := get_scroll_offset(element)
+				old := scroll_offset.y
+				scroll_offset.y -= scroll.y * SCROLL_FACTOR
+				scroll_offset.y = clamp(
+					scroll_offset.y,
+					0,
+					element._content_size.y - inner_height(element),
+				)
+				// don't consume the scroll if it didn't change
+				if scroll_offset.y != old {
+					element.scroll.offset = scroll_offset
+					if element.block == .True {
+						scroll_consumed = true
+					}
+				}
+			}
+		}
+
+		if !click_consumed {
+			hover_count := ctx.hover[current].count
+			ctx.hover[current].ids[hover_count] = element.id
+			ctx.hover[current].count += 1
+
+			already_active := false
+			for active_index: i32 = 0;
+			    active_index < ctx.active[previous].count;
+			    active_index += 1 {
+				if ctx.active[previous].ids[active_index] == element.id {
+					already_active = true
+					break
+				}
+			}
+
+			if mouse_down && (pressed || already_active) {
+				active_count := ctx.active[current].count
+				ctx.active[current].ids[active_count] = element.id
+				ctx.active[current].count += 1
+
+				if pressed {
+					if element.editable {
+						if ctx.focus == ctx.sorted[i] &&
+						   (ctx.selecting ||
+								   rl.IsKeyDown(.LEFT_SHIFT) ||
+								   rl.IsKeyDown(.RIGHT_SHIFT)) {
+							// handle text selection with drag or shift click
+							ctx.text_selection_mode = .Character
+							ctx.text_selection.end = text_caret_from_point(ctx, element, position)
+							ctx.caret_index = ctx.text_selection.end
+							ctx.caret_time = 0
+							ensure_caret_visible(ctx, element, ctx.caret_index)
+						} else {
+							ctx.focus = ctx.sorted[i]
+							ctx.focus_id = element.id
+							click_count := next_text_click_count(ctx, element.id, position)
+							ctx.selecting = true
+							start_text_click_selection(ctx, element, position, click_count)
+						}
+					} else if ctx.focus != 0 {
+						clear_focus(ctx)
+					} else {
+						clear_text_click_state(ctx)
+					}
+				}
+
+				if element.capture == .True {
+					ctx.pointer_capture = ctx.sorted[i]
+					ctx.pointer_capture_id = element.id
+				}
+			}
+
+			if element.block == .True {
+				click_consumed = true
+			}
+		}
+
+		if scroll_consumed && click_consumed {
+			break
+		}
+	}
+
+	if ctx.selecting && mouse_down && ctx.focus != 0 {
+		el := &elements[ctx.focus]
+		update_text_drag_selection(ctx, el, position)
+	}
+
+	if released {
+		ctx.selecting = false
+	}
+
+	handle_keyboard_input(ctx)
+}
+
+@(private)
+next_text_click_count :: proc(ctx: ^Context, id: Id, position: rl.Vector2) -> int {
+	now := rl.GetTime()
+	within_distance :=
+		linalg.distance(position, ctx.text_click_position) <= TEXT_MULTI_CLICK_DISTANCE
+	within_time := now - ctx.text_click_time <= TEXT_MULTI_CLICK_TIME
+
+	click_count := 1
+	if ctx.text_click_id == id && within_time && within_distance {
+		click_count = min(ctx.text_click_count + 1, 3)
+	}
+
+	ctx.text_click_id = id
+	ctx.text_click_time = now
+	ctx.text_click_position = position
+	ctx.text_click_count = click_count
+	return click_count
+}
+
+@(private)
+clear_text_click_state :: proc(ctx: ^Context) {
+	ctx.text_click_id = 0
+	ctx.text_click_count = 0
+	ctx.text_selection_mode = .Character
+	ctx.text_selection_anchor = {}
+}
+
+@(private)
+set_text_selection :: proc(
+	ctx: ^Context,
+	element: ^Element,
+	selection: TextSelection,
+	caret: int,
+) {
+	ctx.text_selection = selection
+	ctx.caret_index = clamp(caret, 0, len(element.text_input.buf))
+	ctx.caret_time = 0
+	ensure_caret_visible(ctx, element, ctx.caret_index)
+}
+
+@(private)
+start_text_click_selection :: proc(
+	ctx: ^Context,
+	element: ^Element,
+	position: rl.Vector2,
+	click_count: int,
+) {
+	if click_count <= 1 {
+		caret := text_caret_from_point(ctx, element, position)
+		selection := TextSelection{caret, caret}
+		ctx.text_selection_mode = .Character
+		ctx.text_selection_anchor = selection
+		set_text_selection(ctx, element, selection, caret)
+		return
+	}
+
+	index := text_index_from_point(ctx, element, position)
+	selection: TextSelection
+	if click_count == 2 {
+		selection = text_word_range(element.text, index)
+		ctx.text_selection_mode = .Word
+	} else {
+		selection = text_line_range(element.text, index)
+		ctx.text_selection_mode = .Line
+	}
+
+	ctx.text_selection_anchor = selection
+	set_text_selection(ctx, element, selection, selection.end)
+}
+
+@(private)
+update_text_drag_selection :: proc(ctx: ^Context, element: ^Element, position: rl.Vector2) {
+	switch ctx.text_selection_mode {
+	case .Word:
+		target := text_word_range(element.text, text_index_from_point(ctx, element, position))
+		selection, caret := extend_text_selection(ctx.text_selection_anchor, target)
+		set_text_selection(ctx, element, selection, caret)
+	case .Line:
+		target := text_line_range(element.text, text_index_from_point(ctx, element, position))
+		selection, caret := extend_text_selection(ctx.text_selection_anchor, target)
+		set_text_selection(ctx, element, selection, caret)
+	case .Character:
+		end := text_caret_from_point(ctx, element, position)
+		ctx.text_selection.end = end
+		ctx.caret_index = end
+		ctx.caret_time = 0
+		ensure_caret_visible(ctx, element, ctx.caret_index)
+	}
+}
+
+@(private)
+handle_keyboard_input :: proc(ctx: ^Context) {
+	elements := &ctx.elements[previous_buffer(ctx)]
+	if ctx.focus != 0 {
+		element := &elements[ctx.focus]
+		if !element.editable {
+			clear_focus(ctx)
+		} else if rl.IsKeyPressed(.ENTER) && element.overflow == .Visible {
+			clear_focus(ctx)
+		} else {
+			text_input := element.text_input
+			ctrl_down := rl.IsKeyDown(.LEFT_CONTROL) || rl.IsKeyDown(.RIGHT_CONTROL)
+			cmd_down := rl.IsKeyDown(.LEFT_SUPER) || rl.IsKeyDown(.RIGHT_SUPER)
+			shift_down := rl.IsKeyDown(.LEFT_SHIFT) || rl.IsKeyDown(.RIGHT_SHIFT)
+
+			when ODIN_OS == .Darwin {
+				word_modifier := rl.IsKeyDown(.LEFT_ALT) || rl.IsKeyDown(.RIGHT_ALT)
+			} else {
+				word_modifier := ctrl_down
+			}
+
+			for char := rl.GetCharPressed(); char != 0; char = rl.GetCharPressed() {
+				if char == '\r' || char == '\n' {
+					continue
+				}
+				if has_text_selection(ctx) {
+					ctx.caret_index = delete_text_selection(ctx, element)
+				}
+				char_bytes, char_len := utf8.encode_rune(char)
+				bytes_inserted := insert_bytes(
+					text_input,
+					ctx.caret_index,
+					string(char_bytes[:char_len]),
+				)
+				element.text = strings.to_string(text_input^)
+				set_caret_index(ctx, element, ctx.caret_index + bytes_inserted)
+
+				if bytes_inserted == 0 {
+					break
+				}
+			}
+
+			if key_pressed(ctx, .LEFT) {
+				next :=
+					word_modifier ? utf8_prev_word(text_input, ctx.caret_index) : utf8_prev(text_input, ctx.caret_index)
+				if shift_down {
+					if !has_text_selection(ctx) {
+						ctx.text_selection.start = ctx.caret_index
+					}
+					ctx.text_selection.end = next
+				} else {
+					clear_text_selection(ctx)
+				}
+				set_caret_index(ctx, element, next)
+			}
+
+			if key_pressed(ctx, .RIGHT) {
+				next :=
+					word_modifier ? utf8_next_word(text_input, ctx.caret_index) : utf8_next(text_input, ctx.caret_index)
+				if shift_down {
+					if !has_text_selection(ctx) {
+						ctx.text_selection.start = ctx.caret_index
+					}
+					ctx.text_selection.end = next
+				} else {
+					clear_text_selection(ctx)
+				}
+				set_caret_index(ctx, element, next)
+			}
+
+			if rl.IsKeyPressed(.HOME) {
+				next_index := 0
+				if ctrl_down || cmd_down || element.overflow == .Visible {
+					next_index = 0
+				} else {
+					next_index = caret_index_start_of_line(ctx, element, ctx.caret_index)
+				}
+				if shift_down {
+					if !has_text_selection(ctx) {
+						ctx.text_selection.start = ctx.caret_index
+					}
+					ctx.text_selection.end = next_index
+				} else {
+					clear_text_selection(ctx)
+				}
+				set_caret_index(ctx, element, next_index)
+			}
+
+			if rl.IsKeyPressed(.END) {
+				next_index := len(text_input.buf)
+				if ctrl_down || cmd_down || element.overflow == .Visible {
+					next_index = len(text_input.buf)
+				} else {
+					next_index = caret_index_end_of_line(ctx, element, ctx.caret_index)
+				}
+				if shift_down {
+					if !has_text_selection(ctx) {
+						ctx.text_selection.start = ctx.caret_index
+					}
+					ctx.text_selection.end = next_index
+				} else {
+					clear_text_selection(ctx)
+				}
+				set_caret_index(ctx, element, next_index)
+			}
+
+			if element.overflow == .Wrap {
+				if key_pressed(ctx, .UP) {
+					next := caret_index_up(ctx, element, ctx.caret_position)
+					if shift_down {
+						if !has_text_selection(ctx) {
+							ctx.text_selection.start = ctx.caret_index
+						}
+						ctx.text_selection.end = next
+					} else {
+						clear_text_selection(ctx)
+					}
+					set_caret_index(ctx, element, next)
+				}
+
+				if key_pressed(ctx, .DOWN) {
+					next := caret_index_down(ctx, element, ctx.caret_position)
+					if shift_down {
+						if !has_text_selection(ctx) {
+							ctx.text_selection.start = ctx.caret_index
+						}
+						ctx.text_selection.end = next
+					} else {
+						clear_text_selection(ctx)
+					}
+					set_caret_index(ctx, element, next)
+				}
+
+				if key_pressed(ctx, .PAGE_UP) {
+					next := caret_index_up(ctx, element, ctx.caret_position, 5)
+					if shift_down {
+						if !has_text_selection(ctx) {
+							ctx.text_selection.start = ctx.caret_index
+						}
+						ctx.text_selection.end = next
+					} else {
+						clear_text_selection(ctx)
+					}
+					set_caret_index(ctx, element, next)
+				}
+
+				if key_pressed(ctx, .PAGE_DOWN) {
+					next := caret_index_down(ctx, element, ctx.caret_position, 5)
+					if shift_down {
+						if !has_text_selection(ctx) {
+							ctx.text_selection.start = ctx.caret_index
+						}
+						ctx.text_selection.end = next
+					} else {
+						clear_text_selection(ctx)
+					}
+					set_caret_index(ctx, element, next)
+				}
+			}
+
+			if key_pressed(ctx, .BACKSPACE) {
+				caret := ctx.caret_index
+				if has_text_selection(ctx) {
+					caret = delete_text_selection(ctx, element)
+				} else {
+					prev := utf8_prev(text_input, ctx.caret_index)
+					delete_range(text_input, prev, ctx.caret_index)
+					caret = prev
+				}
+				element.text = strings.to_string(text_input^)
+				set_caret_index(ctx, element, caret)
+			}
+
+			if key_pressed(ctx, .DELETE) {
+				if has_text_selection(ctx) {
+					caret := delete_text_selection(ctx, element)
+					set_caret_index(ctx, element, caret)
+				} else {
+					next := utf8_next(text_input, ctx.caret_index)
+					delete_range(text_input, ctx.caret_index, next)
+				}
+				element.text = strings.to_string(text_input^)
+			}
+
+			if key_pressed(ctx, .ENTER) && element.overflow == .Wrap {
+				caret := ctx.caret_index
+				if has_text_selection(ctx) {
+					caret = delete_text_selection(ctx, element)
+				}
+				char_bytes, char_len := utf8.encode_rune('\n')
+				bytes_inserted := insert_bytes(text_input, caret, string(char_bytes[:char_len]))
+				element.text = strings.to_string(text_input^)
+				set_caret_index(ctx, element, caret + bytes_inserted)
+			}
+
+			if rl.IsKeyPressed(.A) && (ctrl_down || cmd_down) {
+				ctx.text_selection.start = 0
+				ctx.text_selection.end = len(text_input.buf)
+				set_caret_index(ctx, element, len(text_input.buf))
+			}
+
+			if rl.IsKeyPressed(.C) && (ctrl_down || cmd_down) {
+				if has_text_selection(ctx) {
+					a, b := get_text_selection(ctx)
+					selected_text := string(text_input.buf[a:b])
+					rl.SetClipboardText(
+						strings.clone_to_cstring(
+							selected_text,
+							ctx.allocator[current_buffer(ctx)],
+						),
+					)
+				}
+			}
+
+			if rl.IsKeyPressed(.X) && (ctrl_down || cmd_down) {
+				if has_text_selection(ctx) {
+					a, b := get_text_selection(ctx)
+					selected_text := string(text_input.buf[a:b])
+					rl.SetClipboardText(
+						strings.clone_to_cstring(
+							selected_text,
+							ctx.allocator[current_buffer(ctx)],
+						),
+					)
+					delete_range(text_input, a, b)
+					element.text = strings.to_string(text_input^)
+					set_caret_index(ctx, element, a)
+					clear_text_selection(ctx)
+				}
+			}
+
+			if key_pressed(ctx, .V) && (ctrl_down || cmd_down) {
+				clipboard_text := rl.GetClipboardText()
+				if clipboard_text != nil {
+					text := string(clipboard_text)
+					caret := ctx.caret_index
+					if has_text_selection(ctx) {
+						caret = delete_text_selection(ctx, element)
+					}
+					bytes_inserted := insert_bytes(text_input, caret, text)
+					element.text = strings.to_string(text_input^)
+					set_caret_index(ctx, element, caret + bytes_inserted)
+				}
+			}
+		}
+	}
+}
+
+sync_focus_element :: proc(ctx: ^Context) {
+	if ctx.focus_id == 0 {
+		ctx.focus = 0
+		return
+	}
+
+	focus_index, ok := element_index_by_id(ctx, previous_buffer(ctx), ctx.focus_id)
+	if !ok {
+		clear_focus(ctx)
+		return
+	}
+
+	ctx.focus = focus_index
+
+	element := &ctx.elements[previous_buffer(ctx)][focus_index]
+	if !element.editable || element.text_input == nil {
+		return
+	}
+
+	max_index := len(element.text_input.buf)
+	caret_index := clamp(ctx.caret_index, 0, max_index)
+	selection_start := clamp(ctx.text_selection.start, 0, max_index)
+	selection_end := clamp(ctx.text_selection.end, 0, max_index)
+	if caret_index != ctx.caret_index ||
+	   selection_start != ctx.text_selection.start ||
+	   selection_end != ctx.text_selection.end {
+		ctx.caret_index = caret_index
+		ctx.text_selection.start = selection_start
+		ctx.text_selection.end = selection_end
+		ctx.caret_time = 0
+	}
+}
+
+@(private)
+clear_focus :: proc(ctx: ^Context) {
+	ctx.focus = 0
+	ctx.focus_id = 0
+	ctx.text_selection = {}
+	ctx.selecting = false
+	clear_text_click_state(ctx)
+}
+
+@(private)
+point_in_rect :: proc(p: rl.Vector2, pos: rl.Vector2, size: rl.Vector2) -> bool {
+	return p.x >= pos.x && p.y >= pos.y && p.x < pos.x + size.x && p.y < pos.y + size.y
+}
+
+@(private)
+point_in_element :: proc(p: rl.Vector2, element: ^Element) -> bool {
+	if !point_in_rect(p, element._position, element._size) {
+		return false
+	}
+
+	if element._clip.width > 0 || element._clip.height > 0 {
+		return point_in_rect(
+			p,
+			{f32(element._clip.x), f32(element._clip.y)},
+			{f32(element._clip.width), f32(element._clip.height)},
+		)
+	}
+
+	return true
+}
+
+@(private)
+key_pressed :: proc(ctx: ^Context, key: rl.KeyboardKey) -> bool {
+	return rl.IsKeyPressed(key) || rl.IsKeyPressedRepeat(key)
+}
+
+@(private)
+set_caret_index :: proc(ctx: ^Context, element: ^Element, index: int) {
+	ctx.caret_index = clamp(index, 0, len(element.text_input.buf))
+	ctx.caret_time = 0
+	ensure_caret_visible(ctx, element, ctx.caret_index)
+}
+
+@(private)
+has_text_selection :: #force_inline proc(ctx: ^Context) -> bool {
+	return ctx.text_selection.start != ctx.text_selection.end
+}
+
+@(private)
+get_text_selection :: #force_inline proc(ctx: ^Context) -> (int, int) {
+	a := min(ctx.text_selection.start, ctx.text_selection.end)
+	b := max(ctx.text_selection.start, ctx.text_selection.end)
+	return a, b
+}
+
+@(private)
+clear_text_selection :: #force_inline proc(ctx: ^Context) {
+	ctx.text_selection = {}
+}
+
+@(private)
+delete_text_selection :: #force_inline proc(ctx: ^Context, element: ^Element) -> int {
+	a, b := get_text_selection(ctx)
+	delete_range(element.text_input, a, b)
+	clear_text_selection(ctx)
+	return a
+}

@@ -29,6 +29,14 @@ initFont :: proc() {
 	rl.SetTextureFilter(font[.LARGE].texture, .BILINEAR)
 }
 
+get_font :: proc(size: FontSize = FontSize.MEDIUM) -> ^rl.Font {
+	return &font[size]
+}
+
+get_font_size :: proc(size: FontSize = FontSize.MEDIUM) -> f32 {
+	return font_sizes[size]
+}
+
 deinitFont :: proc() {
 	for f in font {
 		rl.UnloadFont(f)

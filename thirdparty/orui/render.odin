@@ -1,0 +1,630 @@
+package orui
+
+import rl "vendor:raylib"
+
+CORNER_SEGMENTS :: 16
+MISSING_COLOR :: rl.Color{0, 0, 0, 0}
+
+render_command :: proc(command: RenderCommand) {
+	switch data in command.data {
+	case RenderCommandDataRectangle:
+		if has_round_corners(data.corner_radius) {
+			render_rounded_rectangle(data.position, data.size, data.corner_radius, data.color)
+		} else {
+			draw_rectangle(data.position, data.size, data.color)
+		}
+	case RenderCommandDataBorder:
+		if has_round_corners(data.corner_radius) {
+			render_rounded_border(
+				data.position,
+				data.size,
+				data.border,
+				data.corner_radius,
+				data.color,
+			)
+		} else {
+			render_straight_border(data.position, data.size, data.border, data.color)
+		}
+	case RenderCommandDataText:
+		render_text_line(
+			data.position,
+			data.text,
+			data.font,
+			data.font_size,
+			data.letter_spacing,
+			data.color,
+		)
+	case RenderCommandDataImage:
+		render_image(data.texture, data.color, data.src, data.dst)
+	case RenderCommandDataScissorStart:
+		rl.BeginScissorMode(
+			i32(data.rectangle.x),
+			i32(data.rectangle.y),
+			i32(data.rectangle.width),
+			i32(data.rectangle.height),
+		)
+	case RenderCommandDataScissorEnd:
+		rl.EndScissorMode()
+	case RenderCommandDataCustom:
+	}
+}
+
+@(private)
+render :: proc(ctx: ^Context) {
+	elements := &ctx.elements[current_buffer(ctx)]
+	ctx.sorted_count = 0
+	collect_elements(ctx, 0, 0)
+	sort_elements(ctx)
+
+	current_clip: ClipRectangle
+	current_clip_source: ^Element
+	ctx.render_command_count = 0
+	for i: i32 = 0; i < ctx.sorted_count; i += 1 {
+		index := ctx.sorted[i]
+		element := &elements[index]
+
+		if element._clip != current_clip {
+			if current_clip.width > 0 && current_clip.height > 0 {
+				ctx.render_commands[ctx.render_command_count] = RenderCommand {
+					type = .ScissorEnd,
+					source = current_clip_source,
+					data = RenderCommandDataScissorEnd{},
+				}
+				ctx.render_command_count += 1
+				current_clip = {}
+				current_clip_source = nil
+			}
+
+			if element._clip.width > 0 && element._clip.height > 0 {
+				ctx.render_commands[ctx.render_command_count] = RenderCommand {
+					type = .ScissorStart,
+					source = element,
+					data = RenderCommandDataScissorStart{rectangle = element._clip},
+				}
+				ctx.render_command_count += 1
+				current_clip = element._clip
+				current_clip_source = element
+			}
+		}
+
+		render_element(ctx, index)
+	}
+
+	if current_clip != {} {
+		ctx.render_commands[ctx.render_command_count] = RenderCommand {
+			type = .ScissorEnd,
+			source = current_clip_source,
+			data = RenderCommandDataScissorEnd{},
+		}
+		ctx.render_command_count += 1
+	}
+}
+
+@(private = "file")
+collect_elements :: proc(ctx: ^Context, index: i32, parent_index: i32) {
+	elements := &ctx.elements[current_buffer(ctx)]
+	element := &elements[index]
+	parent := &elements[parent_index]
+	element._layer = element.layer == 0 ? parent._layer : i32(element.layer)
+
+	switch element.clip.type {
+	case .Inherit:
+		element._clip = parent._clip
+	case .Self:
+		element._clip = {
+			i32(element._position.x),
+			i32(element._position.y),
+			i32(element._size.x),
+			i32(element._size.y),
+		}
+	case .Intersect:
+		if parent._clip != {} {
+			x1 := max(i32(element._position.x), parent._clip.x)
+			y1 := max(i32(element._position.y), parent._clip.y)
+			x2 := min(
+				i32(element._position.x + element._size.x),
+				parent._clip.x + parent._clip.width,
+			)
+			y2 := min(
+				i32(element._position.y + element._size.y),
+				parent._clip.y + parent._clip.height,
+			)
+			element._clip = {x1, y1, max(0, x2 - x1), max(0, y2 - y1)}
+		} else {
+			element._clip = {
+				i32(element._position.x),
+				i32(element._position.y),
+				i32(element._size.x),
+				i32(element._size.y),
+			}
+		}
+	case .Manual:
+		element._clip = element.clip.rectangle
+	case .None:
+		element._clip = {}
+	}
+
+	ctx.sorted[ctx.sorted_count] = index
+	ctx.sorted_count += 1
+
+	child := elements[index].children
+	for child != 0 {
+		collect_elements(ctx, child, index)
+		child = elements[child].next
+	}
+}
+
+@(private = "file")
+sort_elements :: proc(ctx: ^Context) {
+	elements := &ctx.elements[current_buffer(ctx)]
+	for i: i32 = 1; i < ctx.sorted_count; i += 1 {
+		key := ctx.sorted[i]
+		layer := elements[key]._layer
+		j := i - 1
+		for j >= 0 && elements[ctx.sorted[j]]._layer > layer {
+			ctx.sorted[j + 1] = ctx.sorted[j]
+			j -= 1
+		}
+		ctx.sorted[j + 1] = key
+	}
+}
+
+@(private)
+render_element :: proc(ctx: ^Context, index: i32) {
+	elements := &ctx.elements[current_buffer(ctx)]
+	element := &elements[index]
+
+	if element._clip.width > 0 || element._clip.height > 0 {
+		clip_right := element._clip.x + element._clip.width
+		clip_bottom := element._clip.y + element._clip.height
+		element_right := element._position.x + element._size.x
+		element_bottom := element._position.y + element._size.y
+
+		if i32(element._position.x) >= clip_right ||
+		   i32(element._position.y) >= clip_bottom ||
+		   i32(element_right) <= element._clip.x ||
+		   i32(element_bottom) <= element._clip.y {
+			return
+		}
+	}
+
+	if element.background_color.a > 0 {
+		ctx.render_commands[ctx.render_command_count] = RenderCommand {
+			type = .Rectangle,
+			source = element,
+			data = RenderCommandDataRectangle {
+				position = element._position,
+				size = element._size,
+				color = element.background_color,
+				corner_radius = clamp_corner_radius(element._size, element.corner_radius),
+			},
+		}
+		ctx.render_command_count += 1
+	}
+
+	if element.border_color.a > 0 {
+		ctx.render_commands[ctx.render_command_count] = RenderCommand {
+			type = .Border,
+			source = element,
+			data = RenderCommandDataBorder {
+				position = element._position,
+				size = element._size,
+				border = element.border,
+				color = element.border_color,
+				corner_radius = clamp_corner_radius(element._size, element.corner_radius),
+			},
+		}
+		ctx.render_command_count += 1
+	}
+
+	if element.has_text {
+		if element.overflow == .Wrap {
+			render_wrapped_text(ctx, element)
+		} else {
+			render_text(ctx, element)
+		}
+	}
+
+	if element.texture != nil {
+		render_texture(ctx, element)
+	}
+
+	if element.custom_event != nil {
+		ctx.render_commands[ctx.render_command_count] = RenderCommand {
+			type = .Custom,
+			source = element,
+			data = RenderCommandDataCustom {
+				source = element,
+				rectangle = {
+					element._position.x,
+					element._position.y,
+					element._size.x,
+					element._size.y,
+				},
+				custom_event = element.custom_event,
+			},
+		}
+		ctx.render_command_count += 1
+	}
+}
+
+@(private)
+render_rounded_rectangle :: proc(
+	position: rl.Vector2,
+	size: rl.Vector2,
+	corners: Corners,
+	color: rl.Color,
+) {
+	// central vertical rectangle
+	if size.x - (corners.top_left + corners.top_right) > 0 {
+		draw_rectangle(
+			{position.x + corners.top_left, position.y},
+			{size.x - (corners.top_left + corners.top_right), size.y},
+			color,
+		)
+	}
+
+	// left bar
+	if corners.top_left + corners.bottom_left < size.y {
+		draw_rectangle(
+			{position.x, position.y + corners.top_left},
+			{corners.top_left, size.y - (corners.top_left + corners.bottom_left)},
+			color,
+		)
+	}
+
+	// right bar
+	if corners.top_right + corners.bottom_right < size.y {
+		draw_rectangle(
+			{position.x + size.x - corners.top_right, position.y + corners.top_right},
+			{corners.top_right, size.y - (corners.top_right + corners.bottom_right)},
+			color,
+		)
+	}
+
+	// corners
+	if corners.top_left > 0 {
+		rl.DrawCircleSector(
+			{position.x + corners.top_left, position.y + corners.top_left},
+			corners.top_left,
+			180,
+			270,
+			CORNER_SEGMENTS,
+			color,
+		)
+	}
+
+	if corners.top_right > 0 {
+		rl.DrawCircleSector(
+			{position.x + size.x - corners.top_right, position.y + corners.top_right},
+			corners.top_right,
+			270,
+			360,
+			CORNER_SEGMENTS,
+			color,
+		)
+	}
+
+	if corners.bottom_left > 0 {
+		rl.DrawCircleSector(
+			{position.x + corners.bottom_left, position.y + size.y - corners.bottom_left},
+			corners.bottom_left,
+			90,
+			180,
+			CORNER_SEGMENTS,
+			color,
+		)
+	}
+
+	if corners.bottom_right > 0 {
+		rl.DrawCircleSector(
+			{
+				position.x + size.x - corners.bottom_right,
+				position.y + size.y - corners.bottom_right,
+			},
+			corners.bottom_right,
+			0,
+			90,
+			CORNER_SEGMENTS,
+			color,
+		)
+	}
+}
+
+@(private)
+render_straight_border :: proc(
+	position: rl.Vector2,
+	size: rl.Vector2,
+	border: Edges,
+	color: rl.Color,
+) {
+	if border.top == border.left && border.left == border.right && border.right == border.bottom {
+		rl.DrawRectangleLinesEx({position.x, position.y, size.x, size.y}, border.top, color)
+	} else {
+		if border.top > 0 {
+			draw_rectangle({position.x, position.y}, {size.x, border.top}, color)
+		}
+		if border.right > 0 {
+			draw_rectangle(
+				{position.x + size.x - border.right, position.y},
+				{border.right, size.y},
+				color,
+			)
+		}
+		if border.bottom > 0 {
+			draw_rectangle(
+				{position.x, position.y + size.y - border.bottom},
+				{size.x, border.bottom},
+				color,
+			)
+		}
+		if border.left > 0 {
+			draw_rectangle({position.x, position.y}, {border.left, size.y}, color)
+		}
+	}
+}
+
+@(private)
+render_rounded_border :: proc(
+	position: rl.Vector2,
+	size: rl.Vector2,
+	border: Edges,
+	corners: Corners,
+	color: rl.Color,
+) {
+	radius := clamp_corner_radius(size, corners)
+
+	if border.left > 0 {
+		draw_rectangle(
+			{position.x, position.y + radius.top_left},
+			{border.left, size.y - (radius.top_left + radius.bottom_left)},
+			color,
+		)
+	}
+
+	if border.right > 0 {
+		draw_rectangle(
+			{position.x + size.x - border.right, position.y + radius.top_right},
+			{border.right, size.y - (radius.top_right + radius.bottom_right)},
+			color,
+		)
+	}
+
+	if border.top > 0 {
+		draw_rectangle(
+			{position.x + radius.top_left, position.y},
+			{size.x - (radius.top_left + radius.top_right), border.top},
+			color,
+		)
+	}
+
+	if border.bottom > 0 {
+		draw_rectangle(
+			{position.x + radius.bottom_left, position.y + size.y - border.bottom},
+			{size.x - (radius.bottom_left + radius.bottom_right), border.bottom},
+			color,
+		)
+	}
+
+	if radius.top_left > 0 {
+		rl.DrawRing(
+			{position.x + radius.top_left, position.y + radius.top_left},
+			radius.top_left - border.top,
+			radius.top_left,
+			180,
+			270,
+			CORNER_SEGMENTS,
+			color,
+		)
+	}
+
+	if radius.top_right > 0 {
+		rl.DrawRing(
+			{position.x + size.x - radius.top_right, position.y + radius.top_right},
+			radius.top_right - border.top,
+			radius.top_right,
+			270,
+			360,
+			CORNER_SEGMENTS,
+			color,
+		)
+	}
+
+	if radius.bottom_right > 0 {
+		rl.DrawRing(
+			{position.x + size.x - radius.bottom_right, position.y + size.y - radius.bottom_right},
+			radius.bottom_right - border.bottom,
+			radius.bottom_right,
+			0,
+			90,
+			CORNER_SEGMENTS,
+			color,
+		)
+	}
+
+	if radius.bottom_left > 0 {
+		rl.DrawRing(
+			{position.x + radius.bottom_left, position.y + size.y - radius.bottom_left},
+			radius.bottom_left - border.bottom,
+			radius.bottom_left,
+			90,
+			180,
+			CORNER_SEGMENTS,
+			color,
+		)
+	}
+}
+
+render_image :: proc(
+	texture: ^rl.Texture2D,
+	color: rl.Color,
+	src: rl.Rectangle,
+	dst: rl.Rectangle,
+) {
+	rl.DrawTexturePro(texture^, src, dst, {}, 0, color)
+}
+
+@(private)
+render_texture :: proc(ctx: ^Context, element: ^Element) {
+	source := element.texture_source
+	if source.width == 0 && source.height == 0 {
+		source = {0, 0, f32(element.texture^.width), f32(element.texture^.height)}
+	}
+
+	color := element.color
+	if color == MISSING_COLOR {
+		color = rl.WHITE
+	}
+
+	container_x := element._position.x + element.padding.left + element.border.left
+	container_y := element._position.y + element.padding.top + element.border.top
+	container_width := element._size.x - x_padding(element) - x_border(element)
+	container_height := element._size.y - y_padding(element) - y_border(element)
+
+	dest: rl.Rectangle
+
+	switch element.texture_fit {
+	case .Fill:
+		dest = {container_x, container_y, container_width, container_height}
+	case .Contain:
+		source_aspect := source.width / source.height
+		container_aspect := container_width / container_height
+
+		if source_aspect > container_aspect {
+			// image is wider
+			dest.width = container_width
+			dest.height = container_width / source_aspect
+		} else {
+			// image is taller
+			dest.width = container_height * source_aspect
+			dest.height = container_height
+		}
+	case .Cover:
+		source_aspect := source.width / source.height
+		container_aspect := container_width / container_height
+
+		if source_aspect > container_aspect {
+			// image is wider
+			dest.width = container_height * source_aspect
+			dest.height = container_height
+		} else {
+			// image is taller
+			dest.width = container_width
+			dest.height = container_width / source_aspect
+		}
+	case .None:
+		dest.width = source.width
+		dest.height = source.height
+	case .ScaleDown:
+		// same as contain, but only scale down
+		source_aspect := source.width / source.height
+		container_aspect := container_width / container_height
+
+		if source.width <= container_width && source.height <= container_height {
+			dest.width = source.width
+			dest.height = source.height
+		} else {
+			if source_aspect > container_aspect {
+				// image is wider
+				dest.width = container_width
+				dest.height = container_width / source_aspect
+			} else {
+				// image is taller
+				dest.width = container_height * source_aspect
+				dest.height = container_height
+			}
+		}
+	}
+
+	dest.x = container_x + calculate_alignment_offset(element.align.x, container_width, dest.width)
+	dest.y =
+		container_y + calculate_alignment_offset(element.align.y, container_height, dest.height)
+
+	// clip image to container
+	// don't use scissor mode, it's sloooow
+	clamp_left := max(dest.x, container_x)
+	clamp_top := max(dest.y, container_y)
+	clamp_right := min(dest.x + dest.width, container_x + container_width)
+	clamp_bottom := min(dest.y + dest.height, container_y + container_height)
+
+	clip_left := clamp_left - dest.x
+	clip_top := clamp_top - dest.y
+	clip_right := (dest.x + dest.width) - clamp_right
+	clip_bottom := (dest.y + dest.height) - clamp_bottom
+
+	source_scale_x := source.width / dest.width
+	source_scale_y := source.height / dest.height
+
+	adjusted_source := rl.Rectangle {
+		source.x + clip_left * source_scale_x,
+		source.y + clip_top * source_scale_y,
+		source.width - (clip_left + clip_right) * source_scale_x,
+		source.height - (clip_top + clip_bottom) * source_scale_y,
+	}
+
+	adjusted_dest := rl.Rectangle {
+		clamp_left,
+		clamp_top,
+		clamp_right - clamp_left,
+		clamp_bottom - clamp_top,
+	}
+
+	if adjusted_dest.width > 0 && adjusted_dest.height > 0 {
+		ctx.render_commands[ctx.render_command_count] = RenderCommand {
+			type = .Image,
+			source = element,
+			data = RenderCommandDataImage {
+				texture = element.texture,
+				color = color,
+				src = adjusted_source,
+				dst = adjusted_dest,
+			},
+		}
+		ctx.render_command_count += 1
+	}
+}
+
+@(private)
+clamp_corner_radius :: proc(size: rl.Vector2, radius: Corners) -> Corners {
+	scale: f32 = 1
+	width := size.x
+	height := size.y
+
+	top_sum := radius.top_left + radius.top_right
+	bottom_sum := radius.bottom_left + radius.bottom_right
+	left_sum := radius.top_left + radius.bottom_left
+	right_sum := radius.top_right + radius.bottom_right
+
+	if top_sum > width {
+		s := width / top_sum
+		if s < scale {scale = s}
+	}
+	if bottom_sum > width {
+		s := width / bottom_sum
+		if s < scale {scale = s}
+	}
+	if left_sum > height {
+		s := height / left_sum
+		if s < scale {scale = s}
+	}
+	if right_sum > height {
+		s := height / right_sum
+		if s < scale {scale = s}
+	}
+
+	if scale < 1 {
+		return {
+			top_left = radius.top_left * scale,
+			top_right = radius.top_right * scale,
+			bottom_right = radius.bottom_right * scale,
+			bottom_left = radius.bottom_left * scale,
+		}
+	}
+
+	return radius
+}
+
+@(private)
+draw_rectangle :: proc(position: rl.Vector2, size: rl.Vector2, color: rl.Color) {
+	rl.DrawRectanglePro({position.x, position.y, size.x, size.y}, {}, 0, color)
+}
