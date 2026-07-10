@@ -107,20 +107,22 @@ on_render :: proc() {
 						gap = 10,
 						padding = orui.padding(20),
 						corner_radius = orui.corner(8),
-						background_color = {0, 129, 167, 255},
+						background_color = BLUE,
+						border_color = rl.BLACK,
+						border = orui.border(4),
 					},
 				)
 				{
-					if menu_button(1, "Start :)", {0, 175, 185, 255}) {
+					if menu_button(1, "Start :)", CYAN) {
 						changeState(&match_making_state)
 					}
-					if menu_button(2, "Options :|", {253, 252, 220, 255}) {
+					if menu_button(2, "Options :|", WHITE) {
 						changeState(&options_state)
 					}
-					if menu_button(3, "Avatar :D", {254, 217, 183, 255}) {
+					if menu_button(3, "Avatar :D", YELLOW) {
 						changeState(&avatar_select_state)
 					}
-					if menu_button(4, "Quit :(", {240, 113, 103, 255}) {
+					if menu_button(4, "Quit :(", RED) {
 						global.quit = true
 					}
 				}
@@ -140,11 +142,13 @@ menu_button :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool 
 			font_size = 20,
 			align = {.Center, .Center},
 			background_color = orui.animate(
-				"bg-active",
-				orui.active() ? col : (orui.hovered() ? rl.ColorLerp(col, rl.BLACK, 0.05) : rl.ColorLerp(col, rl.BLACK, 0.1)),
+				"bg-color",
+				orui.active() ? rl.ColorLerp(col, rl.WHITE, 0.35) : col,
 			),
 			color = rl.BLACK,
 			corner_radius = orui.corner(4),
+			border = getBorder(),
+			border_color = rl.BLACK,
 		},
 	)
 }

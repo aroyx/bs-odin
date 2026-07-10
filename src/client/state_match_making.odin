@@ -109,11 +109,13 @@ menu_button :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool 
 			font_size = 20,
 			align = {.Center, .Center},
 			background_color = orui.animate(
-				"bg-active",
-				orui.active() ? col : (orui.hovered() ? rl.ColorLerp(col, rl.BLACK, 0.05) : rl.ColorLerp(col, rl.BLACK, 0.1)),
+				"bg-color",
+				orui.active() ? rl.ColorLerp(col, rl.WHITE, 0.20) : col,
 			),
 			color = rl.BLACK,
 			corner_radius = orui.corner(4),
+			border = getBorder(),
+			border_color = rl.BLACK,
 		},
 	)
 }
