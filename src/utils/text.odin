@@ -12,6 +12,7 @@ FontSize :: enum u8 {
 
 @(private = "file")
 font: [FontSize]rl.Font
+
 @(private = "file")
 font_sizes: [FontSize]f32 = {
 	.SMALL  = 12,
@@ -19,14 +20,39 @@ font_sizes: [FontSize]f32 = {
 	.LARGE  = 48,
 }
 
+@(private = "file")
+icon_font: rl.Font
+
 initFont :: proc() {
 	font[.SMALL] = rl.LoadFontEx("./res/fonts/supercell.otf", i32(font_sizes[.SMALL]), nil, 0)
 	font[.MEDIUM] = rl.LoadFontEx("./res/fonts/supercell.otf", i32(font_sizes[.MEDIUM]), nil, 0)
 	font[.LARGE] = rl.LoadFontEx("./res/fonts/supercell.otf", i32(font_sizes[.LARGE]), nil, 0)
 
+	icon_codepoints := [?]rune {
+		0xe048, // ICON_LUCIDE_ARROW_LEFT
+		0xe049, // ICON_LUCIDE_ARROW_RIGHT
+		0xe06e, // ICON_LUCIDE_CHEVRON_LEFT
+		0xe06f, // ICON_LUCIDE_CHEVRON_RIGHT
+		0xe14d, // ICON_LUCIDE_SAVE
+		0xe18e, // ICON_LUCIDE_TRASH_2
+		0x78, // ICON_LUCIDE_X
+	}
+
+	icon_font = rl.LoadFontEx(
+		"./res/fonts/lucide.ttf",
+		32,
+		&icon_codepoints[0],
+		len(icon_codepoints),
+	)
+
 	rl.SetTextureFilter(font[.SMALL].texture, .BILINEAR)
 	rl.SetTextureFilter(font[.MEDIUM].texture, .BILINEAR)
 	rl.SetTextureFilter(font[.LARGE].texture, .BILINEAR)
+	rl.SetTextureFilter(icon_font.texture, .BILINEAR)
+}
+
+get_icon_font :: proc() -> ^rl.Font {
+	return &icon_font
 }
 
 get_font :: proc(size: FontSize = FontSize.MEDIUM) -> ^rl.Font {
