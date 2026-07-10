@@ -4,7 +4,7 @@ package animation
 init :: proc() {
     loadAllParts()
 
-    parse_scml()
+    parseScml()
 }
 
 close :: proc() {

@@ -10,7 +10,7 @@ import "core:time"
 import "vendor:raylib"
 
 @(private)
-parse_scml :: proc() {
+parseScml :: proc() {
 	// use raylib file loader so that I can use it in wasm
 	fileSize: i32 = 0
 	raw := raylib.LoadFileData("res/images/character/Animations.scml", &fileSize)
@@ -25,7 +25,7 @@ parse_scml :: proc() {
 	defer delete(bytes)
 
 	doc, err := xml.parse_bytes(bytes)
-	if !handle_xml_errors(err) {
+	if !handleXmlErrors(err) {
 		return
 	}
 	defer xml.destroy(doc)
@@ -38,11 +38,11 @@ parse_scml :: proc() {
 		fmt.println("XML Error: This is bad, are you sure the xml file is yours?")
 	}
 
-	parse_root(doc, root_id)
+	parseRoot(doc, root_id)
 }
 
 @(private = "file")
-parse_root :: proc(doc: ^xml.Document, id: xml.Element_ID) {
+parseRoot :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 	root := &doc.elements[id]
 	for child_val in root.value {
 		child_id := child_val.(xml.Element_ID)
@@ -50,9 +50,9 @@ parse_root :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 		child_node := &doc.elements[child_id]
 
 		if child_node.ident == "folder" {
-			parse_folder(doc, child_id)
+			parseFolder(doc, child_id)
 		} else if child_node.ident == "entity" {
-			parse_entity(doc, child_id)
+			parseEntity(doc, child_id)
 		} else {
 			fmt.println("XML Error: unknown element in root: ", child_node.ident)
 		}
@@ -60,7 +60,7 @@ parse_root :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 }
 
 @(private = "file")
-parse_folder :: proc(doc: ^xml.Document, id: xml.Element_ID) {
+parseFolder :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 	folder_el := &doc.elements[id]
 
 	file_i := 0
@@ -73,7 +73,7 @@ parse_folder :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 
 		part_name: BodyPart
 
-		file_name := get_attrib_str(child_node, "name")
+		file_name := getAttribStr(child_node, "name")
 		for val, key in part_lookup {
 			if val == file_name {
 				part_name = key
@@ -83,11 +83,11 @@ parse_folder :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 
 		file: File = {
 			name    = part_name,
-			id      = u8(get_attrib_int(child_node, "id")),
-			width   = get_attrib_float(child_node, "width"),
-			height  = get_attrib_float(child_node, "height"),
-			pivot_x = get_attrib_float(child_node, "pivot_x"),
-			pivot_y = get_attrib_float(child_node, "pivot_y"),
+			id      = u8(getAttribInt(child_node, "id")),
+			width   = getAttribFloat(child_node, "width"),
+			height  = getAttribFloat(child_node, "height"),
+			pivot_x = getAttribFloat(child_node, "pivot_x"),
+			pivot_y = getAttribFloat(child_node, "pivot_y"),
 		}
 		data.folder.files[file_i] = file
 		file_i += 1
@@ -95,7 +95,7 @@ parse_folder :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 }
 
 @(private = "file")
-parse_entity :: proc(doc: ^xml.Document, id: xml.Element_ID) {
+parseEntity :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 	entity_el := &doc.elements[id]
 
 	bone_i := 0
@@ -109,26 +109,26 @@ parse_entity :: proc(doc: ^xml.Document, id: xml.Element_ID) {
 		child_node := &doc.elements[child_id]
 		if child_node.ident == "obj_info" {
 			bone: Bone = {
-				name  = strings.clone(get_attrib_str(child_node, "name")),
-				width = get_attrib_float(child_node, "w"),
+				name  = strings.clone(getAttribStr(child_node, "name")),
+				width = getAttribFloat(child_node, "w"),
 			}
 			data.entity.obj_infos[bone_i] = bone
 			bone_i += 1
 		} else if child_node.ident == "animation" {
-			anim := parse_animation(doc, child_id)
-			anim_name := strings.clone(get_attrib_str(child_node, "name"))
+			anim := parseAnimation(doc, child_id)
+			anim_name := strings.clone(getAttribStr(child_node, "name"))
 			data.entity.animations[anim_name] = anim
 		}
 	}
 }
 
 @(private = "file")
-parse_animation :: proc(doc: ^xml.Document, id: xml.Element_ID) -> Animation {
+parseAnimation :: proc(doc: ^xml.Document, id: xml.Element_ID) -> Animation {
 	anim_el := &doc.elements[id]
 
 	anim: Animation = {
-		id        = u8(get_attrib_int(anim_el, "id")),
-		length    = get_attrib_int(anim_el, "length"),
+		id        = u8(getAttribInt(anim_el, "id")),
+		length    = getAttribInt(anim_el, "length"),
 		glines    = make([dynamic]Gline),
 		timelines = make([dynamic]TimeLine),
 	}
@@ -143,13 +143,13 @@ parse_animation :: proc(doc: ^xml.Document, id: xml.Element_ID) -> Animation {
 
 		if child_node.ident == "gline" {
 			gl: Gline = {
-				pos = get_attrib_int(child_node, "pos"),
+				pos = getAttribInt(child_node, "pos"),
 			}
 			append(&anim.glines, gl)
 		} else if child_node.ident == "mainline" {
-			parse_mainline(doc, child_id, &anim.mainline)
+			parseMainline(doc, child_id, &anim.mainline)
 		} else if child_node.ident == "timeline" {
-			tl := parse_timeline(doc, child_id)
+			tl := parseTimeline(doc, child_id)
 			append(&anim.timelines, tl)
 		}
 	}
@@ -158,7 +158,7 @@ parse_animation :: proc(doc: ^xml.Document, id: xml.Element_ID) -> Animation {
 }
 
 @(private = "file")
-parse_mainline :: proc(doc: ^xml.Document, id: xml.Element_ID, mainline: ^MainLine) {
+parseMainline :: proc(doc: ^xml.Document, id: xml.Element_ID, mainline: ^MainLine) {
 	ml_el := &doc.elements[id]
 
 	for child_val in ml_el.value {
@@ -167,7 +167,7 @@ parse_mainline :: proc(doc: ^xml.Document, id: xml.Element_ID, mainline: ^MainLi
 
 		child_node := &doc.elements[child_id]
 
-		if !(child_node.ident == "key" && get_attrib_int(child_node, "id") == 0) {
+		if !(child_node.ident == "key" && getAttribInt(child_node, "id") == 0) {
 			continue
 		}
 
@@ -179,20 +179,20 @@ parse_mainline :: proc(doc: ^xml.Document, id: xml.Element_ID, mainline: ^MainLi
 
 			if childer_node.ident == "bone_ref" {
 				bone_ref: BoneRef = {
-					id       = u8(get_attrib_int(childer_node, "id")),
-					timeline = u8(get_attrib_int(childer_node, "timeline")),
-					parent   = i8(get_attrib_int(childer_node, "parent", -1)),
-					key      = u8(get_attrib_int(childer_node, "key")),
+					id       = u8(getAttribInt(childer_node, "id")),
+					timeline = u8(getAttribInt(childer_node, "timeline")),
+					parent   = i8(getAttribInt(childer_node, "parent", -1)),
+					key      = u8(getAttribInt(childer_node, "key")),
 				}
 				append(&mainline.bone_refs, bone_ref)
 
 			} else if childer_node.ident == "object_ref" {
 				obj_ref: ObjRef = {
-					id       = u8(get_attrib_int(childer_node, "id")),
-					timeline = u8(get_attrib_int(childer_node, "timeline")),
-					parent   = i8(get_attrib_int(childer_node, "parent", -1)),
-					key      = u8(get_attrib_int(childer_node, "key")),
-					z_index  = u8(get_attrib_int(childer_node, "z_index")),
+					id       = u8(getAttribInt(childer_node, "id")),
+					timeline = u8(getAttribInt(childer_node, "timeline")),
+					parent   = i8(getAttribInt(childer_node, "parent", -1)),
+					key      = u8(getAttribInt(childer_node, "key")),
+					z_index  = u8(getAttribInt(childer_node, "z_index")),
 				}
 				append(&mainline.obj_refs, obj_ref)
 			}
@@ -201,12 +201,12 @@ parse_mainline :: proc(doc: ^xml.Document, id: xml.Element_ID, mainline: ^MainLi
 }
 
 @(private = "file")
-parse_timeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
+parseTimeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
 	tl_el := &doc.elements[id]
 
 	timeline: TimeLine = {
-		id   = u8(get_attrib_int(tl_el, "id")),
-		name = get_part(get_attrib_str(tl_el, "name")),
+		id   = u8(getAttribInt(tl_el, "id")),
+		name = getPart(getAttribStr(tl_el, "name")),
 		keys = make([dynamic]TimeLineKey),
 	}
 
@@ -218,9 +218,9 @@ parse_timeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
 		if child_node.ident != "key" do continue
 
 		key: TimeLineKey = {
-			id   = u8(get_attrib_int(child_node, "id")),
-			spin = i8(get_attrib_int(child_node, "spin", 1)),
-			time = get_attrib_float(child_node, "time"),
+			id   = u8(getAttribInt(child_node, "id")),
+			spin = i8(getAttribInt(child_node, "spin", 1)),
+			time = getAttribFloat(child_node, "time"),
 		}
 
 		childer_id, ok2 := child_node.value[0].(xml.Element_ID)
@@ -229,13 +229,13 @@ parse_timeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
 		childer_node := &doc.elements[childer_id]
 
 		if childer_node.ident == "bone" || childer_node.ident == "object" {
-			key.x = get_attrib_float(childer_node, "x")
-			key.y = get_attrib_float(childer_node, "y")
-			key.angle = get_attrib_float(childer_node, "angle")
-			key.scale_x = get_attrib_float(childer_node, "scale_x", 1)
-			key.scale_y = get_attrib_float(childer_node, "scale_y", 1)
-			key.alpha = get_attrib_float(childer_node, "a", 1)
-			key.file_id = get_attrib_int(childer_node, "file", -1)
+			key.x = getAttribFloat(childer_node, "x")
+			key.y = getAttribFloat(childer_node, "y")
+			key.angle = getAttribFloat(childer_node, "angle")
+			key.scale_x = getAttribFloat(childer_node, "scale_x", 1)
+			key.scale_y = getAttribFloat(childer_node, "scale_y", 1)
+			key.alpha = getAttribFloat(childer_node, "a", 1)
+			key.file_id = getAttribInt(childer_node, "file", -1)
 		}
 
 		append(&timeline.keys, key)
@@ -244,7 +244,7 @@ parse_timeline :: proc(doc: ^xml.Document, id: xml.Element_ID) -> TimeLine {
 }
 
 @(private = "file")
-get_attrib_str :: proc(element: ^xml.Element, key: string, default: string = "") -> string {
+getAttribStr :: proc(element: ^xml.Element, key: string, default: string = "") -> string {
 	for attrib in element.attribs {
 		if attrib.key == key {
 			return attrib.val
@@ -254,7 +254,7 @@ get_attrib_str :: proc(element: ^xml.Element, key: string, default: string = "")
 }
 
 @(private = "file")
-get_attrib_int :: proc(element: ^xml.Element, key: string, default: int = 0) -> int {
+getAttribInt :: proc(element: ^xml.Element, key: string, default: int = 0) -> int {
 	for attrib in element.attribs {
 		if attrib.key == key {
 			if val, ok := strconv.parse_int(attrib.val); ok {
@@ -266,7 +266,7 @@ get_attrib_int :: proc(element: ^xml.Element, key: string, default: int = 0) -> 
 }
 
 @(private = "file")
-get_attrib_float :: proc(element: ^xml.Element, key: string, default: f32 = 0) -> f32 {
+getAttribFloat :: proc(element: ^xml.Element, key: string, default: f32 = 0) -> f32 {
 	for attrib in element.attribs {
 		if attrib.key == key {
 			if val, ok := strconv.parse_f32(attrib.val); ok {
@@ -278,7 +278,7 @@ get_attrib_float :: proc(element: ^xml.Element, key: string, default: f32 = 0) -
 }
 
 @(private = "file")
-get_part :: proc(name: string) -> BodyPart {
+getPart :: proc(name: string) -> BodyPart {
 	for file in data.folder.files {
 		lookup_str := part_lookup[file.name]
 
@@ -290,7 +290,7 @@ get_part :: proc(name: string) -> BodyPart {
 }
 
 @(private = "file")
-handle_xml_errors :: proc(err: xml.Error) -> bool {
+handleXmlErrors :: proc(err: xml.Error) -> bool {
 	switch err {
 	case .None:
 		fmt.println("XML Success: No error occurred.")

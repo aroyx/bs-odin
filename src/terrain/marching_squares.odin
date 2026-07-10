@@ -47,7 +47,7 @@ lookup: [15][]Points : {
 	{.C1, .C2, .C3, .C1, .C3, .C4},
 }
 
-marching_squares :: proc(x, y, threshold: f32, i, j: int, color: rl.Color) {
+marchingSquares :: proc(x, y, threshold: f32, i, j: int, color: rl.Color) {
 	tl := terrain[i][j]
 	tr := terrain[i + 1][j]
 	bl := terrain[i][j + 1]

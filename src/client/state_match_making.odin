@@ -57,8 +57,8 @@ on_render :: proc() {
 				orui.id("matchmakign"),
 				"Match-Making!",
 				{
-					font = utils.get_font(.LARGE),
-					font_size = utils.get_font_size(.LARGE),
+					font = utils.getFont(.LARGE),
+					font_size = utils.getFontSize(.LARGE),
 					height = orui.fit(),
 					color = rl.BLACK,
 				},
@@ -86,10 +86,10 @@ on_render :: proc() {
 				},
 			)
 
-			if menu_button(1, "Continue :)", {0, 180, 216, 255}) {
+			if menuButton(1, "Continue :)", {0, 180, 216, 255}) {
 				changeState(&loading_state)
 			}
-			if menu_button(2, "Cancel :(", {249, 65, 68, 255}) {
+			if menuButton(2, "Cancel :(", {249, 65, 68, 255}) {
 				changeState(&main_menu_state)
 			}
 		}
@@ -97,7 +97,7 @@ on_render :: proc() {
 }
 
 @(private = "file")
-menu_button :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
+menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 	return orui.label(
 		orui.id(id), //
 		text,

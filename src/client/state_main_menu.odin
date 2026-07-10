@@ -15,7 +15,7 @@ main_menu_state: ClientState = {
 
 @(private = "file")
 on_enter :: proc() {
-	init_player()
+	initPlayer()
 }
 
 @(private = "file")
@@ -41,7 +41,7 @@ on_render :: proc() {
 	y := tex_h * scale + (win_h - available_h * scale) * 0.5
 
 	if scale > 0.2 { 	// too small to even try to draw anymore
-		draw_commands := run_animation({x, y}, scale)
+		draw_commands := runAnimation({x, y}, scale)
 		defer delete(draw_commands)
 
 		for cmd in draw_commands {
@@ -113,16 +113,16 @@ on_render :: proc() {
 					},
 				)
 				{
-					if menu_button(1, "Start :)", CYAN) {
+					if menuButton(1, "Start :)", CYAN) {
 						changeState(&match_making_state)
 					}
-					if menu_button(2, "Options :|", WHITE) {
+					if menuButton(2, "Options :|", WHITE) {
 						changeState(&options_state)
 					}
-					if menu_button(3, "Avatar :D", YELLOW) {
+					if menuButton(3, "Avatar :D", YELLOW) {
 						changeState(&avatar_select_state)
 					}
-					if menu_button(4, "Quit :(", RED) {
+					if menuButton(4, "Quit :(", RED) {
 						global.quit = true
 					}
 				}
@@ -132,7 +132,7 @@ on_render :: proc() {
 }
 
 @(private = "file")
-menu_button :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
+menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 	return orui.label(
 		orui.id(id), //
 		text,

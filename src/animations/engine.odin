@@ -29,7 +29,7 @@ DrawCommand :: struct {
 	pivot_x, pivot_y: f32,
 }
 
-calculate_frame :: proc(
+calculateFrame :: proc(
 	entity: ^Entity,
     animation: AnimationName,
 	time_ms: f32,
@@ -58,21 +58,21 @@ calculate_frame :: proc(
 	bone_transforms: [256]Transform
 
 	for bone_ref in anim.mainline.bone_refs {
-		trans := get_timeline_transform(anim, bone_ref.timeline, time_ms)
+		trans := getTimelineTransform(anim, bone_ref.timeline, time_ms)
 
 		if bone_ref.parent != -1 {
 			// please god, don't try to access parent without initialising parent first
 			parent := bone_transforms[bone_ref.parent]
-			bone_transforms[bone_ref.id] = combine_transforms(parent, trans)
+			bone_transforms[bone_ref.id] = combineTransforms(parent, trans)
 		} else {
-			bone_transforms[bone_ref.id] = combine_transforms(root, trans)
+			bone_transforms[bone_ref.id] = combineTransforms(root, trans)
 		}
 	}
 
 	draw_commands := make([dynamic]DrawCommand)
 
 	for obj_ref in anim.mainline.obj_refs {
-		trans := get_timeline_transform(anim, obj_ref.timeline, time_ms)
+		trans := getTimelineTransform(anim, obj_ref.timeline, time_ms)
 
 		tl := anim.timelines[obj_ref.timeline]
 
@@ -80,13 +80,13 @@ calculate_frame :: proc(
 
 		if obj_ref.parent != -1 {
 			parent := bone_transforms[obj_ref.parent]
-			final_trans = combine_transforms(parent, trans)
+			final_trans = combineTransforms(parent, trans)
 		} else {
-			final_trans = combine_transforms(root, trans)
+			final_trans = combineTransforms(root, trans)
 		}
 
 		if final_trans.file_id == -1 do continue
-		file := get_file(final_trans.file_id)
+		file := getFile(final_trans.file_id)
 
 		append(
 			&draw_commands,
@@ -117,7 +117,7 @@ Transform :: struct {
 }
 
 @(private = "file") // AI Made
-combine_transforms :: proc(parent, child: Transform) -> Transform {
+combineTransforms :: proc(parent, child: Transform) -> Transform {
 	rad := parent.angle * math.PI / 180.0
 	c := math.cos(rad)
 	s := math.sin(rad)
@@ -134,7 +134,7 @@ combine_transforms :: proc(parent, child: Transform) -> Transform {
 }
 
 @(private = "file")
-get_timeline_transform :: proc(anim: ^Animation, timeline_id: u8, time_ms: f32) -> Transform {
+getTimelineTransform :: proc(anim: ^Animation, timeline_id: u8, time_ms: f32) -> Transform {
 	keys := &anim.timelines[timeline_id].keys
 
 	if len(keys) == 0 do return {}
@@ -186,12 +186,13 @@ get_timeline_transform :: proc(anim: ^Animation, timeline_id: u8, time_ms: f32) 
 	}
 }
 
-get_file :: proc {
-	get_file_by_part,
-	get_file_by_id,
+getFile :: proc {
+	getFileByPart,
+	getFileById,
 }
+
 @(private)
-get_file_by_part :: proc(part: BodyPart) -> File {
+getFileByPart :: proc(part: BodyPart) -> File {
 	for file in data.folder.files {
 		if file.name == part {
 			return file
@@ -201,7 +202,7 @@ get_file_by_part :: proc(part: BodyPart) -> File {
 	return {}
 }
 
-get_file_by_id :: proc(id: int) -> File {
+getFileById :: proc(id: int) -> File {
 	for file in data.folder.files {
 		if int(file.id) == id {
 			return file

@@ -75,7 +75,7 @@ generateRenderChunks :: proc() {
 							if min_h >= terrain_layers[k + 1].threshold do continue
 						}
 
-						marching_squares(
+						marchingSquares(
 							x,
 							y,
 							terrain_layers[k].threshold,

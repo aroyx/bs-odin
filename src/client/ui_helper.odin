@@ -13,7 +13,7 @@ getBorder :: proc() -> orui.Edges {
 }
 
 @(private)
-icon_with_text :: proc(
+iconWithText :: proc(
 	id: string,
 	icon: string,
 	text: string,
@@ -33,7 +33,7 @@ icon_with_text :: proc(
 		{
 			width = orui.fixed(config.font_size),
 			height = orui.grow(),
-			font = utils.get_icon_font(),
+			font = utils.getIconFont(),
 			font_size = config.font_size + 4,
 			color = rl.BLACK,
 			align = {.Center, .Center},

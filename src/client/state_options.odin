@@ -96,41 +96,41 @@ on_render :: proc() {
 		case .DISPLAY:
 			display_menu_show()
 		case .GAME:
-			game_menu_show()
+			gameMenuShow()
 		case .MISC:
-			misc_menu_show()
+			miscMenuShow()
 		}
 	}
-	bottom_buttons()
+	bottomButtons()
 }
 
 @(private = "file")
 display_menu_show :: proc() {
-	ui_checkbox("l+1", "Show FPS", &local_global.options.show_fps)
-	ui_checkbox("c+1", "Mobile Navigation", &local_global.options.on_mobile)
-	ui_checkbox("e+1", "This doesn't work :)", &e)
-	ui_checkbox("b+1", "Don't press this :O", &b)
+	uiCheckbox("l+1", "Show FPS", &local_global.options.show_fps)
+	uiCheckbox("c+1", "Mobile Navigation", &local_global.options.on_mobile)
+	uiCheckbox("e+1", "This doesn't work :)", &e)
+	uiCheckbox("b+1", "Don't press this :O", &b)
 }
 
 @(private = "file")
-game_menu_show :: proc() {
-	ui_checkbox("a+1", "Tails", &a)
-	ui_checkbox("b+1", "Head", &b)
-	ui_checkbox("c+1", "Makes a ", &c)
-	ui_checkbox("d+1", "vector together", &d)
-	ui_checkbox("e+1", "These's nothign to look here", &e)
+gameMenuShow :: proc() {
+	uiCheckbox("a+1", "Tails", &a)
+	uiCheckbox("b+1", "Head", &b)
+	uiCheckbox("c+1", "Makes a ", &c)
+	uiCheckbox("d+1", "vector together", &d)
+	uiCheckbox("e+1", "These's nothign to look here", &e)
 }
 
 @(private = "file")
-misc_menu_show :: proc() {
-	ui_checkbox("e+1", "God", &e)
-	ui_checkbox("d+1", "please forbdid a child", &d)
-	ui_checkbox("b+1", "a child who has", &b)
-	ui_checkbox("a+1", "Too much fun", &a)
+miscMenuShow :: proc() {
+	uiCheckbox("e+1", "God", &e)
+	uiCheckbox("d+1", "please forbdid a child", &d)
+	uiCheckbox("b+1", "a child who has", &b)
+	uiCheckbox("a+1", "Too much fun", &a)
 }
 
 @(private = "file")
-ui_checkbox :: proc(id: string, text: string, var: ^bool) {
+uiCheckbox :: proc(id: string, text: string, var: ^bool) {
 	orui.container(
 		orui.id(id),
 		{
@@ -225,7 +225,7 @@ tabBar :: proc(names: []string, active: ^u8) {
 	}
 }
 
-bottom_buttons :: proc() {
+bottomButtons :: proc() {
 	orui.container(
 		orui.id("bottom buttons"),
 		{
@@ -241,7 +241,7 @@ bottom_buttons :: proc() {
 		},
 	)
 
-	if bottom_buttons_fn("back button", "\ue06e", "Back", RED) {
+	if bottomButtonsFn("back button", "\ue06e", "Back", RED) {
 		if global != local_global {
 			show_save_diag = true
 		} else {
@@ -249,14 +249,14 @@ bottom_buttons :: proc() {
 		}
 	}
 
-	if bottom_buttons_fn("save button", "\ue14d", " Save", CYAN) {
+	if bottomButtonsFn("save button", "\ue14d", " Save", CYAN) {
 		global = local_global
 	}
 }
 
 @(private = "file")
-bottom_buttons_fn :: proc(id: string, icon: string, text: string, col: rl.Color) -> bool {
-	return icon_with_text(
+bottomButtonsFn :: proc(id: string, icon: string, text: string, col: rl.Color) -> bool {
+	return iconWithText(
 		id,
 		icon,
 		text,
@@ -311,8 +311,8 @@ showSaveDiagloge :: proc() {
 			"Unsaved Changes",
 			{
 				width = orui.grow(),
-				font_size = utils.get_font_size(.MEDIUM),
-				font = utils.get_font(.MEDIUM),
+				font_size = utils.getFontSize(.MEDIUM),
+				font = utils.getFont(.MEDIUM),
 				color = rl.BLACK,
 				align = {.Center, .Center},
 			},
@@ -331,30 +331,30 @@ showSaveDiagloge :: proc() {
 			{width = orui.grow(), height = orui.fixed(60), gap = 10, padding = orui.padding(5)},
 		)
 
-		if diaglogue_button("discard btn", "\ue18e", "Discard", RED) {
+		if diaglogueButton("discard btn", "\ue18e", "Discard", RED) {
 			changeState(&main_menu_state)
 			show_save_diag = false
 		}
 
-		if diaglogue_button("save btn", "\ue14d", "Save", CYAN) {
+		if diaglogueButton("save btn", "\ue14d", "Save", CYAN) {
 			global = local_global
 			changeState(&main_menu_state)
 			show_save_diag = false
 		}
 
-		if diaglogue_button("cancel", "\u0078", "Cancel", WHITE) {
+		if diaglogueButton("cancel", "\u0078", "Cancel", WHITE) {
 			show_save_diag = false
 		}
 	}
 }
 
-diaglogue_button :: proc(
+diaglogueButton :: proc(
 	id: string,
 	icon: string,
 	text: string,
 	col: rl.Color = rl.LIGHTGRAY,
 ) -> bool {
-	return icon_with_text(
+	return iconWithText(
 		id,
 		icon,
 		text,

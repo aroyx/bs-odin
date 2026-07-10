@@ -27,7 +27,7 @@ init :: proc() {
 
 	ui_ctx = new(orui.Context)
 	orui.init(ui_ctx)
-	ui_ctx.default_font = utils.get_font(.MEDIUM)^
+	ui_ctx.default_font = utils.getFont(.MEDIUM)^
 
 	ui.ImGuiInit()
 

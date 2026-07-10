@@ -51,15 +51,15 @@ initFont :: proc() {
 	rl.SetTextureFilter(icon_font.texture, .BILINEAR)
 }
 
-get_icon_font :: proc() -> ^rl.Font {
+getIconFont :: proc() -> ^rl.Font {
 	return &icon_font
 }
 
-get_font :: proc(size: FontSize = FontSize.MEDIUM) -> ^rl.Font {
+getFont :: proc(size: FontSize = FontSize.MEDIUM) -> ^rl.Font {
 	return &font[size]
 }
 
-get_font_size :: proc(size: FontSize = FontSize.MEDIUM) -> f32 {
+getFontSize :: proc(size: FontSize = FontSize.MEDIUM) -> f32 {
 	return font_sizes[size]
 }
 

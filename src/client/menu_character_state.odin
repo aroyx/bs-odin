@@ -64,7 +64,7 @@ blend_start_time: time.Time
 @(private = "file")
 blend_dur :: 250 // ms
 
-run_animation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawCommand {
+runAnimation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawCommand {
 	animation_elapsed := f32(
 		time.duration_milliseconds(time.diff(animation_start_time, time.now())),
 	)
@@ -72,12 +72,12 @@ run_animation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawC
 	// if animation_elapsed > anim.anim_lookup[curr_animation]
 
 	if animation_elapsed > curr_animation_length {
-		switch_animation()
+		switchAnimation()
 		animation_start_time = time.now()
 		animation_elapsed = 0
 	}
 
-	curr_commands := anim.calculate_frame(
+	curr_commands := anim.calculateFrame(
 		&anim.data.entity,
 		curr_animation,
 		animation_elapsed * 1.0,
@@ -97,11 +97,11 @@ run_animation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawC
 		return curr_commands
 	}
 
-	prev_time := prev_animation_length 
+	prev_time := prev_animation_length
 
-	prev_commands := anim.calculate_frame(&anim.data.entity, prev_animation, prev_time, pos, scale)
+	prev_commands := anim.calculateFrame(&anim.data.entity, prev_animation, prev_time, pos, scale)
 
-	blended_commands := blend_commands(prev_commands, curr_commands, t)
+	blended_commands := blendCommands(prev_commands, curr_commands, t)
 
 	if len(curr_commands) > 0 do delete(curr_commands)
 	if len(prev_commands) > 0 do delete(prev_commands)
@@ -163,7 +163,7 @@ animation_ruleset: [anim.AnimationName]AnimeRule = {
 }
 
 @(private = "file")
-switch_animation :: proc() {
+switchAnimation :: proc() {
 	rules := animation_ruleset[curr_animation]
 
 	next_anim: anim.AnimationName
@@ -202,7 +202,7 @@ switch_animation :: proc() {
 	curr_animation_length = f32(anime.length) * f32(loops)
 }
 
-blend_commands :: proc(a, b: [dynamic]anim.DrawCommand, t: f32) -> [dynamic]anim.DrawCommand {
+blendCommands :: proc(a, b: [dynamic]anim.DrawCommand, t: f32) -> [dynamic]anim.DrawCommand {
 	blended_cmds := make([dynamic]anim.DrawCommand, 0, len(a)) // hopefully they have the same draw command length :pray:
 
 	for cmd_b in b { 	// DIAGNOSE: There's a chance that the array is in different order, so need to check their part (cmd.part) to be same to blend first!
@@ -216,7 +216,7 @@ blend_commands :: proc(a, b: [dynamic]anim.DrawCommand, t: f32) -> [dynamic]anim
 			blended_cmd.y = linalg.lerp(cmd_a.y, cmd_b.y, t)
 			blended_cmd.scale_x = linalg.lerp(cmd_a.scale_x, cmd_b.scale_x, t)
 			blended_cmd.scale_y = linalg.lerp(cmd_a.scale_y, cmd_b.scale_y, t)
-			blended_cmd.angle = angle_lerp_shortest(cmd_a.angle, cmd_b.angle, t)
+			blended_cmd.angle = angleLerpShortest(cmd_a.angle, cmd_b.angle, t)
 			// not blended (defaulted to b):
 			// pivot_x, pivot_y: f32,
 			// alpha:            f32,
@@ -229,7 +229,7 @@ blend_commands :: proc(a, b: [dynamic]anim.DrawCommand, t: f32) -> [dynamic]anim
 	return blended_cmds
 }
 
-angle_lerp_shortest :: proc(a, b, t: f32) -> f32 {
+angleLerpShortest :: proc(a, b, t: f32) -> f32 {
 	diff := b - a
 
 	if diff > 180 do diff -= 360
