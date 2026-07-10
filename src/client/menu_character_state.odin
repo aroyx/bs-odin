@@ -17,22 +17,22 @@ CharacterSkin :: struct {
 }
 
 player_skin: CharacterSkin = {
-	type = .SKELETON,
+	type = .GOLEM,
 }
 
 init_player :: proc() {
-	player_skin.parts[.BODY] = .T1
+	player_skin.parts[.BODY] = .T3
 	player_skin.parts[.HEAD] = .T2
 	player_skin.parts[.FACE_IDLE] = .T1
 	player_skin.parts[.FACE_BLINK] = .T1
 	player_skin.parts[.FACE_HURT] = .T1
 	player_skin.parts[.RIGHT_ARM] = .T1
-	player_skin.parts[.RIGHT_HAND] = .T1
+	player_skin.parts[.RIGHT_HAND] = .T2
 	player_skin.parts[.RIGHT_LEG] = .T1
 	player_skin.parts[.LEFT_ARM] = .T1
-	player_skin.parts[.LEFT_HAND] = .T1
+	player_skin.parts[.LEFT_HAND] = .T3
 	player_skin.parts[.LEFT_LEG] = .T1
-	player_skin.parts[.WEAPON] = .T1
+	player_skin.parts[.WEAPON] = .T2
 	player_skin.parts[.SLASH_EFFECT] = .T1
 }
 
@@ -97,15 +97,9 @@ run_animation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawC
 		return curr_commands
 	}
 
-    prev_time := prev_animation_length + blend_elapsed
+	prev_time := prev_animation_length + blend_elapsed
 
-	prev_commands := anim.calculate_frame(
-		&anim.data.entity,
-		prev_animation,
-		prev_time,
-		pos,
-		scale,
-	)
+	prev_commands := anim.calculate_frame(&anim.data.entity, prev_animation, prev_time, pos, scale)
 
 	blended_commands := blend_commands(prev_commands, curr_commands, t)
 
@@ -124,7 +118,7 @@ AnimeRule :: struct {
 @(private = "file")
 animation_ruleset: [anim.AnimationName]AnimeRule = {
 	.IDLE = { 	//
-		next_anims = {.WALKING, .IDLE_BLINKING, .IDLE_BLINKING, .RUNNING, .KICKING, .SLASHING},
+		next_anims = {.WALKING, .IDLE_BLINKING, .KICKING, .HURT},
 		min_loops  = 4,
 		max_loops  = 8,
 	},
@@ -138,33 +132,8 @@ animation_ruleset: [anim.AnimationName]AnimeRule = {
 		min_loops  = 1,
 		max_loops  = 3,
 	},
-	.RUNNING = { 	//
-		next_anims = {.RUN_SLASHING, .RUN_THROWING, .WALKING, .WALKING},
-		min_loops  = 3,
-		max_loops  = 5,
-	},
-	.RUN_SLASHING = { 	//
-		next_anims = {.RUNNING},
-		min_loops  = 1,
-		max_loops  = 1,
-	},
-	.RUN_THROWING = { 	//
-		next_anims = {.RUNNING},
-		min_loops  = 1,
-		max_loops  = 1,
-	},
 	.KICKING = { 	//
 		next_anims = {.IDLE, .WALKING},
-		min_loops  = 1,
-		max_loops  = 1,
-	},
-	.SLASHING = { 	//
-		next_anims = {.IDLE},
-		min_loops  = 1,
-		max_loops  = 1,
-	},
-	.THROWING = { 	//
-		next_anims = {.IDLE},
 		min_loops  = 1,
 		max_loops  = 1,
 	},
@@ -180,6 +149,11 @@ animation_ruleset: [anim.AnimationName]AnimeRule = {
 	},
 	// never run
 	.BASE = {},
+	.RUNNING = {},
+	.RUN_SLASHING = {},
+	.RUN_THROWING = {},
+	.SLASHING = {},
+	.THROWING = {},
 	.JUMP_START = {},
 	.JUMP_LOOP = {},
 	.FALLING_DOWN = {},
@@ -224,7 +198,7 @@ switch_animation :: proc() {
 	curr_animation = next_anim
 	anime := &anim.data.entity.animations[anim_name]
 
-    prev_animation_length = curr_animation_length
+	prev_animation_length = curr_animation_length
 	curr_animation_length = f32(anime.length) * f32(loops)
 }
 

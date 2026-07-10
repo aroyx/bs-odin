@@ -19,14 +19,14 @@ BodyPart :: enum u8 {
 
 CharacterType :: enum u8 {
 	SKELETON,
-	// GOBLIN,
-	// GOLEM
+	GOBLIN,
+	GOLEM
 }
 
 CharacterTier :: enum u8 {
 	T1,
 	T2,
-	// T3,
+	T3,
 }
 
 AnimationName :: enum u8 {
@@ -91,13 +91,13 @@ part_lookup := [BodyPart]string {
 @(private)
 type_lookup := [CharacterType]string {
 	.SKELETON = "skeleton",
-	// .GOBLIN = "goblin",
-	// .GOLEM = "golem",
+	.GOBLIN = "goblin",
+	.GOLEM = "golem",
 }
 
 @(private)
 tier_lookup := [CharacterTier]string {
 	.T1 = "1",
 	.T2 = "2",
-	// .T3 = "3",
+	.T3 = "3",
 }
