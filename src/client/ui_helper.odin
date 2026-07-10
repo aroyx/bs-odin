@@ -27,7 +27,7 @@ icon_with_text :: proc(
 
 	orui.container(orui.id(id, 1), ctn_config)
 
-	c1 := orui.label(
+	orui.label(
 		orui.id(id, 2),
 		icon,
 		{
@@ -37,19 +37,21 @@ icon_with_text :: proc(
 			font_size = config.font_size + 4,
 			color = rl.BLACK,
 			align = {.Center, .Center},
+			block = .False,
 		},
 	)
 
 	text_config := config
 	text_config.background_color = rl.BLANK
 	text_config.width = orui.fit()
-    text_config.border_color = rl.BLACK
-    text_config.border = {}
-    text_config.corner_radius = {}
+	text_config.border_color = rl.BLACK
+	text_config.border = {}
+	text_config.corner_radius = {}
+    text_config.block = .False
 
-	c2 := orui.label(orui.id(id, 3), text, text_config)
+	orui.label(orui.id(id, 3), text, text_config)
 
-	return c1 || c2
+	return orui.clicked(orui.to_id(id, 1))
 }
 
 // colors

@@ -36,12 +36,6 @@ cstr: [len(MenuState)]string = {"Display", "Game", "Misc"}
 active_bar: u8 = 0
 
 @(private = "file")
-scroll_pos: rl.Vector2 = {}
-
-@(private = "file")
-view_zone: rl.Rectangle = {}
-
-@(private = "file")
 a, b, c, d, e := false, false, false, false, false
 
 @(private = "file")
@@ -81,14 +75,18 @@ on_render :: proc() {
 
 	{
 		orui.container(
-			orui.id("buttons container"),
+			orui.id("checkboxes container"),
 			{
 				width = orui.grow(),
 				height = orui.grow(),
 				direction = .TopToBottom,
 				border = {left = 4, right = 4},
 				border_color = rl.BLACK,
-				background_color = {131, 197, 190, 255},
+				background_color = CYAN,
+				gap = 10,
+				padding = orui.padding(20, 20),
+				scroll = orui.scroll(.Vertical),
+				clip = {type = .Intersect, rectangle = {}},
 			},
 		)
 
@@ -108,54 +106,84 @@ on_render :: proc() {
 
 @(private = "file")
 display_menu_show :: proc() {
-	// bounds := bounds^
-	// rl.GuiCheckBox(bounds, "Show FPS", &local_global.options.show_fps)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "Mobile Navigation", &local_global.options.on_mobile)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "This doesn't work :)", &e)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "Don't press this :O", &b)
+	ui_checkbox("l+1", "Show FPS", &local_global.options.show_fps)
+	ui_checkbox("c+1", "Mobile Navigation", &local_global.options.on_mobile)
+	ui_checkbox("e+1", "This doesn't work :)", &e)
+	ui_checkbox("b+1", "Don't press this :O", &b)
 }
+
 @(private = "file")
 game_menu_show :: proc() {
-	// bounds := bounds^
-	// rl.GuiCheckBox(bounds, "Tails", &a)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "Head", &b)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "Makes a ", &c)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "vector together", &d)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "These's nothign to look here", &e)
+	ui_checkbox("a+1", "Tails", &a)
+	ui_checkbox("b+1", "Head", &b)
+	ui_checkbox("c+1", "Makes a ", &c)
+	ui_checkbox("d+1", "vector together", &d)
+	ui_checkbox("e+1", "These's nothign to look here", &e)
 }
 
 @(private = "file")
 misc_menu_show :: proc() {
-	// bounds := bounds^
-	// rl.GuiCheckBox(bounds, "God", &e)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "please forbdid a child", &d)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "a child who has", &b)
-	//
-	// bounds.y += bounds.width * 2
-	// rl.GuiCheckBox(bounds, "Too much fun", &a)
+	ui_checkbox("e+1", "God", &e)
+	ui_checkbox("d+1", "please forbdid a child", &d)
+	ui_checkbox("b+1", "a child who has", &b)
+	ui_checkbox("a+1", "Too much fun", &a)
 }
 
 @(private = "file")
-ui_checkbox :: proc() {
+ui_checkbox :: proc(id: string, text: string, var: ^bool) {
+	orui.container(
+		orui.id(id),
+		{
+			direction = .LeftToRight,
+			gap = 10,
+			width = orui.grow(),
+			height = orui.fixed(50),
+			background_color = orui.transition(
+				"hover",
+				orui.hovered(),
+				rl.Color{193, 211, 254, 255},
+				rl.Color{171, 196, 255, 255},
+			),
+			padding = orui.padding(20, 00),
+			corner_radius = orui.corner(10),
+			align_content = .Center,
+			align_cross = .Center,
+		},
+	)
 
+	if orui.clicked(id) {
+		var^ = !var^
+	}
+
+	{
+		orui.container(
+			orui.id(id, 49),
+			{
+				width = orui.fixed(32),
+				height = orui.fixed(32),
+				border = orui.border(3),
+				corner_radius = orui.corner(16),
+				border_color = rl.BLACK,
+				block = .False,
+				align_content = .Center,
+				align_cross = .Center,
+				background_color = orui.animate("width_anim", var^ ? CYAN : rl.WHITE),
+			},
+		)
+	}
+
+	orui.label(
+		orui.id(id, 2),
+		text,
+		{
+			width = orui.grow(),
+			height = orui.grow(),
+			color = rl.BLACK,
+			font_size = 20,
+			block = .False,
+			align = {.End, .Center},
+		},
+	)
 }
 
 @(private = "file")
