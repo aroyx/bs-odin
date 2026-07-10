@@ -62,7 +62,7 @@ blending := false
 blend_start_time: time.Time
 
 @(private = "file")
-blend_dur :: 150 // ms
+blend_dur :: 250 // ms
 
 run_animation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawCommand {
 	animation_elapsed := f32(
@@ -97,7 +97,7 @@ run_animation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawC
 		return curr_commands
 	}
 
-	prev_time := prev_animation_length + blend_elapsed
+	prev_time := prev_animation_length 
 
 	prev_commands := anim.calculate_frame(&anim.data.entity, prev_animation, prev_time, pos, scale)
 
