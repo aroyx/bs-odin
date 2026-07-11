@@ -2,6 +2,7 @@ package physics
 
 import "../camera"
 import "../utils"
+import "core:slice"
 import "vendor:box2d"
 
 import "core:math/linalg"
@@ -119,13 +120,36 @@ generateIslands :: proc() {
 				}
 			}
 		}
+
+		if isClockwise(island[:]) {
+			slice.reverse(island[:])
+		}
+
 		append(&islands, island)
 	}
 }
 
+@(private = "file") // this is a maths formula to get a polygon's area. But it
+// only works when the vertices are arranged in clockwise order, otherwise can
+// give negative result
+isClockwise :: proc(island: []linalg.Vector2f32) -> bool {
+	sum: f32 = 0.0
+	n := len(island)
+
+	for i := 0; i < n; i += 1 {
+		p1 := island[i]
+		p2 := island[(i + 1) % n]
+
+		sum += (p2.x - p1.x) * (p2.y + p1.y)
+	}
+
+	return sum > 0
+}
+
 @(private)
 pushIslandsToPhysics :: proc() {
-	for island in islands {
+	for i in 0 ..< len(islands) {
+		island := &islands[i]
 		if len(island) <= 6 {
 			continue
 		}
@@ -134,22 +158,34 @@ pushIslandsToPhysics :: proc() {
 		islandBody.type = .staticBody
 		islandId := box2d.CreateBody(phyWorld, islandBody)
 
-		islandShapeDef := box2d.DefaultShapeDef()
-		islandShapeDef.isSensor = true
+		islandChainDef := box2d.DefaultChainDef()
 
 		head := island[len(island) - 1]
 		tail := island[0]
-		loop := linalg.distance(head, tail) < 0.001
 
-		segment_count := loop ? len(island) : len(island) - 1
+		if linalg.distance(head, tail) < 0.001 {
+			islandChainDef.isLoop = true
+			islandChainDef.count = i32(len(island))
+			islandChainDef.points = raw_data(island^)
+		} else {
+			islandChainDef.isLoop = false
+			first := island[0]
+			sec := island[1]
 
-		for j in 0 ..< segment_count {
-			p1 := island[j]
-			p2 := island[(j + 1) % len(island)]
+			last := island[len(island) - 1]
+			sec_last := island[len(island) - 2]
 
-			segment := box2d.Segment{p1, p2}
-			_ = box2d.CreateSegmentShape(islandId, islandShapeDef, segment)
+			new_start := first + first - sec
+			new_end := last + last - sec_last
+
+			inject_at(island, 0, new_start)
+			append(island, new_end)
+
+			islandChainDef.count = i32(len(island))
+			islandChainDef.points = raw_data(island^)
 		}
+
+		_ = box2d.CreateChain(islandId, islandChainDef)
 	}
 	clear(&vedges)
 }
