@@ -14,13 +14,20 @@ main_menu_state: ClientState = {
 }
 
 @(private = "file")
+inited_player := false
+
+@(private = "file")
 on_enter :: proc() {
-	initPlayer()
+	rl.SetExitKey(.KEY_NULL)
+	if !inited_player {
+		initPlayer()
+		inited_player = true
+	}
 }
 
 @(private = "file")
 on_update :: proc(dt: f32) {
-	if rl.IsKeyPressed(.Q) {
+	if rl.IsKeyPressed(.Q) || rl.IsKeyPressed(.ESCAPE) {
 		global.quit = true
 	}
 }
@@ -33,7 +40,7 @@ on_render :: proc() {
 	tex_w, tex_h: f32 = 230, 500 // approx
 
 	available_w := math.min(win_w * 0.65, win_w - 200)
-	available_h := math.min(win_h * 0.6, 400)
+	available_h := math.min(win_h * 0.6, win_h - 200)
 
 	scale := math.min(available_w / tex_w, available_h / tex_h)
 
@@ -45,8 +52,8 @@ on_render :: proc() {
 		defer delete(draw_commands)
 
 		for cmd in draw_commands {
-			type := player_skin.type
-			tier := player_skin.parts[cmd.part]
+			type := player_skin.type[cmd.part]
+			tier := player_skin.tier[cmd.part]
 
 			tex := animations.getPartTex(type, tier, cmd.part)
 

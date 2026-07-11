@@ -4,21 +4,29 @@ import "../utils"
 import "thirdparty:orui"
 import rl "vendor:raylib"
 
+@(private = "file")
+unique_id := 0
+
 @(private)
-getBorder :: proc() -> orui.Edges {
+getId :: proc() -> int {
+	unique_id += 1
+	return unique_id
+}
+
+clearId :: proc() {
+    unique_id = 0
+}
+
+@(private)
+getBorder :: proc(id: string = "border_width") -> orui.Edges {
 	return orui.animate(
-		"border_width", // border can be set in one elment once so shouldn't need different ids
+		id, // border can be set in one elment once so shouldn't need different ids
 		orui.active() ? orui.border(0) : (orui.hovered() ? orui.border(2) : orui.border(4)),
 	)
 }
 
 @(private)
-iconWithText :: proc(
-	id: string,
-	icon: string,
-	text: string,
-	config: orui.ElementConfig,
-) -> bool {
+iconWithText :: proc(id: string, icon: string, text: string, config: orui.ElementConfig) -> bool {
 	ctn_config := config
 	ctn_config.direction = .LeftToRight
 	ctn_config.align_content = .Center
@@ -47,7 +55,7 @@ iconWithText :: proc(
 	text_config.border_color = rl.BLACK
 	text_config.border = {}
 	text_config.corner_radius = {}
-    text_config.block = .False
+	text_config.block = .False
 
 	orui.label(orui.id(id, 3), text, text_config)
 

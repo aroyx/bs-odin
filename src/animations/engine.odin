@@ -6,7 +6,7 @@ import "core:math/linalg"
 import "core:time"
 
 @(private = "file")
-lerp_angle :: proc(start, end, t: f32, spin: i8 = 1) -> f32 {
+lerpAngle :: proc(start, end, t: f32, spin: i8 = 1) -> f32 {
 	if spin == 0 do return start // no lerp
 
 	target := end
@@ -179,7 +179,7 @@ getTimelineTransform :: proc(anim: ^Animation, timeline_id: u8, time_ms: f32) ->
 		x = linalg.lerp(a.x, b.x, t),
 		y = linalg.lerp(a.y, b.y, t),
 		alpha = linalg.lerp(a.alpha, b.alpha, t),
-		angle = lerp_angle(a.angle, b.angle, t, a.spin),
+		angle = lerpAngle(a.angle, b.angle, t, a.spin),
 		scale_x = linalg.lerp(a.scale_x, b.scale_x, t),
 		scale_y = linalg.lerp(a.scale_y, b.scale_y, t),
 		file_id = a.file_id,

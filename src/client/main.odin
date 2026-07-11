@@ -19,7 +19,7 @@ init :: proc() {
 	// rl.SetConfigFlags({.WINDOW_RESIZABLE, .MSAA_4X_HINT})
 	rl.SetTraceLogLevel(.WARNING)
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
-	rl.InitWindow(800, 600, "BS-Odin")
+	rl.InitWindow(1280, 720, "BS-Odin")
 
 	// utils.loadRayGuiStyleFromMemory(style_genesis_raw)
 

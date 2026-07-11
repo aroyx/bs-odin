@@ -8,6 +8,7 @@ import rl "vendor:raylib"
 
 options_state: ClientState = {
 	on_enter  = on_enter,
+	on_update = on_update,
 	on_render = on_render,
 }
 
@@ -17,6 +18,13 @@ local_global: GlobalState = {}
 @(private = "file")
 on_enter :: proc() {
 	local_global = global
+}
+
+@(private = "file")
+on_update :: proc(dt: f32) {
+	if rl.IsKeyPressed(.ESCAPE) {
+		changeState(&main_menu_state)
+	}
 }
 
 @(private = "file")

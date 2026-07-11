@@ -36,7 +36,6 @@ on_update :: proc(dt: f32) {
 	switch (lState) {
 
 	case .INIT:
-		rl.SetExitKey(.KEY_NULL) // whatif they esc prees accidentially while parkouring?
 		lState = .CAMERA
 
 	case .CAMERA:

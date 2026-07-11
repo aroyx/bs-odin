@@ -80,7 +80,6 @@ on_enter :: proc() {
 @(private = "file")
 on_exit :: proc() {
 	rl.UnloadTexture(rotate_phone_texture)
-	rl.SetExitKey(.ESCAPE)
 	terrain.destroyChunks()
 	box2d.DestroyBody(playerId)
 	physics.closePhysics()

@@ -13,6 +13,9 @@ match_making_state: ClientState = {
 
 @(private = "file")
 on_update :: proc(dt: f32) {
+	if rl.IsKeyPressed(.ESCAPE) {
+		changeState(&main_menu_state)
+	}
 }
 
 // @(private = "file")

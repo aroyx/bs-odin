@@ -10,30 +10,135 @@ import anim "../animations"
 
 import "core:math/linalg"
 
+@(private)
+CharacterPartGroup :: enum {
+	HEAD,
+	BODY,
+	FACE,
+	RIGHT_HAND,
+	LEFT_HAND,
+	RIGHT_LEG,
+	LEFT_LEG,
+	WEAPON,
+}
+
 @(private = "file")
 CharacterSkin :: struct {
-	type:  anim.CharacterType,
-	parts: [anim.BodyPart]anim.CharacterTier,
+	type: [anim.BodyPart]anim.CharacterType,
+	tier: [anim.BodyPart]anim.CharacterTier,
 }
 
-player_skin: CharacterSkin = {
-	type = .GOLEM,
+player_skin: CharacterSkin
+
+initPlayer :: proc() {
+	player_skin.tier[.BODY] = .T1
+	player_skin.tier[.HEAD] = .T1
+	player_skin.tier[.FACE_IDLE] = .T1
+	player_skin.tier[.FACE_BLINK] = .T1
+	player_skin.tier[.FACE_HURT] = .T1
+	player_skin.tier[.RIGHT_ARM] = .T1
+	player_skin.tier[.RIGHT_HAND] = .T1
+	player_skin.tier[.RIGHT_LEG] = .T1
+	player_skin.tier[.LEFT_ARM] = .T1
+	player_skin.tier[.LEFT_HAND] = .T1
+	player_skin.tier[.LEFT_LEG] = .T1
+	player_skin.tier[.WEAPON] = .T1
+	player_skin.tier[.SLASH_EFFECT] = .T1
+
+	//
+
+	player_skin.type[.BODY] = .SKELETON
+	player_skin.type[.HEAD] = .SKELETON
+	player_skin.type[.FACE_IDLE] = .SKELETON
+	player_skin.type[.FACE_BLINK] = .SKELETON
+	player_skin.type[.FACE_HURT] = .SKELETON
+	player_skin.type[.RIGHT_ARM] = .SKELETON
+	player_skin.type[.RIGHT_HAND] = .SKELETON
+	player_skin.type[.RIGHT_LEG] = .SKELETON
+	player_skin.type[.LEFT_ARM] = .SKELETON
+	player_skin.type[.LEFT_HAND] = .SKELETON
+	player_skin.type[.LEFT_LEG] = .SKELETON
+	player_skin.type[.WEAPON] = .SKELETON
+	player_skin.type[.SLASH_EFFECT] = .SKELETON
 }
 
-init_player :: proc() {
-	player_skin.parts[.BODY] = .T3
-	player_skin.parts[.HEAD] = .T2
-	player_skin.parts[.FACE_IDLE] = .T1
-	player_skin.parts[.FACE_BLINK] = .T1
-	player_skin.parts[.FACE_HURT] = .T1
-	player_skin.parts[.RIGHT_ARM] = .T1
-	player_skin.parts[.RIGHT_HAND] = .T2
-	player_skin.parts[.RIGHT_LEG] = .T1
-	player_skin.parts[.LEFT_ARM] = .T1
-	player_skin.parts[.LEFT_HAND] = .T3
-	player_skin.parts[.LEFT_LEG] = .T1
-	player_skin.parts[.WEAPON] = .T2
-	player_skin.parts[.SLASH_EFFECT] = .T1
+setPartType :: proc(group: CharacterPartGroup, type: anim.CharacterType) {
+	switch group {
+	case .BODY:
+		player_skin.type[.BODY] = type
+	case .HEAD:
+		player_skin.type[.HEAD] = type
+	case .FACE:
+		player_skin.type[.FACE_IDLE] = type
+		player_skin.type[.FACE_BLINK] = type
+		player_skin.type[.FACE_HURT] = type
+	case .RIGHT_HAND:
+		player_skin.type[.RIGHT_ARM] = type
+		player_skin.type[.RIGHT_HAND] = type
+	case .RIGHT_LEG:
+		player_skin.type[.RIGHT_LEG] = type
+	case .LEFT_HAND:
+		player_skin.type[.LEFT_ARM] = type
+		player_skin.type[.LEFT_HAND] = type
+	case .LEFT_LEG:
+		player_skin.type[.LEFT_LEG] = type
+	case .WEAPON:
+		player_skin.type[.WEAPON] = type
+		player_skin.type[.SLASH_EFFECT] = type
+	}
+}
+
+setPartTier :: proc(group: CharacterPartGroup, tier: anim.CharacterTier) {
+	switch group {
+	case .BODY:
+		player_skin.tier[.BODY] = tier
+	case .HEAD:
+		player_skin.tier[.HEAD] = tier
+	case .FACE:
+		player_skin.tier[.FACE_IDLE] = tier
+		player_skin.tier[.FACE_BLINK] = tier
+		player_skin.tier[.FACE_HURT] = tier
+	case .RIGHT_HAND:
+		player_skin.tier[.RIGHT_ARM] = tier
+		player_skin.tier[.RIGHT_HAND] = tier
+	case .RIGHT_LEG:
+		player_skin.tier[.RIGHT_LEG] = tier
+	case .LEFT_HAND:
+		player_skin.tier[.LEFT_ARM] = tier
+		player_skin.tier[.LEFT_HAND] = tier
+	case .LEFT_LEG:
+		player_skin.tier[.LEFT_LEG] = tier
+	case .WEAPON:
+		player_skin.tier[.WEAPON] = tier
+		player_skin.tier[.SLASH_EFFECT] = tier
+	}
+}
+
+getPartFromGroup :: proc(group: CharacterPartGroup) -> anim.BodyPart {
+	switch group {
+	case .BODY:
+		return .BODY
+	case .HEAD:
+		return .HEAD
+	case .FACE:
+		return .FACE_IDLE
+		// return .FACE_BLINK
+		// return .FACE_HURT
+	case .RIGHT_HAND:
+		// return .RIGHT_ARM
+		return .RIGHT_HAND
+	case .RIGHT_LEG:
+		return .RIGHT_LEG
+	case .LEFT_HAND:
+		// return .LEFT_ARM
+		return .LEFT_HAND
+	case .LEFT_LEG:
+		return .LEFT_LEG
+	case .WEAPON:
+		return .WEAPON
+	}
+
+    return .FACE_BLINK
 }
 
 // **************************
