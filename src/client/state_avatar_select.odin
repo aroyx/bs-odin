@@ -26,7 +26,7 @@ on_update :: proc(dt: f32) {
 
 @(private = "file")
 on_render :: proc() {
-	rl.ClearBackground({200, 100, 240, 255})
+	rl.ClearBackground(BLUE)
 
 	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
 	tex_w, tex_h: f32 = 230, 500 // approx

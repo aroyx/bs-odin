@@ -5,7 +5,7 @@ import "core:math/linalg"
 
 global: GlobalState = {
 	quit = false,
-	options = {show_fps = true, on_mobile = false},
+	options = {show_fps = false, on_mobile = false},
 }
 
 input: struct {
