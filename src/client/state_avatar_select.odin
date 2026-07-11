@@ -145,26 +145,31 @@ uiTypeSelector :: proc(group: CharacterPartGroup) {
 
 	current_index := (int(curr_type) * num_tiers) + int(curr_tier)
 
+	// left chevron
 	if orui.label(
-	orui.id(getId()),
-	"\ue06e",
-	{ 	// left chevron
-		width            = orui.fixed(40),
-		height           = orui.fixed(40),
-		font             = utils.getIconFont(),
-		font_size        = 30,
-		color            = rl.BLACK,
-		background_color = WHITE,
-		align            = {.Center, .Center},
-		border           = getBorder(fmt.tprintf("border_left_%d", getId())),
-		border_color     = rl.BLACK,
-		corner_radius    = orui.corner(20),
-	},
+		orui.id(getId()),
+		"\ue06e",
+		{
+			width = orui.fixed(40),
+			height = orui.fixed(40),
+			font = utils.getIconFont(),
+			font_size = 30,
+			color = rl.BLACK,
+			background_color = WHITE,
+			align = {.Center, .Center},
+			border = getBorder(fmt.tprintf("border_left_%d", getId())),
+			border_color = rl.BLACK,
+			corner_radius = orui.corner(20),
+		},
 	) {
 		new_index := (current_index - 1 + total_options) % total_options
 
 		setPartType(group, anim.CharacterType(new_index / num_tiers))
 		setPartTier(group, anim.CharacterTier(new_index % num_tiers))
+
+		if group == .WEAPON {
+			forceChangeAnimation(.SLASHING)
+		}
 	}
 
 	{
@@ -193,21 +198,22 @@ uiTypeSelector :: proc(group: CharacterPartGroup) {
 		displayPartImages(prev_tex, curr_tex, next_tex)
 	}
 
+	// right chevron
 	if orui.label(
-	orui.id(getId()),
-	"\ue06f",
-	{ 	// right chevron
-		width            = orui.fixed(40),
-		height           = orui.fixed(40),
-		font             = utils.getIconFont(),
-		font_size        = 30,
-		color            = rl.BLACK,
-		background_color = WHITE,
-		align            = {.Center, .Center},
-		border           = getBorder(fmt.tprintf("border_right_%d", getId())),
-		border_color     = rl.BLACK,
-		corner_radius    = orui.corner(20),
-	},
+		orui.id(getId()),
+		"\ue06f",
+		{
+			width = orui.fixed(40),
+			height = orui.fixed(40),
+			font = utils.getIconFont(),
+			font_size = 30,
+			color = rl.BLACK,
+			background_color = WHITE,
+			align = {.Center, .Center},
+			border = getBorder(fmt.tprintf("border_right_%d", getId())),
+			border_color = rl.BLACK,
+			corner_radius = orui.corner(20),
+		},
 	) {
 		new_index := (current_index + 1) % total_options
 
@@ -215,7 +221,7 @@ uiTypeSelector :: proc(group: CharacterPartGroup) {
 		setPartTier(group, anim.CharacterTier(new_index % num_tiers))
 
 		if group == .WEAPON {
-
+			forceChangeAnimation(.SLASHING)
 		}
 	}
 }

@@ -122,23 +122,23 @@ getPartFromGroup :: proc(group: CharacterPartGroup) -> anim.BodyPart {
 		return .HEAD
 	case .FACE:
 		return .FACE_IDLE
-		// return .FACE_BLINK
-		// return .FACE_HURT
+	// return .FACE_BLINK
+	// return .FACE_HURT
 	case .RIGHT_HAND:
-		// return .RIGHT_ARM
-		return .RIGHT_HAND
+		return .RIGHT_ARM
+		// return .RIGHT_HAND
 	case .RIGHT_LEG:
 		return .RIGHT_LEG
 	case .LEFT_HAND:
-		// return .LEFT_ARM
-		return .LEFT_HAND
+		return .LEFT_ARM
+		// return .LEFT_HAND
 	case .LEFT_LEG:
 		return .LEFT_LEG
 	case .WEAPON:
 		return .WEAPON
 	}
 
-    return .FACE_BLINK
+	return .FACE_BLINK
 }
 
 // **************************
@@ -305,6 +305,26 @@ switchAnimation :: proc() {
 
 	prev_animation_length = curr_animation_length
 	curr_animation_length = f32(anime.length) * f32(loops)
+}
+
+forceChangeAnimation :: proc(next_anim: anim.AnimationName, loops: u8 = 1) {
+	anim_name := anim.anim_lookup[next_anim]
+	if !(anim_name in anim.data.entity.animations) {
+		fmt.println("Animation not found! ", anim_name)
+		return
+	}
+
+	prev_animation = curr_animation
+	blending = true
+	blend_start_time = time.now()
+
+	curr_animation = next_anim
+	anime := &anim.data.entity.animations[anim_name]
+
+	prev_animation_length = curr_animation_length
+	curr_animation_length = f32(anime.length) * f32(loops)
+
+	animation_start_time = time.now()
 }
 
 blendCommands :: proc(a, b: [dynamic]anim.DrawCommand, t: f32) -> [dynamic]anim.DrawCommand {
