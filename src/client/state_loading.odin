@@ -5,7 +5,6 @@ import "../physics"
 import "../terrain"
 import "../utils"
 import "core:math"
-import "core:time"
 
 import rl "vendor:raylib"
 LoadingState :: enum u8 {
@@ -69,8 +68,6 @@ on_update :: proc(dt: f32) {
 	// }
 	// network.Send(&ready, size_of(ready), true)
 	}
-
-	time.sleep(500 * time.Millisecond) // to see the loading screen :)
 }
 
 @(private = "file")
