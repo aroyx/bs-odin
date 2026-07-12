@@ -40,7 +40,7 @@ on_update :: proc(dt: f32) {
 	case .CAMERA:
 		w := rl.GetRenderWidth()
 		h := rl.GetRenderHeight()
-		camera.Init(w, h, utils.MAP_SIZE)
+		camera.init(w, h, utils.MAP_SIZE)
 		lState = .TERRAIN
 
 	case .TERRAIN:
@@ -53,20 +53,11 @@ on_update :: proc(dt: f32) {
 
 	case .ENEMIES:
 		generateEntities()
-		camera.StartTagAlong(getPlayer().pos, 4.0)
+		camera.startTagAlong(getPlayer().pos, 4.0)
 		lState = .DONE
-
-	// todo
-	// case .Animations:
-	// 	animations.init()
 
 	case .DONE:
 		changeState(&playing_state)
-	// for network
-	// ready: types.ClientReady = {
-	// 	type = .CLIENT_READY,
-	// }
-	// network.Send(&ready, size_of(ready), true)
 	}
 }
 

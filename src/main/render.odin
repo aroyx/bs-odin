@@ -5,18 +5,15 @@ import "core:fmt"
 import "../ui"
 import "../utils"
 
-import "thirdparty:orui"
 import "thirdparty:tracy"
 import rl "vendor:raylib"
 
 render :: proc() {
 	tracy.ZoneN("Render Everything")
 
-	ui.ImGuiNewFrame()
-	rl.BeginDrawing()
+	ui.start()
 
-	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
-	orui.begin(ui_ctx, win_w, win_h, f32(utils.dt))
+	rl.BeginDrawing()
 
 	{
 		tracy.ZoneN("Render State")
@@ -27,13 +24,8 @@ render :: proc() {
 
 	renderFps()
 
-	render_cmds := orui.end()
+    ui.render()
 
-	for render_cmd in render_cmds {
-		orui.render_command(render_cmd)
-	}
-
-	ui.ImGuiRender()
 	rl.EndDrawing()
 }
 

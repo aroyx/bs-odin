@@ -1,6 +1,6 @@
 package main
 
-import "../client"
+import client ".."
 
 import "thirdparty:tracy"
 

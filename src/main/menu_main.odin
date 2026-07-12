@@ -19,6 +19,7 @@ inited_player := false
 @(private = "file")
 on_enter :: proc() {
 	rl.SetExitKey(.KEY_NULL)
+
 	if !inited_player {
 		initPlayer()
 		inited_player = true

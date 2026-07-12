@@ -96,12 +96,12 @@ on_update :: proc(dt: f32) {
 	// fmt.println(body_pos)
 	// fmt.println(entities[0].pos)
 
-	camera.Update()
+	camera.update()
 
 	if rl.IsWindowResized() {
 		w := rl.GetRenderWidth()
 		h := rl.GetRenderHeight()
-		camera.SizeUpdate(w, h)
+		camera.sizeUpdate(w, h)
 		terrain.generateRenderChunks()
 	}
 
@@ -123,7 +123,7 @@ on_update :: proc(dt: f32) {
 	box2d.Body_SetLinearVelocity(playerId, force)
 
 	if x_axis != 0 || y_axis != 0 {
-		camera.StartTagAlong(entities[0].pos)
+		camera.startTagAlong(entities[0].pos)
 	}
 
 	if rl.IsKeyPressed(.R) {

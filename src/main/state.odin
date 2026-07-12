@@ -31,7 +31,6 @@ GlobalState :: struct {
 ClientState :: struct {
 	on_enter:  proc(),
 	on_exit:   proc(),
-	// on_network_event: proc(event: network.ReceivedStruct),
 	on_update: proc(dt: f32),
 	on_render: proc(),
 }

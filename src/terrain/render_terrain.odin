@@ -93,7 +93,7 @@ evalUI :: proc() {
 
 			if (imgui.SliderFloat("No Of horizontal Cells", &camera.state.hcc, 0.0, 200.0)) {
 				camera.state.hcc = math.round(camera.state.hcc)
-				camera.UpdateVariables()
+				camera.updateVariables()
 				generateRenderChunks()
 			}
 

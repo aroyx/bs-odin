@@ -9,11 +9,7 @@ import "../terrain"
 import "../ui"
 import "../utils"
 
-import "thirdparty:orui"
 import rl "vendor:raylib"
-
-@(private)
-ui_ctx: ^orui.Context
 
 init :: proc() {
 	// rl.SetConfigFlags({.WINDOW_RESIZABLE, .MSAA_4X_HINT})
@@ -21,16 +17,8 @@ init :: proc() {
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
 	rl.InitWindow(1280, 720, "BS-Odin")
 
-	// utils.loadRayGuiStyleFromMemory(style_genesis_raw)
-
 	utils.initFont()
-
-	ui_ctx = new(orui.Context)
-	orui.init(ui_ctx)
-	ui_ctx.default_font = utils.getFont(.MEDIUM)^
-
-	ui.ImGuiInit()
-
+	ui.init()
 	animations.init()
 
 	a: i32 = rand.int31()
@@ -42,27 +30,20 @@ init :: proc() {
 	if client_state != nil && client_state.on_enter != nil {
 		client_state.on_enter()
 	}
-
-	// if establishConnectionWithServer() != 0 {
-	// 	fmt.println("Unable to open start enet")
-	// 	return
-	// }
-	// rewokeConnectionWithServer()
 }
 
 update :: proc() {
-	utils.InitTimer()
-	defer utils.StopTimer()
+	utils.initTimer()
+	defer utils.stopTimer()
 
-	// handleNetworkInputs()
-
-	ui.ImGuiProcessEvent()
+	ui.tick()
 
 	if client_state != nil && client_state.on_update != nil {
 		client_state.on_update(f32(utils.dt))
 	}
 
 	render()
+
 	free_all(context.temp_allocator)
 }
 
@@ -70,12 +51,11 @@ close :: proc() {
 	if client_state != nil && client_state.on_exit != nil {
 		client_state.on_exit()
 	}
-	// rewokeConnectionWithServer()
 
-	orui.destroy(ui_ctx)
 	animations.close()
-	ui.ImGuiClose()
+	ui.close()
 	utils.deinitFont()
+
 	rl.CloseWindow()
 }
 

@@ -18,19 +18,6 @@ on_update :: proc(dt: f32) {
 	}
 }
 
-// @(private = "file")
-// on_network_event :: proc(pEvent: network.ReceivedStruct) {
-// 	#partial switch packet in pEvent {
-// 	case types.MatchMakingOutput:
-// 		global.render_state.player_count = packet.player_count
-// 	case types.CountDownOutput:
-// 		global.time.countdown = packet
-// 	case types.Loading:
-//         terrain.setSeed(packet.seed)
-// 		changeState(&playing_state)
-// 	}
-// }
-
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground({10, 200, 120, 255})

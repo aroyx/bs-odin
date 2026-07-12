@@ -6,7 +6,7 @@ import "base:runtime"
 import "core:c"
 import "core:mem"
 
-import "../client"
+import client ".."
 
 @(private = "file")
 web_context: runtime.Context

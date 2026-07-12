@@ -4,7 +4,6 @@
 # `./build.sh` - run the client
 #
 # `./build.sh client run release tracy` (or `./build.sh c r rel t`)
-# `./build.sh server build debug` (or `./build.sh s b d`)
 #
 # Heads up: "release" takes time to build due to `-o:speed`. In my device it it 5x slower.
 
@@ -21,7 +20,6 @@ EMSCRIPTEN_SDK_DIR="$HOME/repos/emsdk"
 for arg in "$@"; do
     case $arg in
         client|c)    EXE="client"         ;;
-        server|s)    EXE="server"         ;;
         wasm|w)      EXE="wasm"           ;;
         run|r)       MODE="run"           ;;
         build|b)     MODE="build"         ;;
@@ -32,12 +30,9 @@ for arg in "$@"; do
 done
 
 if [[ "$EXE" == "client" ]]; then
-    SRC_DIR="src/client_desktop/"
-elif [[ "$EXE" == "server" ]]; then
-    SRC_DIR="src/server/"
-    FLAGS+=" -define:SERVER=true"
+    SRC_DIR="src/main/desktop"
 elif [[ "$EXE" == "wasm" ]]; then
-    SRC_DIR="src/client_web/"
+    SRC_DIR="src/main/web"
     FLAGS+=" -define:IMGUI=false"
     FLAGS+=" -target:js_wasm32 -build-mode:obj -no-entry-point -define:RAYLIB_WASM_LIB=env.o -define:RAYGUI_WASM_LIB=env.o"
 fi
