@@ -13,7 +13,7 @@ when ODIN_OS == .JS {
 		last_time = time.now()
 	}
 
-	StopTimer :: proc() {
+	stopTimer :: proc() {
 		curr_time := time.now()
 		dur := time.diff(last_time, curr_time)
 		frame_time = time.duration_milliseconds(dur)
