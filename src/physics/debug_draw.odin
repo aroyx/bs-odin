@@ -174,6 +174,8 @@ DrawSolidPolygonFcn :: proc "c" (
 			rl.DrawCircleV(sVertices[i], r, col)
 			rl.DrawLineEx(sVertices[i], sVertices[i + 1], r * 2.0, col)
 		}
+	} else {
+		rl.DrawLineStrip(cast([^]rl.Vector2)raw_data(sVertices), vertexCount + 1, col)
 	}
 }
 
