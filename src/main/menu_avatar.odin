@@ -17,29 +17,32 @@ avatar_select_state: ClientState = {
 }
 
 @(private = "file")
+x_anim, y_anim, scale_anim: f32 = 0, 0, 1
+
+@(private = "file")
 on_update :: proc(dt: f32) {
 	clearId()
 	if rl.IsKeyPressed(.ESCAPE) {
 		changeState(&main_menu_state)
 	}
+
+	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
+	tex_w, tex_h: f32 = 230, 500 // approx
+
+	available_w := math.max(win_w, 700) - math.clamp(win_w * 0.55, 400, 800)
+	available_h := math.max(win_h * 0.6, 500, win_h - 200)
+
+	scale_anim = math.min(available_w / tex_w, available_h / tex_h)
+
+	x_anim = available_w * 0.5
+	y_anim = tex_h * scale_anim + (win_h - available_h) * 0.5
 }
 
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground(BLUE)
 
-	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
-	tex_w, tex_h: f32 = 230, 500 // approx
-
-	available_w := math.max(win_w, 700) - math.clamp(win_w * 0.55, 400, 800)
-	available_h := math.min(win_h * 0.6, win_h - 200)
-
-	scale := math.min(available_w / tex_w, available_h / tex_h)
-
-	x := available_w * 0.5
-	y := tex_h * scale + (win_h - available_h) * 0.5
-
-	draw_commands := runAnimation({x, y}, scale)
+	draw_commands := runAnimation({x_anim, y_anim}, scale_anim)
 	defer delete(draw_commands)
 
 	for cmd in draw_commands {
