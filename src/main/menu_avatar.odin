@@ -31,13 +31,13 @@ on_render :: proc() {
 	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
 	tex_w, tex_h: f32 = 230, 500 // approx
 
-	available_w := math.min(win_w * 0.65, win_w - 200)
+	available_w := math.max(win_w, 700) - math.clamp(win_w * 0.55, 400, 800)
 	available_h := math.min(win_h * 0.6, win_h - 200)
 
 	scale := math.min(available_w / tex_w, available_h / tex_h)
 
-	x := available_w * scale * 0.5
-	y := tex_h * scale + (win_h - available_h * scale) * 0.5
+	x := available_w * 0.5
+	y := tex_h * scale + (win_h - available_h) * 0.5
 
 	draw_commands := runAnimation({x, y}, scale)
 	defer delete(draw_commands)
