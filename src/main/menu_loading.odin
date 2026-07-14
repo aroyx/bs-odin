@@ -4,9 +4,10 @@ import "../camera"
 import "../physics"
 import "../terrain"
 import "../utils"
-import "core:math"
 
+import "thirdparty:orui"
 import rl "vendor:raylib"
+
 LoadingState :: enum u8 {
 	INIT,
 	CAMERA,
@@ -32,6 +33,13 @@ on_enter :: proc() {
 
 @(private = "file")
 on_update :: proc(dt: f32) {
+
+	if rl.IsWindowResized() {
+		w := rl.GetRenderWidth()
+		h := rl.GetRenderHeight()
+		camera.sizeUpdate(w, h)
+	}
+
 	switch (lState) {
 
 	case .INIT:
@@ -44,8 +52,8 @@ on_update :: proc(dt: f32) {
 		lState = .TERRAIN
 
 	case .TERRAIN:
-		terrain.createTerrain()
-		lState = .PHYSICS
+	terrain.createTerrain()
+	lState = .PHYSICS
 
 	case .PHYSICS:
 		physics.initPhysics()
@@ -59,53 +67,110 @@ on_update :: proc(dt: f32) {
 	case .DONE:
 		changeState(&playing_state)
 	}
+
+	clearId()
 }
 
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground({174, 226, 255, 255})
-	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
 
-	w := i32(win_w * 0.8)
-	x := i32((win_w - f32(w)) * 0.5)
-	y := i32(win_h * 0.8)
-	h := math.min(20, i32(win_h * 0.2))
-
-	text: cstring
-
-	tiny_w: i32 = 10
+	loading_text: string
 	progress: f32 = 0.0
+
 	switch (lState) {
 	case .INIT:
-		text = "Initialising stuff...the brick is working hard!"
-		tiny_w = 0
+		loading_text = "Initialising stuff...the brick is working hard!"
 		progress = 0.0
 	case .CAMERA:
-		text = "Lights, camera...loading and Action!"
+		loading_text = "Lights, camera...loading and Action!"
 		progress = 0.1
 	case .TERRAIN:
-		text = "Like the god I am, I create thy land"
+		loading_text = "Like the god I am, I create thy land"
 		progress = 0.2
 	case .PHYSICS:
-		text = "Newton go brr... initialising physics"
+		loading_text = "Newton go brr... initialising physics"
 		progress = 0.5
 	case .ENEMIES:
-		text = "To create balance, we need both evil and good"
+		loading_text = "To create balance, we need both evil and good"
 		progress = 0.8
 	case .DONE:
-		text = "We legit don now :)"
+		loading_text = "We legit don now :)"
 		progress = 1.0
 	}
 
-	progress_w := i32(progress * f32(w))
+	{orui.container(
+			orui.id(getId()), // main container
+			{
+				direction = .TopToBottom,
+				width = orui.grow(),
+				height = orui.grow(),
+				align_main = .Center,
+			},
+		)
 
-	rl.DrawRectangle(x, y, w, h, {73, 1, 41, 255})
-	rl.DrawRectangle(x, y, progress_w, h, {216, 91, 63, 255})
-	rl.DrawRectangle(progress_w - tiny_w + x, y, tiny_w, h, {253, 218, 136, 255})
-	rl.DrawRectangleLines(x, y, w, h, rl.BLACK)
+		{orui.container(orui.id(getId()), {height = orui.grow()})} 	// padding container
 
-	a, b := utils.getTextSize(text, .MEDIUM)
-	tx: f32 = (win_w - a) * 0.5
-	ty := f32(y + h) + 10
-	utils.drawText(text, .MEDIUM, {tx, ty}, rl.BLACK)
+		{orui.container(
+				orui.id(getId()), // loading main container
+				{
+					width = orui.grow(),
+					height = {type = .Percent, value = 0.2, max = 80},
+					// background_color = rl.BLACK,
+					margin = orui.margin(0, 100),
+					align_main = .Center,
+					align_content = .Center,
+					align_cross = .Center,
+					direction = .TopToBottom,
+				},
+			)
+
+			// loading bar - background (blue)
+			{orui.container(
+					orui.id(getId()),
+					{
+						width = {type = .Percent, value = 0.8},
+						height = orui.grow(),
+						background_color = BLUE,
+						border = orui.border(4),
+						corner_radius = orui.corner(10),
+						border_color = rl.BLACK,
+						direction = .LeftToRight,
+						gap = -10,
+					},
+				)
+
+				// loading bar - inside (red)
+				{orui.container(
+						orui.id(getId()),
+						{
+							height = orui.grow(),
+							width = {type = .Percent, value = progress},
+							background_color = RED,
+							corner_radius = orui.corner(5),
+						},
+					)
+				}
+
+				// loading bar - end (white)
+				{orui.container(
+						orui.id(getId()),
+						{width = orui.fixed(20), height = orui.grow(), background_color = WHITE},
+					)}
+
+			}
+
+			orui.label(
+				orui.id(getId()),
+				loading_text,
+				{
+					font_size = 24,
+					width = orui.fit(),
+					height = orui.grow(),
+					color = rl.BLACK,
+					align = {.Center, .Center},
+				},
+			)
+		}
+	}
 }
