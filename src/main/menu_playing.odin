@@ -5,6 +5,7 @@ import "../character"
 import "../physics"
 import "../terrain"
 import "../utils"
+import "thirdparty:orui"
 
 import "core:math/rand"
 import "vendor:box2d"
@@ -132,13 +133,9 @@ on_update :: proc(dt: f32) {
 
 	if rl.IsKeyPressed(.R) {
 		draw_physics = !draw_physics
-	} else if rl.IsKeyPressed(.Q) {
-		changeState(&end_screen_state)
-	}
+	} 
 
-	if rl.GuiButton({f32(rl.GetRenderWidth()) - 40, 0, 40, 40}, "#113#") {
-		changeState(&end_screen_state)
-	}
+	clearId()
 }
 
 @(private = "file")
@@ -147,6 +144,30 @@ draw_physics := false
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground({2, 5, 17, 255})
+
+	{orui.container(orui.id(getId()), {width = orui.grow(), height = orui.grow()})
+		{orui.container(orui.id(getId()), {width = orui.grow()})}
+
+		if orui.label(
+			orui.id(getId()),
+			"\u0078",
+			{
+				width = orui.fixed(40),
+				height = orui.fixed(40),
+				align = {.Center, .Center},
+				font = utils.getIconFont(),
+				font_size = 30,
+				color = rl.BLACK,
+				background_color = CYAN,
+				border = getBorder(),
+				border_color = rl.BLACK,
+				corner_radius = orui.corner(10),
+				margin = orui.margin(10),
+			},
+		) {
+			changeState(&end_screen_state)
+		}
+	}
 
 	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
 
@@ -184,6 +205,7 @@ on_render :: proc() {
 		x      = camera.state.x_offset,
 		y      = camera.state.y_offset,
 	}
+
 	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
 
 	for i in 0 ..< len(entities) {
