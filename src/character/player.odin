@@ -51,7 +51,7 @@ drawAnimate :: proc(player: ^Entity, camTopLeft: linalg.Vector2f32) {
 	tex_w, tex_h: f32 = 230, 500
 
 	draw_x := player.pos.x - camTopLeft.x + camera.state.x_offset
-	draw_y := player.pos.y - camTopLeft.y + camera.state.y_offset + (cs * 0.67)
+	draw_y := player.pos.y - camTopLeft.y + camera.state.y_offset + (cs * 0.25)
 
 	scale := cs / tex_w
 

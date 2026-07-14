@@ -52,8 +52,8 @@ on_update :: proc(dt: f32) {
 		lState = .TERRAIN
 
 	case .TERRAIN:
-	terrain.createTerrain()
-	lState = .PHYSICS
+		terrain.createTerrain()
+		lState = .PHYSICS
 
 	case .PHYSICS:
 		physics.initPhysics()

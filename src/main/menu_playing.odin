@@ -28,11 +28,9 @@ lock_camera := false
 @(private = "file")
 entities: [128]character.Entity
 
-@(private = "file")
-playerId: box2d.BodyId
-
 @(private)
 generateEntities :: proc() {
+	// player animation
 	entities[0].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
 	entities[0].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
 
@@ -41,16 +39,7 @@ generateEntities :: proc() {
 
 	character.changeAnimation(&entities[0], .IDLE)
 
-	for i in 1 ..< 128 {
-		entities[i].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
-		entities[i].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
-
-		character.randomSkin(&entities[i].skin)
-
-		entities[i].animation.flip_x = 1
-		character.changeAnimation(&entities[i], .IDLE)
-	}
-
+	// player physics
 	playerBody := box2d.DefaultBodyDef()
 	playerBody.position = {
 		entities[0].pos.x / camera.state.cs,
@@ -58,13 +47,55 @@ generateEntities :: proc() {
 	}
 	playerBody.type = .dynamicBody
 	playerBody.fixedRotation = true
+	playerBody.linearDamping = 10
 
-	playerId = box2d.CreateBody(physics.phyWorld, playerBody)
+	entities[0].physics_id = box2d.CreateBody(physics.phyWorld, playerBody)
 
-	playerBox := box2d.MakeRoundedBox(0.5, 0.5, 0.2)
+	playerBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 	playerShapeDef := box2d.DefaultShapeDef()
+	_ = box2d.CreatePolygonShape(entities[0].physics_id, playerShapeDef, playerBox)
 
-	_ = box2d.CreatePolygonShape(playerId, playerShapeDef, playerBox)
+	// playerSensorBox := box2d.MakeOffsetRoundedBox(0.2, 0.6, {0, -0.65}, {c = 1, s = 0}, 0.2)
+	playerSensorBox := box2d.MakeOffsetBox(0.3, 0.7, {0, -0.75}, {c = 1, s = 0})
+	playerSensorShapeDef := box2d.DefaultShapeDef()
+	playerSensorShapeDef.density = 0
+	playerSensorShapeDef.isSensor = true
+	playerSensorShapeDef.enableSensorEvents = true
+	_ = box2d.CreatePolygonShape(entities[0].physics_id, playerSensorShapeDef, playerSensorBox)
+
+	for i in 1 ..< 128 {
+		// enemy animation
+		entities[i].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
+		entities[i].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
+
+		character.randomSkin(&entities[i].skin)
+
+		entities[i].animation.flip_x = 1
+		character.changeAnimation(&entities[i], .IDLE)
+
+		// enemy physics
+		enemyBody := box2d.DefaultBodyDef()
+		enemyBody.position = {
+			entities[i].pos.x / camera.state.cs,
+			entities[i].pos.y / camera.state.cs,
+		}
+		enemyBody.type = .dynamicBody
+		enemyBody.fixedRotation = true
+		enemyBody.linearDamping = 10
+
+		entities[i].physics_id = box2d.CreateBody(physics.phyWorld, enemyBody)
+
+		enemyBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
+		enemyShapeDef := box2d.DefaultShapeDef()
+		_ = box2d.CreatePolygonShape(entities[i].physics_id, enemyShapeDef, enemyBox)
+
+		enemySensorBox := box2d.MakeOffsetBox(0.4, 0.75, {0, -0.75}, {c = 1, s = 0})
+		enemySensorShapeDef := box2d.DefaultShapeDef()
+		enemySensorShapeDef.density = 0
+		enemySensorShapeDef.isSensor = true
+		enemySensorShapeDef.enableSensorEvents = true
+		_ = box2d.CreatePolygonShape(entities[i].physics_id, enemySensorShapeDef, enemySensorBox)
+	}
 }
 
 @(private)
@@ -89,7 +120,7 @@ on_enter :: proc() {
 on_exit :: proc() {
 	rl.UnloadTexture(rotate_phone_texture)
 	terrain.destroyChunks()
-	box2d.DestroyBody(playerId)
+	box2d.DestroyBody(entities[0].physics_id)
 	physics.closePhysics()
 }
 
@@ -97,7 +128,7 @@ on_exit :: proc() {
 on_update :: proc(dt: f32) {
 	physics.physicsTick()
 
-	body_pos := box2d.Body_GetPosition(playerId)
+	body_pos := box2d.Body_GetPosition(entities[0].physics_id)
 	entities[0].pos = {body_pos.x * camera.state.cs, body_pos.y * camera.state.cs}
 	// entities[0].pos = {body_pos.x, body_pos.y}
 
@@ -128,7 +159,8 @@ on_update :: proc(dt: f32) {
 	speed: f32 = 10.0
 	force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
 
-	box2d.Body_SetLinearVelocity(playerId, force)
+	// box2d.Body_SetLinearVelocity(entities[0].physics_id, force)
+	box2d.Body_ApplyForceToCenter(entities[0].physics_id, force, true)
 
 	if x_axis != 0 || y_axis != 0 {
 		camera.startTagAlong(entities[0].pos)
@@ -139,11 +171,11 @@ on_update :: proc(dt: f32) {
 			character.changeAnimation(player, .RUNNING)
 		}
 
-        if x_axis < 0 {
-            player.animation.flip_x = -1
-        } else if x_axis > 0 {
-            player.animation.flip_x = 1
-        }
+		if x_axis < 0 {
+			player.animation.flip_x = -1
+		} else if x_axis > 0 {
+			player.animation.flip_x = 1
+		}
 
 	} else {
 		character.changeAnimation(&entities[0], .IDLE)
@@ -239,7 +271,7 @@ on_render :: proc() {
 		character.drawAnimate(&entities[i], camTopLeft)
 	}
 
-	if draw_physics { 	// due to me using rl.Camera in drawPhysics, I can't clip it. It is not a feature to be used by players so idk, whatever
+	if draw_physics {
 		physics.drawPhysics()
 	}
 
