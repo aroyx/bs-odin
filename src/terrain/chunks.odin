@@ -101,9 +101,6 @@ generateRenderChunks :: proc() {
 }
 
 destroyChunks :: proc() {
-	rl.SetTraceLogLevel(rl.TraceLogLevel.NONE)
-	defer rl.SetTraceLogLevel(rl.TraceLogLevel.INFO)
-
 	for a in 0 ..< utils.GRID_SIZE { 	// iterate over the chunks
 		for b in 0 ..< utils.GRID_SIZE {
 			if chunks[a][b].baked {
@@ -133,9 +130,6 @@ pushTriangle :: proc(a, b, c: linalg.Vector2f32, color: rl.Color) {
 @(private = "file")
 createMeshFromVertices :: proc() -> rl.Mesh {
 	if len(vertices_pos) == 0 do return {}
-
-	rl.SetTraceLogLevel(rl.TraceLogLevel.NONE)
-	defer rl.SetTraceLogLevel(rl.TraceLogLevel.INFO)
 
 	mesh: rl.Mesh = {}
 	mesh.vertexCount = i32(len(vertices_pos))

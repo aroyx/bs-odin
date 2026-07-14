@@ -187,6 +187,15 @@ on_render :: proc() {
 	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
 
 	for i in 0 ..< len(entities) {
+		char_rekt := rl.Rectangle {
+			x      = entities[i].pos.x - camTopLeft.x + camera.state.x_offset - cs,
+			y      = entities[i].pos.y - camTopLeft.y + camera.state.y_offset - cs,
+			width  = cs * 2,
+			height = cs * 3,
+		}
+
+		if !rl.CheckCollisionRecs(rekt, char_rekt) do continue
+
 		character.drawAnimate(&entities[i], camTopLeft)
 	}
 
