@@ -20,6 +20,7 @@ AnimationState :: struct {
 	current_animation:        anim.AnimationName,
 	current_animation_length: f32,
 	animation_start_time:     time.Time,
+	flip_x:                   f32,
 }
 
 randomSkin :: proc(skin: ^CharacterSkin) {
@@ -72,19 +73,21 @@ drawAnimate :: proc(player: ^Entity, camTopLeft: linalg.Vector2f32) {
 		source: rl.Rectangle = {
 			x      = 0,
 			y      = 0,
-			width  = f32(tex.width),
+			width  = f32(tex.width) * player.animation.flip_x,
 			height = f32(tex.height),
 		}
 
 		dest: rl.Rectangle = {
-			x      = cmd.x,
+			x      = draw_x + ((cmd.x - draw_x) * player.animation.flip_x),
 			y      = cmd.y,
 			width  = f32(tex.width) * cmd.scale_x,
 			height = f32(tex.height) * cmd.scale_y,
 		}
 
+		origin_x: f32 = player.animation.flip_x > 0 ? 0 : dest.width
+
 		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
-		rl.DrawTexturePro(tex, source, dest, {}, cmd.angle, color)
+		rl.DrawTexturePro(tex, source, dest, {origin_x, 0}, cmd.angle * player.animation.flip_x, color)
 	}
 }
 

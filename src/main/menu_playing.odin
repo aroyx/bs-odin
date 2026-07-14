@@ -37,6 +37,7 @@ generateEntities :: proc() {
 	entities[0].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
 
 	entities[0].skin = player_skin
+	entities[0].animation.flip_x = 1
 
 	character.changeAnimation(&entities[0], .IDLE)
 
@@ -45,6 +46,8 @@ generateEntities :: proc() {
 		entities[i].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
 
 		character.randomSkin(&entities[i].skin)
+
+		entities[i].animation.flip_x = 1
 		character.changeAnimation(&entities[i], .IDLE)
 	}
 
@@ -129,11 +132,26 @@ on_update :: proc(dt: f32) {
 
 	if x_axis != 0 || y_axis != 0 {
 		camera.startTagAlong(entities[0].pos)
+
+		player := &entities[0]
+
+		if player.animation.current_animation != .RUNNING {
+			character.changeAnimation(player, .RUNNING)
+		}
+
+        if x_axis < 0 {
+            player.animation.flip_x = -1
+        } else if x_axis > 0 {
+            player.animation.flip_x = 1
+        }
+
+	} else {
+		character.changeAnimation(&entities[0], .IDLE)
 	}
 
 	if rl.IsKeyPressed(.R) {
 		draw_physics = !draw_physics
-	} 
+	}
 
 	clearId()
 }
