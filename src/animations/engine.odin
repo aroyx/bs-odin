@@ -30,7 +30,6 @@ DrawCommand :: struct {
 }
 
 calculateFrame :: proc(
-	entity: ^Entity,
     animation: AnimationName,
 	time_ms: f32,
 	root_pos: linalg.Vector2f32,
@@ -38,6 +37,7 @@ calculateFrame :: proc(
 ) -> [dynamic]DrawCommand //
 {
     anim_name := anim_lookup[animation] 
+    entity := &data.entity
     if !(anim_name in entity.animations) {
         fmt.println("Animation not found! ", anim_name)
         return {}

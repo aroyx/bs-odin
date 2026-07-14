@@ -1,6 +1,7 @@
 package client
 
 import "../camera"
+import "../character"
 import "../physics"
 import "../terrain"
 import "../utils"
@@ -23,24 +24,27 @@ playing_state: ClientState = {
 @(private = "file")
 lock_camera := false
 
-Entity :: struct {
-	pos: linalg.Vector2f32,
-	col: rl.Color,
-}
-
 @(private = "file")
-entities: [128]Entity
+entities: [128]character.Entity
 
 @(private = "file")
 playerId: box2d.BodyId
 
 @(private)
 generateEntities :: proc() {
-	for i in 0 ..< 128 {
+	entities[0].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
+	entities[0].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
+
+	entities[0].skin = player_skin
+
+	character.changeAnimation(&entities[0], .IDLE)
+
+	for i in 1 ..< 128 {
 		entities[i].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
 		entities[i].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
 
-		entities[i].col = {u8(rand.int31()), u8(rand.int31()), u8(rand.int31()), 255}
+		character.randomSkin(&entities[i].skin)
+		character.changeAnimation(&entities[i], .IDLE)
 	}
 
 	playerBody := box2d.DefaultBodyDef()
@@ -49,7 +53,7 @@ generateEntities :: proc() {
 		entities[0].pos.y / camera.state.cs,
 	}
 	playerBody.type = .dynamicBody
-    playerBody.fixedRotation = true
+	playerBody.fixedRotation = true
 
 	playerId = box2d.CreateBody(physics.phyWorld, playerBody)
 
@@ -60,7 +64,7 @@ generateEntities :: proc() {
 }
 
 @(private)
-getPlayer :: proc() -> Entity {
+getPlayer :: proc() -> character.Entity {
 	return entities[0]
 }
 
@@ -183,16 +187,7 @@ on_render :: proc() {
 	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
 
 	for i in 0 ..< len(entities) {
-		player := entities[i]
-		rect: rl.Rectangle
-
-		dim :: 30
-		rect.height = dim
-		rect.width = dim
-		rect.x = player.pos.x - (dim * 0.5) - camTopLeft.x + camera.state.x_offset
-		rect.y = player.pos.y - (dim * 0.5) - camTopLeft.y + camera.state.y_offset
-
-		rl.DrawRectangleRec(rect, player.col)
+		character.drawAnimate(&entities[i], camTopLeft)
 	}
 
 	if draw_physics { 	// due to me using rl.Camera in drawPhysics, I can't clip it. It is not a feature to be used by players so idk, whatever

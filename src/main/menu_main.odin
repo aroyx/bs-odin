@@ -19,7 +19,6 @@ inited_player := false
 @(private = "file")
 on_enter :: proc() {
 	rl.SetExitKey(.KEY_NULL)
-
 	if !inited_player {
 		initPlayer()
 		inited_player = true
@@ -31,6 +30,7 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.Q) || rl.IsKeyPressed(.ESCAPE) {
 		global.quit = true
 	}
+	win_w, win_h := rl.GetRenderWidth(), rl.GetRenderHeight()
 }
 
 @(private = "file")
@@ -48,34 +48,34 @@ on_render :: proc() {
 	x := available_w * scale * 0.5
 	y := tex_h * scale + (win_h - available_h * scale) * 0.5
 
-	if scale > 0.2 { 	// too small to even try to draw anymore
-		draw_commands := runAnimation({x, y}, scale)
-		defer delete(draw_commands)
+	// if scale > 0.2 { 	// too small to even try to draw anymore
+	draw_commands := runAnimation({x, y}, scale)
+	defer delete(draw_commands)
 
-		for cmd in draw_commands {
-			type := player_skin.type[cmd.part]
-			tier := player_skin.tier[cmd.part]
+	for cmd in draw_commands {
+		type := player_skin.type[cmd.part]
+		tier := player_skin.tier[cmd.part]
 
-			tex := animations.getPartTex(type, tier, cmd.part)
+		tex := animations.getPartTex(type, tier, cmd.part)
 
-			source: rl.Rectangle = {
-				x      = 0,
-				y      = 0,
-				width  = f32(tex.width),
-				height = f32(tex.height),
-			}
-
-			dest: rl.Rectangle = {
-				x      = cmd.x,
-				y      = cmd.y,
-				width  = f32(tex.width) * cmd.scale_x,
-				height = f32(tex.height) * cmd.scale_y,
-			}
-
-			color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
-			rl.DrawTexturePro(tex, source, dest, {}, cmd.angle, color)
+		source: rl.Rectangle = {
+			x      = 0,
+			y      = 0,
+			width  = f32(tex.width),
+			height = f32(tex.height),
 		}
+
+		dest: rl.Rectangle = {
+			x      = cmd.x,
+			y      = cmd.y,
+			width  = f32(tex.width) * cmd.scale_x,
+			height = f32(tex.height) * cmd.scale_y,
+		}
+
+		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
+		rl.DrawTexturePro(tex, source, dest, {}, cmd.angle, color)
 	}
+	// }
 
 	{orui.container(
 			orui.id("main_container"),

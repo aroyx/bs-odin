@@ -7,6 +7,7 @@ import "core:math/rand"
 import "core:time"
 
 import anim "../animations"
+import char "../character"
 
 import "core:math/linalg"
 
@@ -22,44 +23,10 @@ CharacterPartGroup :: enum {
 	WEAPON,
 }
 
-@(private = "file")
-CharacterSkin :: struct {
-	type: [anim.BodyPart]anim.CharacterType,
-	tier: [anim.BodyPart]anim.CharacterTier,
-}
-
-player_skin: CharacterSkin
+player_skin: char.CharacterSkin
 
 initPlayer :: proc() {
-	player_skin.tier[.BODY] = .T1
-	player_skin.tier[.HEAD] = .T1
-	player_skin.tier[.FACE_IDLE] = .T1
-	player_skin.tier[.FACE_BLINK] = .T1
-	player_skin.tier[.FACE_HURT] = .T1
-	player_skin.tier[.RIGHT_ARM] = .T1
-	player_skin.tier[.RIGHT_HAND] = .T1
-	player_skin.tier[.RIGHT_LEG] = .T1
-	player_skin.tier[.LEFT_ARM] = .T1
-	player_skin.tier[.LEFT_HAND] = .T1
-	player_skin.tier[.LEFT_LEG] = .T1
-	player_skin.tier[.WEAPON] = .T1
-	player_skin.tier[.SLASH_EFFECT] = .T1
-
-	//
-
-	player_skin.type[.BODY] = .SKELETON
-	player_skin.type[.HEAD] = .SKELETON
-	player_skin.type[.FACE_IDLE] = .SKELETON
-	player_skin.type[.FACE_BLINK] = .SKELETON
-	player_skin.type[.FACE_HURT] = .SKELETON
-	player_skin.type[.RIGHT_ARM] = .SKELETON
-	player_skin.type[.RIGHT_HAND] = .SKELETON
-	player_skin.type[.RIGHT_LEG] = .SKELETON
-	player_skin.type[.LEFT_ARM] = .SKELETON
-	player_skin.type[.LEFT_HAND] = .SKELETON
-	player_skin.type[.LEFT_LEG] = .SKELETON
-	player_skin.type[.WEAPON] = .SKELETON
-	player_skin.type[.SLASH_EFFECT] = .SKELETON
+    char.randomSkin(&player_skin)
 }
 
 setPartType :: proc(group: CharacterPartGroup, type: anim.CharacterType) {
@@ -183,7 +150,6 @@ runAnimation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawCo
 	}
 
 	curr_commands := anim.calculateFrame(
-		&anim.data.entity,
 		curr_animation,
 		animation_elapsed * 1.0,
 		pos,
@@ -204,7 +170,7 @@ runAnimation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawCo
 
 	prev_time := prev_animation_length
 
-	prev_commands := anim.calculateFrame(&anim.data.entity, prev_animation, prev_time, pos, scale)
+	prev_commands := anim.calculateFrame(prev_animation, prev_time, pos, scale)
 
 	blended_commands := blendCommands(prev_commands, curr_commands, t)
 
