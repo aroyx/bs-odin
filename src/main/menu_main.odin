@@ -1,9 +1,5 @@
 package client
 
-import "core:math"
-
-import "../animations"
-
 import "thirdparty:orui"
 import rl "vendor:raylib"
 
@@ -26,57 +22,19 @@ on_enter :: proc() {
 }
 
 @(private = "file")
-x_anim, y_anim, scale_anim: f32 = 0, 0, 1
-
-@(private = "file")
 on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.Q) || rl.IsKeyPressed(.ESCAPE) {
 		global.quit = true
 	}
-	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
-	tex_w, tex_h: f32 = 230, 500 // approx
 
-	available_w := math.max(win_w, 700) - math.clamp(win_w * 0.55, 400, 800)
-	available_h := math.max(win_h * 0.6, 500, win_h - 200)
-
-	scale_anim = math.min(available_w / tex_w, available_h / tex_h)
-
-	x_anim = available_w * 0.5
-	y_anim = tex_h * scale_anim + (win_h - available_h) * 0.5
+    updateAnimPlayer()
 }
 
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground({177, 221, 194, 255})
 
-	// if scale > 0.2 { 	// too small to even try to draw anymore
-	draw_commands := runAnimation({x_anim, y_anim}, scale_anim)
-	defer delete(draw_commands)
-
-	for cmd in draw_commands {
-		type := player_skin.type[cmd.part]
-		tier := player_skin.tier[cmd.part]
-
-		tex := animations.getPartTex(type, tier, cmd.part)
-
-		source: rl.Rectangle = {
-			x      = 0,
-			y      = 0,
-			width  = f32(tex.width),
-			height = f32(tex.height),
-		}
-
-		dest: rl.Rectangle = {
-			x      = cmd.x,
-			y      = cmd.y,
-			width  = f32(tex.width) * cmd.scale_x,
-			height = f32(tex.height) * cmd.scale_y,
-		}
-
-		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
-		rl.DrawTexturePro(tex, source, dest, {}, cmd.angle, color)
-	}
-	// }
+    drawAnimPlayer()
 
 	{orui.container(
 			orui.id("main_container"),

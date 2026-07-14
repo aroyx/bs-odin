@@ -3,13 +3,15 @@ package client
 // this file has character skin and random animations player in the home/menu screen
 
 import "core:fmt"
+import "core:math"
+import "core:math/linalg"
 import "core:math/rand"
 import "core:time"
 
 import anim "../animations"
 import char "../character"
 
-import "core:math/linalg"
+import rl "vendor:raylib"
 
 @(private)
 CharacterPartGroup :: enum {
@@ -26,7 +28,54 @@ CharacterPartGroup :: enum {
 player_skin: char.CharacterSkin
 
 initPlayer :: proc() {
-    char.randomSkin(&player_skin)
+	char.randomSkin(&player_skin)
+}
+
+@(private = "file")
+x_anim, y_anim, scale_anim: f32 = 0, 0, 1
+
+@(private)
+updateAnimPlayer :: proc() {
+	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
+	tex_w, tex_h: f32 = 230, 500 // approx
+
+	available_w := math.max(win_w, 700) - math.clamp(win_w * 0.55, 400, 800)
+	available_h := math.max(win_h * 0.6, 500, win_h - 200)
+
+	scale_anim = math.min(available_w / tex_w, available_h / tex_h)
+
+	x_anim = available_w * 0.5
+	y_anim = tex_h * scale_anim + (win_h - available_h) * 0.5
+}
+
+@(private)
+drawAnimPlayer :: proc() {
+	draw_commands := runAnimation({x_anim, y_anim}, scale_anim)
+	defer delete(draw_commands)
+
+	for &cmd in draw_commands {
+		type := player_skin.type[cmd.part]
+		tier := player_skin.tier[cmd.part]
+
+		tex := anim.getPartTex(type, tier, cmd.part)
+
+		source: rl.Rectangle = {
+			x      = 0,
+			y      = 0,
+			width  = f32(tex.width),
+			height = f32(tex.height),
+		}
+
+		dest: rl.Rectangle = {
+			x      = cmd.x,
+			y      = cmd.y,
+			width  = f32(tex.width) * cmd.scale_x,
+			height = f32(tex.height) * cmd.scale_y,
+		}
+
+		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
+		rl.DrawTexturePro(tex, source, dest, {}, cmd.angle, color)
+	}
 }
 
 setPartType :: proc(group: CharacterPartGroup, type: anim.CharacterType) {
@@ -93,12 +142,12 @@ getPartFromGroup :: proc(group: CharacterPartGroup) -> anim.BodyPart {
 	// return .FACE_HURT
 	case .RIGHT_HAND:
 		return .RIGHT_ARM
-		// return .RIGHT_HAND
+	// return .RIGHT_HAND
 	case .RIGHT_LEG:
 		return .RIGHT_LEG
 	case .LEFT_HAND:
 		return .LEFT_ARM
-		// return .LEFT_HAND
+	// return .LEFT_HAND
 	case .LEFT_LEG:
 		return .LEFT_LEG
 	case .WEAPON:
@@ -149,12 +198,7 @@ runAnimation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawCo
 		animation_elapsed = 0
 	}
 
-	curr_commands := anim.calculateFrame(
-		curr_animation,
-		animation_elapsed * 1.0,
-		pos,
-		scale,
-	)
+	curr_commands := anim.calculateFrame(curr_animation, animation_elapsed * 1.0, pos, scale)
 
 	if !blending {
 		return curr_commands
@@ -199,7 +243,7 @@ animation_ruleset: [anim.AnimationName]AnimeRule = {
 		max_loops  = 1,
 	},
 	.WALKING = { 	//
-		next_anims = {.IDLE, .IDLE, .RUNNING, .KICKING},
+		next_anims = {.IDLE, .IDLE, .KICKING},
 		min_loops  = 1,
 		max_loops  = 3,
 	},
