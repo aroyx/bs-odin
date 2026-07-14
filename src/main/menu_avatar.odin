@@ -88,17 +88,17 @@ on_render :: proc() {
 		orui.id(getId()),
 		{
 			width = {type = .Percent, value = 0.55, min = 400, max = 600},
-			height = {type = .Percent, value = 0.85, min = 250, max = 600},
+			height = {type = .Percent, value = 0.85, min = 250, max = 650},
 			margin = orui.margin(20, 0),
 			background_color = CYAN,
 			border = orui.border(10),
 			corner_radius = orui.corner(10),
 			border_color = rl.BLACK,
+			direction = .TopToBottom,
 		},
 	)
 
-	{
-		orui.container(
+	{orui.container(
 			orui.id(getId()),
 			{
 				width = orui.grow(),
@@ -115,6 +115,31 @@ on_render :: proc() {
 
 		for type in CharacterPartGroup {
 			uiTypeSelector(type)
+		}
+	}
+
+	{orui.container(
+			orui.id(getId()),
+			{width = orui.grow(), height = orui.fixed(50), background_color = BLUE},
+		)
+
+		if iconWithText(
+			"back_button",
+			"\ue06e",
+			"Back",
+			{
+				width = orui.grow(),
+				height = orui.grow(),
+				font_size = 20,
+				color = rl.BLACK,
+				background_color = YELLOW,
+				align = {.Center, .Center},
+				padding = orui.padding(5),
+				border = {top = 4},
+				border_color = rl.BLACK,
+			},
+		) {
+			changeState(&main_menu_state)
 		}
 	}
 }
