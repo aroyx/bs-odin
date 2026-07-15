@@ -46,21 +46,23 @@ PlayerState :: enum u8 {
 	RUN,
 	JUMP,
 	ATTACK,
-    HURT,
+	HURT,
 	DEAD,
 }
 
 EnemyData :: struct {
-	state:     EnemyState,
-	skin:      CharacterSkin,
-	animation: AnimationState,
+	state:           EnemyState,
+	skin:            CharacterSkin,
+	animation:       AnimationState,
+	target_pos:      linalg.Vector2f32,
+	target_time: f32,
 }
 
 EnemyState :: enum u8 {
 	ROAM,
 	CHASE,
 	ATTACK,
-    HURT,
+	HURT,
 	DEAD,
 }
 
@@ -147,14 +149,6 @@ generateEntities :: proc() {
 	playerShapeDef := box2d.DefaultShapeDef()
 	_ = box2d.CreatePolygonShape(entities.physics_id[0], playerShapeDef, playerBox)
 
-	// playerSensorBox := box2d.MakeOffsetRoundedBox(0.2, 0.6, {0, -0.65}, {c = 1, s = 0}, 0.2)
-	playerSensorBox := box2d.MakeOffsetBox(0.3, 0.7, {0, -0.75}, {c = 1, s = 0})
-	playerSensorShapeDef := box2d.DefaultShapeDef()
-	playerSensorShapeDef.density = 0
-	playerSensorShapeDef.isSensor = true
-	playerSensorShapeDef.enableSensorEvents = true
-	_ = box2d.CreatePolygonShape(entities.physics_id[0], playerSensorShapeDef, playerSensorBox)
-
 	for i in 1 ..< len(entities) {
 		// enemy animation
 		entities.pos[i] = getRandomLandPosition()
@@ -187,13 +181,6 @@ generateEntities :: proc() {
 		enemyBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 		enemyShapeDef := box2d.DefaultShapeDef()
 		_ = box2d.CreatePolygonShape(entities.physics_id[i], enemyShapeDef, enemyBox)
-
-		enemySensorBox := box2d.MakeOffsetBox(0.4, 0.75, {0, -0.75}, {c = 1, s = 0})
-		enemySensorShapeDef := box2d.DefaultShapeDef()
-		enemySensorShapeDef.density = 0
-		enemySensorShapeDef.isSensor = true
-		enemySensorShapeDef.enableSensorEvents = true
-		_ = box2d.CreatePolygonShape(entities.physics_id[i], enemySensorShapeDef, enemySensorBox)
 	}
 
 	for i in 0 ..< len(entities) {
