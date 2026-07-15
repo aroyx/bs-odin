@@ -1,109 +1,83 @@
 package playing
 
-import anim "../animations"
 import "../camera"
-
-import "core:fmt"
-import "core:math"
-import "core:math/linalg"
-import "core:math/rand"
-import "core:time"
+import "vendor:box2d"
 
 import rl "vendor:raylib"
 
-CharacterSkin :: struct {
-	type: [anim.BodyPart]anim.CharacterType,
-	tier: [anim.BodyPart]anim.CharacterTier,
-}
+playerStateMachineUpdate :: proc(dt: f32) {
+	if pData, ok := &entities.data[0].(PlayerData); ok {
 
-AnimationState :: struct {
-	current_animation:        anim.AnimationName,
-	current_animation_length: f32,
-	animation_start_time:     time.Time,
-	flip_x:                   f32,
-}
+		x_axis: f32 = 0
+		y_axis: f32 = 0
 
-randomSkin :: proc(skin: ^CharacterSkin) {
-	for part in anim.BodyPart {
-		type := anim.CharacterType(rand.int_max(len(anim.CharacterType)))
-		tier := anim.CharacterTier(rand.int_max(len(anim.CharacterTier)))
+		if rl.IsKeyDown(.W) || rl.IsKeyDown(.UP) do y_axis = -1
+		if rl.IsKeyDown(.S) || rl.IsKeyDown(.DOWN) do y_axis = 1
+		if rl.IsKeyDown(.A) || rl.IsKeyDown(.LEFT) do x_axis = -1
+		if rl.IsKeyDown(.D) || rl.IsKeyDown(.RIGHT) do x_axis = 1
 
-		skin.type[part] = type
-		skin.tier[part] = tier
-	}
-}
+		running := rl.IsKeyDown(.C)
+		attacking := rl.IsKeyDown(.X)
 
-drawAnimate :: proc(
-	anim_state: ^AnimationState,
-	skin: ^CharacterSkin,
-	pos: linalg.Vector2f32,
-	camTopLeft: linalg.Vector2f32,
-) {
-	if anim_state.current_animation_length < 0 {
-		return
-	}
+		pData.attack_cooldown -= dt
+		pData.stun_cooldown -= dt
 
-	anim_time := math.mod(
-		f32(time.duration_milliseconds(time.diff(anim_state.animation_start_time, time.now()))),
-		anim_state.current_animation_length,
-	)
+		switch pData.state {
+		case .ATTACK:
+			if pData.stun_cooldown <= 0 {
+				pData.state = .IDLE
+				changeAnimation(&pData.animation, .IDLE)
+			}
 
-	cs := camera.state.cs
-	tex_w, tex_h: f32 = 230, 500
+			speed: f32 = running ? 10 : 5
+			force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
+			box2d.Body_ApplyForceToCenter(entities.physics_id[0], force, true)
 
-	draw_x := pos.x - camTopLeft.x + camera.state.x_offset
-	draw_y := pos.y - camTopLeft.y + camera.state.y_offset + (cs * 0.25)
+		case .IDLE, .WALK, .RUN:
+			if attacking {
+				pData.state = .ATTACK
+				pData.attack_cooldown = 2
+				pData.stun_cooldown = 0.4 // complete animation
+				changeAnimation(&pData.animation, .SLASHING)
 
-	scale := cs / tex_w
+				// use box2d to detect attack hit later
+			} else {
+				speed: f32 = running ? 10 : 5
+				force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
+				box2d.Body_ApplyForceToCenter(entities.physics_id[0], force, true)
 
-	context.allocator = context.temp_allocator
+				if x_axis != 0 || y_axis != 0 {
+					camera.startTagAlong(entities.pos[0])
 
-	draw_cmds := anim.calculateFrame(
-		anim_state.current_animation,
-		anim_time,
-		{draw_x, draw_y},
-		scale,
-	)
+					if running {
+						pData.state = .RUN
+						if pData.animation.current_animation != .RUNNING {
+							changeAnimation(&pData.animation, .RUNNING)
+						}
+					} else {
+						pData.state = .WALK
+						if pData.animation.current_animation != .WALKING {
+							changeAnimation(&pData.animation, .WALKING)
+						}
+					}
+				} else {
+					pData.state = .IDLE
+					changeAnimation(&pData.animation, .IDLE)
+				}
 
-	for cmd in draw_cmds {
-		type := skin.type[cmd.part]
-		tier := skin.tier[cmd.part]
+				if x_axis < 0 {
+					pData.animation.flip_x = -1
+				} else if x_axis > 0 {
+					pData.animation.flip_x = 1
+				}
+			}
 
-		tex := anim.getPartTex(type, tier, cmd.part)
-
-		source: rl.Rectangle = {
-			x      = 0,
-			y      = 0,
-			width  = f32(tex.width) * anim_state.flip_x,
-			height = f32(tex.height),
+		case .DEAD, .JUMP:
+		// revive? idk
 		}
 
-		dest: rl.Rectangle = {
-			x      = draw_x + ((cmd.x - draw_x) * anim_state.flip_x),
-			y      = cmd.y,
-			width  = f32(tex.width) * cmd.scale_x,
-			height = f32(tex.height) * cmd.scale_y,
+		if pData.stun_cooldown > 0 {
+			box2d.Body_SetLinearVelocity(entities.physics_id[0], {})
 		}
-
-		origin_x: f32 = anim_state.flip_x > 0 ? 0 : dest.width
-
-		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
-		rl.DrawTexturePro(tex, source, dest, {origin_x, 0}, cmd.angle * anim_state.flip_x, color)
 	}
-}
-
-changeAnimation :: proc(anim_state: ^AnimationState, anime: anim.AnimationName) {
-	if anim_state.current_animation == anime do return
-
-	anim_name := anim.anim_lookup[anime]
-	if !(anim_name in anim.data.entity.animations) {
-		fmt.println("Animation not found! ", anim_name)
-		return
-	}
-
-	anim_data := &anim.data.entity.animations[anim_name]
-
-	anim_state.animation_start_time = time.now()
-	anim_state.current_animation = anime
-	anim_state.current_animation_length = f32(anim_data.length)
 }

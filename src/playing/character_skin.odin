@@ -2,7 +2,7 @@ package playing
 
 import anim "../animations"
 
-CharacterPartGroup :: enum {
+CharacterPartGroup :: enum u8 {
 	HEAD,
 	BODY,
 	FACE,
@@ -95,4 +95,3 @@ getPartFromGroup :: proc(group: CharacterPartGroup) -> anim.BodyPart {
 
 	return .FACE_BLINK
 }
-
