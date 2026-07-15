@@ -34,11 +34,11 @@ playerStateMachineUpdate :: proc(dt: f32) {
 			box2d.Body_ApplyForceToCenter(entities.physics_id[0], force, true)
 
 		case .IDLE, .WALK, .RUN:
-			if attacking {
+			if attacking && pData.attack_cooldown <= 0 {
 				pData.state = .ATTACK
 				pData.attack_cooldown = 2
-				pData.stun_cooldown = 0.4 // complete animation
 				changeAnimation(&pData.animation, .SLASHING)
+				pData.stun_cooldown = pData.animation.current_animation_length / 1000
 
 				// use box2d to detect attack hit later
 			} else {
@@ -62,7 +62,9 @@ playerStateMachineUpdate :: proc(dt: f32) {
 					}
 				} else {
 					pData.state = .IDLE
-					changeAnimation(&pData.animation, .IDLE)
+					if pData.animation.current_animation != .IDLE {
+						changeAnimation(&pData.animation, .IDLE)
+					}
 				}
 
 				if x_axis < 0 {
