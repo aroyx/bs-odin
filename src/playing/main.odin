@@ -45,9 +45,11 @@ update :: proc(dt: f32) {
 		h := rl.GetRenderHeight()
 		camera.sizeUpdate(w, h)
 		terrain.generateRenderChunks()
+        camera.startTagAlong(entities[0].pos)
 	}
 
 	playerStateMachineUpdate(dt)
+	enemyStateMachineUpdate(dt)
 
     updateEntitiesPosition()
     sortEntitiesYaxis()
