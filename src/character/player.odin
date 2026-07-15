@@ -33,73 +33,67 @@ randomSkin :: proc(skin: ^CharacterSkin) {
 	}
 }
 
-drawAnimate :: proc(player: ^Entity, camTopLeft: linalg.Vector2f32) {
-	if player.animation.current_animation_length < 0 {
+drawAnimate :: proc(
+	anim_state: ^AnimationState,
+	skin: ^CharacterSkin,
+	pos: linalg.Vector2f32,
+	camTopLeft: linalg.Vector2f32,
+) {
+	if anim_state.current_animation_length < 0 {
 		return
 	}
 
 	anim_time := math.mod(
-		f32(
-			time.duration_milliseconds(
-				time.diff(player.animation.animation_start_time, time.now()),
-			),
-		),
-		player.animation.current_animation_length,
+		f32(time.duration_milliseconds(time.diff(anim_state.animation_start_time, time.now()))),
+		anim_state.current_animation_length,
 	)
 
 	cs := camera.state.cs
 	tex_w, tex_h: f32 = 230, 500
 
-	draw_x := player.pos.x - camTopLeft.x + camera.state.x_offset
-	draw_y := player.pos.y - camTopLeft.y + camera.state.y_offset + (cs * 0.25)
+	draw_x := pos.x - camTopLeft.x + camera.state.x_offset
+	draw_y := pos.y - camTopLeft.y + camera.state.y_offset + (cs * 0.25)
 
 	scale := cs / tex_w
 
 	context.allocator = context.temp_allocator
 
 	draw_cmds := anim.calculateFrame(
-		player.animation.current_animation,
+		anim_state.current_animation,
 		anim_time,
 		{draw_x, draw_y},
 		scale,
 	)
 
 	for cmd in draw_cmds {
-		type := player.skin.type[cmd.part]
-		tier := player.skin.tier[cmd.part]
+		type := skin.type[cmd.part]
+		tier := skin.tier[cmd.part]
 
 		tex := anim.getPartTex(type, tier, cmd.part)
 
 		source: rl.Rectangle = {
 			x      = 0,
 			y      = 0,
-			width  = f32(tex.width) * player.animation.flip_x,
+			width  = f32(tex.width) * anim_state.flip_x,
 			height = f32(tex.height),
 		}
 
 		dest: rl.Rectangle = {
-			x      = draw_x + ((cmd.x - draw_x) * player.animation.flip_x),
+			x      = draw_x + ((cmd.x - draw_x) * anim_state.flip_x),
 			y      = cmd.y,
 			width  = f32(tex.width) * cmd.scale_x,
 			height = f32(tex.height) * cmd.scale_y,
 		}
 
-		origin_x: f32 = player.animation.flip_x > 0 ? 0 : dest.width
+		origin_x: f32 = anim_state.flip_x > 0 ? 0 : dest.width
 
 		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
-		rl.DrawTexturePro(
-			tex,
-			source,
-			dest,
-			{origin_x, 0},
-			cmd.angle * player.animation.flip_x,
-			color,
-		)
+		rl.DrawTexturePro(tex, source, dest, {origin_x, 0}, cmd.angle * anim_state.flip_x, color)
 	}
 }
 
-changeAnimation :: proc(player: ^Entity, anime: anim.AnimationName) {
-	if player.animation.current_animation == anime do return
+changeAnimation :: proc(anim_state: ^AnimationState, anime: anim.AnimationName) {
+	if anim_state.current_animation == anime do return
 
 	anim_name := anim.anim_lookup[anime]
 	if !(anim_name in anim.data.entity.animations) {
@@ -109,7 +103,7 @@ changeAnimation :: proc(player: ^Entity, anime: anim.AnimationName) {
 
 	anim_data := &anim.data.entity.animations[anim_name]
 
-	player.animation.animation_start_time = time.now()
-	player.animation.current_animation = anime
-	player.animation.current_animation_length = f32(anim_data.length)
+	anim_state.animation_start_time = time.now()
+	anim_state.current_animation = anime
+	anim_state.current_animation_length = f32(anim_data.length)
 }

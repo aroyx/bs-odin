@@ -25,37 +25,37 @@ playing_state: ClientState = {
 lock_camera := false
 
 @(private = "file")
-entities: [128]character.Entity
+entities: #soa[128]character.Entity
 
 @(private = "file")
-render_list: [len(entities)]^character.Entity
+render_list: [len(entities)]int
 
 @(private)
 generateEntities :: proc() {
 	// player animation
-	entities[0].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
-	entities[0].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
+	entities.pos[0].x = rand.float32() * camera.state.cs * utils.MAP_SIZE
+	entities.pos[0].y = rand.float32() * camera.state.cs * utils.MAP_SIZE
 
-	entities[0].skin = player_skin
-	entities[0].animation.flip_x = 1
+	entities.skin[0] = player_skin
+	entities.animation[0].flip_x = 1
 
-	character.changeAnimation(&entities[0], .IDLE)
+	character.changeAnimation(&entities.animation[0], .IDLE)
 
 	// player physics
 	playerBody := box2d.DefaultBodyDef()
 	playerBody.position = {
-		entities[0].pos.x / camera.state.cs,
-		entities[0].pos.y / camera.state.cs,
+		entities.pos[0].x / camera.state.cs,
+		entities.pos[0].y / camera.state.cs,
 	}
 	playerBody.type = .dynamicBody
 	playerBody.fixedRotation = true
 	playerBody.linearDamping = 10
 
-	entities[0].physics_id = box2d.CreateBody(physics.phyWorld, playerBody)
+	entities.physics_id[0] = box2d.CreateBody(physics.phyWorld, playerBody)
 
 	playerBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 	playerShapeDef := box2d.DefaultShapeDef()
-	_ = box2d.CreatePolygonShape(entities[0].physics_id, playerShapeDef, playerBox)
+	_ = box2d.CreatePolygonShape(entities.physics_id[0], playerShapeDef, playerBox)
 
 	// playerSensorBox := box2d.MakeOffsetRoundedBox(0.2, 0.6, {0, -0.65}, {c = 1, s = 0}, 0.2)
 	playerSensorBox := box2d.MakeOffsetBox(0.3, 0.7, {0, -0.75}, {c = 1, s = 0})
@@ -63,44 +63,44 @@ generateEntities :: proc() {
 	playerSensorShapeDef.density = 0
 	playerSensorShapeDef.isSensor = true
 	playerSensorShapeDef.enableSensorEvents = true
-	_ = box2d.CreatePolygonShape(entities[0].physics_id, playerSensorShapeDef, playerSensorBox)
+	_ = box2d.CreatePolygonShape(entities.physics_id[0], playerSensorShapeDef, playerSensorBox)
 
 	for i in 1 ..< len(entities) {
 		// enemy animation
-		entities[i].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
-		entities[i].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
+		entities.pos[i].x = rand.float32() * camera.state.cs * utils.MAP_SIZE
+		entities.pos[i].y = rand.float32() * camera.state.cs * utils.MAP_SIZE
 
-		character.randomSkin(&entities[i].skin)
+		character.randomSkin(&entities.skin[i])
 
-		entities[i].animation.flip_x = 1
-		character.changeAnimation(&entities[i], .IDLE)
+		entities.animation[i].flip_x = 1
+		character.changeAnimation(&entities.animation[i], .IDLE)
 
 		// enemy physics
 		enemyBody := box2d.DefaultBodyDef()
 		enemyBody.position = {
-			entities[i].pos.x / camera.state.cs,
-			entities[i].pos.y / camera.state.cs,
+			entities.pos[i].x / camera.state.cs,
+			entities.pos[i].y / camera.state.cs,
 		}
 		enemyBody.type = .dynamicBody
 		enemyBody.fixedRotation = true
 		enemyBody.linearDamping = 10
 
-		entities[i].physics_id = box2d.CreateBody(physics.phyWorld, enemyBody)
+		entities.physics_id[i] = box2d.CreateBody(physics.phyWorld, enemyBody)
 
 		enemyBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 		enemyShapeDef := box2d.DefaultShapeDef()
-		_ = box2d.CreatePolygonShape(entities[i].physics_id, enemyShapeDef, enemyBox)
+		_ = box2d.CreatePolygonShape(entities.physics_id[i], enemyShapeDef, enemyBox)
 
 		enemySensorBox := box2d.MakeOffsetBox(0.4, 0.75, {0, -0.75}, {c = 1, s = 0})
 		enemySensorShapeDef := box2d.DefaultShapeDef()
 		enemySensorShapeDef.density = 0
 		enemySensorShapeDef.isSensor = true
 		enemySensorShapeDef.enableSensorEvents = true
-		_ = box2d.CreatePolygonShape(entities[i].physics_id, enemySensorShapeDef, enemySensorBox)
+		_ = box2d.CreatePolygonShape(entities.physics_id[i], enemySensorShapeDef, enemySensorBox)
 	}
 
-	for &entity, i in entities {
-		render_list[i] = &entity
+	for i in 0 ..< len(entities) {
+		render_list[i] = i
 	}
 }
 
@@ -126,7 +126,7 @@ on_enter :: proc() {
 on_exit :: proc() {
 	rl.UnloadTexture(rotate_phone_texture)
 	terrain.destroyChunks()
-	box2d.DestroyBody(entities[0].physics_id)
+	box2d.DestroyBody(entities.physics_id[0])
 	physics.closePhysics()
 }
 
@@ -135,11 +135,6 @@ on_update :: proc(dt: f32) {
 	clearId()
 
 	physics.physicsTick()
-
-	for &entity in entities {
-		body_pos := box2d.Body_GetPosition(entity.physics_id)
-		entity.pos = {body_pos.x * camera.state.cs, body_pos.y * camera.state.cs}
-	}
 
 	camera.update()
 
@@ -165,40 +160,48 @@ on_update :: proc(dt: f32) {
 	speed: f32 = 10.0
 	force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
 
-	// box2d.Body_SetLinearVelocity(entities[0].physics_id, force)
-	box2d.Body_ApplyForceToCenter(entities[0].physics_id, force, true)
+	// box2d.Body_SetLinearVelocity(entities.physics_id[0], force)
+	box2d.Body_ApplyForceToCenter(entities.physics_id[0], force, true)
 
 	if x_axis != 0 || y_axis != 0 {
-		camera.startTagAlong(entities[0].pos)
+		camera.startTagAlong(entities.pos[0])
 
-		player := &entities[0]
+		// &entities[0]
 
-		if player.animation.current_animation != .RUNNING {
-			character.changeAnimation(player, .RUNNING)
+		if entities[0].animation.current_animation != .RUNNING {
+			character.changeAnimation(&entities[0].animation, .RUNNING)
 		}
 
 		if x_axis < 0 {
-			player.animation.flip_x = -1
+			entities[0].animation.flip_x = -1
 		} else if x_axis > 0 {
-			player.animation.flip_x = 1
+			entities[0].animation.flip_x = 1
 		}
 
 	} else {
-		character.changeAnimation(&entities[0], .IDLE)
+		character.changeAnimation(&entities.animation[0], .IDLE)
+	}
+
+	for i in 0 ..< len(entities) {
+		id := entities.physics_id[i]
+		pos := &entities.pos[i]
+		body_pos := box2d.Body_GetPosition(id)
+		pos^ = {body_pos.x * camera.state.cs, body_pos.y * camera.state.cs}
 	}
 
 	// since the renderlist is already "almost" sorted, insertion sort will work the best in theory
 	// https://stackoverflow.com/questions/220044/which-sort-algorithm-works-best-on-mostly-sorted-data
 	for i in 1 ..< len(render_list) {
-		key := render_list[i]
+		key_index := render_list[i]
+		key_y := entities.pos[key_index].y
 		j := i - 1
 
-		for j >= 0 && render_list[j].pos.y > key.pos.y {
+		for j >= 0 && entities.pos[render_list[j]].y > key_y {
 			render_list[j + 1] = render_list[j]
 			j -= 1
 		}
 
-		render_list[j + 1] = key
+		render_list[j + 1] = key_index
 	}
 
 	// slice.sort_by(render_list[:], proc(i, j: ^character.Entity) -> bool {
@@ -280,17 +283,21 @@ on_render :: proc() {
 
 	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
 
-	for entity in render_list {
+	for i in render_list {
+		pos := entities.pos[i]
+		animation := &entities.animation[i]
+		skin := &entities.skin[i]
+
 		char_rekt := rl.Rectangle {
-			x      = entity.pos.x - camTopLeft.x + camera.state.x_offset - cs,
-			y      = entity.pos.y - camTopLeft.y + camera.state.y_offset - cs,
+			x      = pos.x - camTopLeft.x + camera.state.x_offset - cs,
+			y      = pos.y - camTopLeft.y + camera.state.y_offset - cs,
 			width  = cs * 2,
 			height = cs * 3,
 		}
 
 		if !rl.CheckCollisionRecs(rekt, char_rekt) do continue
 
-		character.drawAnimate(entity, camTopLeft)
+		character.drawAnimate(animation, skin, pos, camTopLeft)
 	}
 
 	if draw_physics {
