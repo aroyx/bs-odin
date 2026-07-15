@@ -1,12 +1,17 @@
 package playing
 
 import "../camera"
-import "vendor:box2d"
+import "core:math"
+import "core:math/linalg"
 
+import "vendor:box2d"
 import rl "vendor:raylib"
 
+@(private = "file")
+attack_landed := false
+
 playerStateMachineUpdate :: proc(dt: f32) {
-	if pData, ok := &entities.data[0].(PlayerData); ok {
+	if p_data, ok := &entities.data[0].(PlayerData); ok {
 
 		x_axis: f32 = 0
 		y_axis: f32 = 0
@@ -19,28 +24,69 @@ playerStateMachineUpdate :: proc(dt: f32) {
 		running := rl.IsKeyDown(.C)
 		attacking := rl.IsKeyDown(.X)
 
-		pData.attack_cooldown -= dt
-		pData.stun_cooldown -= dt
+		p_data.attack_cooldown -= dt
+		p_data.stun_cooldown -= dt
 
-		switch pData.state {
+		switch p_data.state {
 		case .ATTACK:
-			if pData.stun_cooldown <= 0 {
-				pData.state = .IDLE
-				changeAnimation(&pData.animation, .IDLE)
+			if p_data.stun_cooldown <= 0 {
+				p_data.state = .IDLE
+				changeAnimation(&p_data.animation, .IDLE)
 			}
 
 			speed: f32 = running ? 10 : 5
 			force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
 			box2d.Body_ApplyForceToCenter(entities.physics_id[0], force, true)
 
-		case .IDLE, .WALK, .RUN:
-			if attacking && pData.attack_cooldown <= 0 {
-				pData.state = .ATTACK
-				pData.attack_cooldown = 2
-				changeAnimation(&pData.animation, .SLASHING)
-				pData.stun_cooldown = pData.animation.current_animation_length / 1000
+			anim_length := f32(p_data.animation.current_animation_length / 1000)
+			land_hit_stall := anim_length * 0.3
 
-				// use box2d to detect attack hit later
+			if anim_length - p_data.stun_cooldown >= land_hit_stall && !attack_landed {
+				attack_landed = true
+
+				p_pos := entities.pos[0]
+				cs := camera.state.cs
+
+				box_w := cs * 2.5
+				box_h := cs * 3
+
+				box_x := p_data.animation.flip_x == 1 ? p_pos.x : p_pos.x - box_w
+				box_y := p_pos.y - (box_h * 0.5)
+
+				attak_box: rl.Rectangle = {
+					x      = box_x,
+					y      = box_y,
+					width  = box_w,
+					height = box_h,
+				}
+
+				for i in 1 ..< len(entities) {
+					e_pos := entities.pos[i]
+					dir := e_pos - p_pos
+
+					if math.abs(dir.x) > cs * 4 || math.abs(dir.y) > cs * 4 do continue // to far to do smth
+
+					if rl.CheckCollisionPointRec(e_pos, attak_box) {
+						knock_dir := linalg.normalize0(dir)
+						force: f32 = 5
+						impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
+						box2d.Body_ApplyLinearImpulseToCenter(
+							entities[i].physics_id,
+							impulse,
+							true,
+						)
+					}
+				}
+			}
+
+		case .IDLE, .WALK, .RUN:
+			if attacking && p_data.attack_cooldown <= 0 {
+				p_data.state = .ATTACK
+				p_data.attack_cooldown = 1
+				changeAnimation(&p_data.animation, .SLASHING)
+				p_data.stun_cooldown = p_data.animation.current_animation_length / 1000
+				attack_landed = false
+
 			} else {
 				speed: f32 = running ? 10 : 5
 				force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
@@ -50,35 +96,40 @@ playerStateMachineUpdate :: proc(dt: f32) {
 					camera.startTagAlong(entities.pos[0])
 
 					if running {
-						pData.state = .RUN
-						if pData.animation.current_animation != .RUNNING {
-							changeAnimation(&pData.animation, .RUNNING)
+						p_data.state = .RUN
+						if p_data.animation.current_animation != .RUNNING {
+							changeAnimation(&p_data.animation, .RUNNING)
 						}
 					} else {
-						pData.state = .WALK
-						if pData.animation.current_animation != .WALKING {
-							changeAnimation(&pData.animation, .WALKING)
+						p_data.state = .WALK
+						if p_data.animation.current_animation != .WALKING {
+							changeAnimation(&p_data.animation, .WALKING)
 						}
 					}
 				} else {
-					pData.state = .IDLE
-					if pData.animation.current_animation != .IDLE {
-						changeAnimation(&pData.animation, .IDLE)
+					p_data.state = .IDLE
+					if p_data.animation.current_animation != .IDLE {
+						changeAnimation(&p_data.animation, .IDLE)
 					}
 				}
 
 				if x_axis < 0 {
-					pData.animation.flip_x = -1
+					p_data.animation.flip_x = -1
 				} else if x_axis > 0 {
-					pData.animation.flip_x = 1
+					p_data.animation.flip_x = 1
 				}
+			}
+		case .HURT:
+			if p_data.stun_cooldown <= 0 {
+				p_data.state = .IDLE
+				changeAnimation(&p_data.animation, .IDLE)
 			}
 
 		case .DEAD, .JUMP:
 		// revive? idk
 		}
 
-		if pData.stun_cooldown > 0 {
+		if p_data.stun_cooldown > 0 {
 			box2d.Body_SetLinearVelocity(entities.physics_id[0], {})
 		}
 	}

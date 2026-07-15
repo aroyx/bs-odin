@@ -46,6 +46,7 @@ PlayerState :: enum u8 {
 	RUN,
 	JUMP,
 	ATTACK,
+    HURT,
 	DEAD,
 }
 
@@ -59,6 +60,7 @@ EnemyState :: enum u8 {
 	ROAM,
 	CHASE,
 	ATTACK,
+    HURT,
 	DEAD,
 }
 
