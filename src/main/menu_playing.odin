@@ -5,14 +5,13 @@ import "../character"
 import "../physics"
 import "../terrain"
 import "../utils"
-import "thirdparty:orui"
-
-import "core:math/rand"
-import "vendor:box2d"
 
 import "core:math"
 import "core:math/linalg"
+import "core:math/rand"
 
+import "thirdparty:orui"
+import "vendor:box2d"
 import rl "vendor:raylib"
 
 playing_state: ClientState = {
@@ -27,6 +26,9 @@ lock_camera := false
 
 @(private = "file")
 entities: [128]character.Entity
+
+@(private = "file")
+render_list: [len(entities)]^character.Entity
 
 @(private)
 generateEntities :: proc() {
@@ -63,7 +65,7 @@ generateEntities :: proc() {
 	playerSensorShapeDef.enableSensorEvents = true
 	_ = box2d.CreatePolygonShape(entities[0].physics_id, playerSensorShapeDef, playerSensorBox)
 
-	for i in 1 ..< 128 {
+	for i in 1 ..< len(entities) {
 		// enemy animation
 		entities[i].pos.x = rand.float32() * camera.state.cs * utils.MAP_SIZE
 		entities[i].pos.y = rand.float32() * camera.state.cs * utils.MAP_SIZE
@@ -96,6 +98,10 @@ generateEntities :: proc() {
 		enemySensorShapeDef.enableSensorEvents = true
 		_ = box2d.CreatePolygonShape(entities[i].physics_id, enemySensorShapeDef, enemySensorBox)
 	}
+
+	for &entity, i in entities {
+		render_list[i] = &entity
+	}
 }
 
 @(private)
@@ -126,14 +132,14 @@ on_exit :: proc() {
 
 @(private = "file")
 on_update :: proc(dt: f32) {
+	clearId()
+
 	physics.physicsTick()
 
-	body_pos := box2d.Body_GetPosition(entities[0].physics_id)
-	entities[0].pos = {body_pos.x * camera.state.cs, body_pos.y * camera.state.cs}
-	// entities[0].pos = {body_pos.x, body_pos.y}
-
-	// fmt.println(body_pos)
-	// fmt.println(entities[0].pos)
+	for &entity in entities {
+		body_pos := box2d.Body_GetPosition(entity.physics_id)
+		entity.pos = {body_pos.x * camera.state.cs, body_pos.y * camera.state.cs}
+	}
 
 	camera.update()
 
@@ -181,11 +187,27 @@ on_update :: proc(dt: f32) {
 		character.changeAnimation(&entities[0], .IDLE)
 	}
 
+	// since the renderlist is already "almost" sorted, insertion sort will work the best in theory
+	// https://stackoverflow.com/questions/220044/which-sort-algorithm-works-best-on-mostly-sorted-data
+	for i in 1 ..< len(render_list) {
+		key := render_list[i]
+		j := i - 1
+
+		for j >= 0 && render_list[j].pos.y > key.pos.y {
+			render_list[j + 1] = render_list[j]
+			j -= 1
+		}
+
+		render_list[j + 1] = key
+	}
+
+	// slice.sort_by(render_list[:], proc(i, j: ^character.Entity) -> bool {
+	// 	return i.pos.y < j.pos.y
+	// })
+
 	if rl.IsKeyPressed(.R) {
 		draw_physics = !draw_physics
 	}
-
-	clearId()
 }
 
 @(private = "file")
@@ -258,17 +280,17 @@ on_render :: proc() {
 
 	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
 
-	for i in 0 ..< len(entities) {
+	for entity in render_list {
 		char_rekt := rl.Rectangle {
-			x      = entities[i].pos.x - camTopLeft.x + camera.state.x_offset - cs,
-			y      = entities[i].pos.y - camTopLeft.y + camera.state.y_offset - cs,
+			x      = entity.pos.x - camTopLeft.x + camera.state.x_offset - cs,
+			y      = entity.pos.y - camTopLeft.y + camera.state.y_offset - cs,
 			width  = cs * 2,
 			height = cs * 3,
 		}
 
 		if !rl.CheckCollisionRecs(rekt, char_rekt) do continue
 
-		character.drawAnimate(&entities[i], camTopLeft)
+		character.drawAnimate(entity, camTopLeft)
 	}
 
 	if draw_physics {

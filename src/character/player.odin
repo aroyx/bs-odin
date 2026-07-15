@@ -2,8 +2,8 @@ package character
 
 import anim "../animations"
 import "../camera"
-import "core:fmt"
 
+import "core:fmt"
 import "core:math"
 import "core:math/linalg"
 import "core:math/rand"
@@ -87,7 +87,14 @@ drawAnimate :: proc(player: ^Entity, camTopLeft: linalg.Vector2f32) {
 		origin_x: f32 = player.animation.flip_x > 0 ? 0 : dest.width
 
 		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
-		rl.DrawTexturePro(tex, source, dest, {origin_x, 0}, cmd.angle * player.animation.flip_x, color)
+		rl.DrawTexturePro(
+			tex,
+			source,
+			dest,
+			{origin_x, 0},
+			cmd.angle * player.animation.flip_x,
+			color,
+		)
 	}
 }
 
