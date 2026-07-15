@@ -1,4 +1,4 @@
-package character
+package playing
 
 import anim "../animations"
 import "../camera"

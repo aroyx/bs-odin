@@ -60,7 +60,7 @@ close :: proc() {
 }
 
 shouldRun :: proc() -> bool {
-	if global.quit {
+	if utils.global.quit {
 		return false
 	}
 	when ODIN_OS != .JS {

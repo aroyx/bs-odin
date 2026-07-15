@@ -2,6 +2,7 @@ package terrain
 
 import "core:math/noise"
 
+import "../camera"
 import "../utils"
 
 import "thirdparty:imgui"
@@ -35,6 +36,22 @@ createTerrain :: proc() {
 	} else {
 		generateRenderChunks()
 	}
+}
+
+isLand :: proc(world_x, world_y: f32) -> bool {
+	if terrain == nil do return false
+
+	gx := int(world_x / camera.state.cs)
+	gy := int(world_y / camera.state.cs)
+
+	if gx < 0 || gx >= utils.map_size || gy < 0 || gy >= utils.map_size {
+		return false
+	}
+
+	if terrain[gx][gy] > terrain_layers[1].threshold {
+		return true
+	}
+	return false
 }
 
 @(private)

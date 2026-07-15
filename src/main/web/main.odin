@@ -7,6 +7,7 @@ import "core:c"
 import "core:mem"
 
 import client ".."
+import "../../utils"
 
 @(private = "file")
 web_context: runtime.Context
@@ -29,7 +30,7 @@ main_start :: proc "c" (on_mobile: bool) {
 
 	web_context = context
 
-    client.global.options.on_mobile = on_mobile
+    utils.global.options.on_mobile = on_mobile
 	client.init()
 }
 

@@ -13,6 +13,7 @@ getId :: proc() -> int {
 	return unique_id
 }
 
+@(private)
 clearId :: proc() {
     unique_id = 0
 }

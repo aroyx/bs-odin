@@ -1,4 +1,4 @@
-package character
+package playing
 
 import "vendor:box2d"
 import "core:math/linalg"

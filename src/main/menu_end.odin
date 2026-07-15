@@ -15,7 +15,7 @@ end_screen_state: ClientState = {
 @(private = "file")
 on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
-		global.quit = true
+		utils.global.quit = true
 	}
 }
 
@@ -84,7 +84,7 @@ on_render :: proc() {
 			}
 			if menuButton(2, "Quit :(", {249, 65, 68, 255}) {
 				fmt.println("Thanks for playing till the end!")
-				global.quit = true
+				utils.global.quit = true
 			}
 		}
 	}

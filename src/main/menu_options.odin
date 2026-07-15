@@ -13,11 +13,11 @@ options_state: ClientState = {
 }
 
 @(private = "file")
-local_global: GlobalState = {}
+local_global: utils.GlobalState = {}
 
 @(private = "file")
 on_enter :: proc() {
-	local_global = global
+	local_global = utils.global
 }
 
 @(private = "file")
@@ -250,7 +250,7 @@ bottomButtons :: proc() {
 	)
 
 	if bottomButtonsFn("back button", "\ue06e", "Back", RED) {
-		if global != local_global {
+		if utils.global != local_global {
 			show_save_diag = true
 		} else {
 			changeState(&main_menu_state)
@@ -258,7 +258,7 @@ bottomButtons :: proc() {
 	}
 
 	if bottomButtonsFn("save button", "\ue14d", " Save", CYAN) {
-		global = local_global
+		utils.global = local_global
 	}
 }
 
@@ -345,7 +345,7 @@ showSaveDiagloge :: proc() {
 		}
 
 		if diaglogueButton("save btn", "\ue14d", "Save", CYAN) {
-			global = local_global
+			utils.global = local_global
 			changeState(&main_menu_state)
 			show_save_diag = false
 		}

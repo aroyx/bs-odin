@@ -2,6 +2,7 @@ package client
 
 import "../camera"
 import "../physics"
+import "../playing"
 import "../terrain"
 import "../utils"
 
@@ -60,8 +61,8 @@ on_update :: proc(dt: f32) {
 		lState = .ENEMIES
 
 	case .ENEMIES:
-		generateEntities()
-		camera.startTagAlong(getPlayer().pos, 4.0)
+		playing.generateEntities()
+		camera.startTagAlong(playing.getPlayer().pos, 4.0)
 		lState = .DONE
 
 	case .DONE:

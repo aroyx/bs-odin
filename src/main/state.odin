@@ -1,32 +1,8 @@
 package client
 
 import "core:fmt"
-import "core:math/linalg"
-
-global: GlobalState = {
-	quit = false,
-	options = {show_fps = false, on_mobile = false},
-}
-
-input: struct {
-	x_axis: f32,
-	y_axis: f32,
-	mouse:  linalg.Vector2f32,
-} = {
-	x_axis = 0,
-	y_axis = 0,
-	mouse  = {},
-}
 
 client_state: ^ClientState
-
-GlobalState :: struct {
-	quit:    bool,
-	options: struct {
-		on_mobile: bool,
-		show_fps:  bool,
-	},
-}
 
 ClientState :: struct {
 	on_enter:  proc(),

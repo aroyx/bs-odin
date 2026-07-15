@@ -1,5 +1,8 @@
 package client
 
+import "../utils"
+import "../playing"
+
 import "thirdparty:orui"
 import rl "vendor:raylib"
 
@@ -16,7 +19,7 @@ inited_player := false
 on_enter :: proc() {
 	rl.SetExitKey(.KEY_NULL)
 	if !inited_player {
-		initPlayer()
+		playing.initPlayer()
 		inited_player = true
 	}
 }
@@ -24,7 +27,7 @@ on_enter :: proc() {
 @(private = "file")
 on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.Q) || rl.IsKeyPressed(.ESCAPE) {
-		global.quit = true
+		utils.global.quit = true
 	}
 
     updateAnimPlayer()
@@ -90,7 +93,7 @@ on_render :: proc() {
 						changeState(&avatar_select_state)
 					}
 					if menuButton(4, "Quit :(", RED) {
-						global.quit = true
+						utils.global.quit = true
 					}
 				}
 			}

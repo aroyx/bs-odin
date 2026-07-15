@@ -5,6 +5,7 @@ import "core:reflect"
 import "core:strings"
 
 import anim "../animations"
+import "../playing"
 import "../utils"
 
 import "thirdparty:orui"
@@ -22,14 +23,14 @@ on_update :: proc(dt: f32) {
 		changeState(&main_menu_state)
 	}
 
-    updateAnimPlayer()
+	updateAnimPlayer()
 }
 
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground(BLUE)
 
-    drawAnimPlayer()
+	drawAnimPlayer()
 
 	orui.container(
 		orui.id("main_container"),
@@ -78,7 +79,7 @@ on_render :: proc() {
 			},
 		)
 
-		for type in CharacterPartGroup {
+		for type in playing.CharacterPartGroup {
 			uiTypeSelector(type)
 		}
 	}
@@ -109,7 +110,7 @@ on_render :: proc() {
 	}
 }
 
-uiTypeSelector :: proc(group: CharacterPartGroup) {
+uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 	displayName(group)
 
 	orui.container(
@@ -124,9 +125,9 @@ uiTypeSelector :: proc(group: CharacterPartGroup) {
 		},
 	)
 
-	part := getPartFromGroup(group)
-	curr_type := player_skin.type[part]
-	curr_tier := player_skin.tier[part]
+	part := playing.getPartFromGroup(group)
+	curr_type := playing.player_skin.type[part]
+	curr_tier := playing.player_skin.tier[part]
 
 	num_types := len(anim.CharacterType)
 	num_tiers := len(anim.CharacterTier)
@@ -154,8 +155,8 @@ uiTypeSelector :: proc(group: CharacterPartGroup) {
 	) {
 		new_index := (current_index - 1 + total_options) % total_options
 
-		setPartType(group, anim.CharacterType(new_index / num_tiers))
-		setPartTier(group, anim.CharacterTier(new_index % num_tiers))
+		playing.setPartType(group, anim.CharacterType(new_index / num_tiers))
+		playing.setPartTier(group, anim.CharacterTier(new_index % num_tiers))
 
 		if group == .WEAPON {
 			forceChangeAnimation(.SLASHING)
@@ -207,8 +208,8 @@ uiTypeSelector :: proc(group: CharacterPartGroup) {
 	) {
 		new_index := (current_index + 1) % total_options
 
-		setPartType(group, anim.CharacterType(new_index / num_tiers))
-		setPartTier(group, anim.CharacterTier(new_index % num_tiers))
+		playing.setPartType(group, anim.CharacterType(new_index / num_tiers))
+		playing.setPartTier(group, anim.CharacterTier(new_index % num_tiers))
 
 		if group == .WEAPON {
 			forceChangeAnimation(.SLASHING)
@@ -216,7 +217,7 @@ uiTypeSelector :: proc(group: CharacterPartGroup) {
 	}
 }
 
-displayName :: proc(group: CharacterPartGroup) {
+displayName :: proc(group: playing.CharacterPartGroup) {
 	name_part_str, ok := reflect.enum_name_from_value(group)
 	if !ok do return
 
