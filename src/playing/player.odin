@@ -17,6 +17,8 @@ attacking := false
 x_axis: f32
 @(private = "file")
 y_axis: f32
+@(private = "file")
+regen_wait: f32 = 1000
 
 @(private)
 playerStateMachineUpdate :: proc(dt: f32) {
@@ -24,10 +26,10 @@ playerStateMachineUpdate :: proc(dt: f32) {
 
 	if !ok do return
 
-    x_axis = 0
-    y_axis = 0
-    running = false
-    attacking = false
+	x_axis = 0
+	y_axis = 0
+	running = false
+	attacking = false
 
 	if rl.IsKeyDown(.W) || rl.IsKeyDown(.UP) do y_axis = -1
 	if rl.IsKeyDown(.S) || rl.IsKeyDown(.DOWN) do y_axis = 1
@@ -39,6 +41,12 @@ playerStateMachineUpdate :: proc(dt: f32) {
 
 	p_data.attack_cooldown -= dt
 	p_data.stun_cooldown -= dt
+	regen_wait -= dt
+
+	if regen_wait <= 0 && p_data.state != .DEAD && entities[0].health < 100 {
+		entities[0].health += 10
+		regen_wait = 1
+	}
 
 	switch p_data.state {
 	case .ATTACK:
@@ -50,6 +58,7 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	case .HURT:
 		if p_data.stun_cooldown <= 0 {
 			changePlayerState(p_data, .IDLE)
+			regen_wait = 5
 		}
 
 	case .DEAD, .JUMP:
@@ -106,9 +115,9 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 
 			if !ok do continue
 
-			entities[i].health.health -= 30
+			entities[i].health -= 30
 
-			if entities[i].health.health < 0 {
+			if entities[i].health < 0 {
 				changeEnemyState(data, .DEAD)
 			} else {
 				changeEnemyState(data, .HURT)
@@ -178,9 +187,11 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		data.attack_cooldown = 1
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		attack_landed = false
+		regen_wait = 5
 	case .HURT:
 		changeAnimation(&data.animation, .HURT)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
+		regen_wait = 5
 	case .DEAD:
 		changeAnimation(&data.animation, .DYING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000

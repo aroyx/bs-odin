@@ -21,7 +21,7 @@ Entity :: struct {
 	pos:        linalg.Vector2f32,
 	physics_id: box2d.BodyId,
 	data:       EntityData,
-	health:     Health,
+	health:     f32,
 }
 
 EntityData :: union {
@@ -73,11 +73,6 @@ FoliageData :: struct {
 	image: raylib.Texture,
 }
 
-Health :: struct {
-	health: f32,
-	// regenerate: HealthRegenerate,
-}
-
 // HealthRegenerate :: union {
 // 	NoRegenerate,
 // 	YesRegenerate,
@@ -123,9 +118,7 @@ sortEntitiesYaxis :: proc() {
 generateEntities :: proc() {
 	// player animation
 	entities.pos[0] = getRandomLandPosition()
-	entities.health[0] = {
-		health = 100,
-	}
+	entities.health[0] = 100
 
 	pData := PlayerData {
 		skin = player_skin,
@@ -156,9 +149,7 @@ generateEntities :: proc() {
 	for i in 1 ..< len(entities) {
 		// enemy animation
 		entities.pos[i] = getRandomLandPosition()
-		entities.health[i] = {
-			health = 100,
-		}
+		entities.health[i] = 100
 
 		eData := EnemyData {
 			state = .ROAM,

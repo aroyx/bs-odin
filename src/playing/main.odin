@@ -120,7 +120,7 @@ render :: proc() {
 
 		if !rl.CheckCollisionRecs(rekt, char_rekt) do continue
 
-		health := entities[i].health.health
+		health := entities[i].health
 
 		switch &d in entities.data[i] {
 		case EnemyData:

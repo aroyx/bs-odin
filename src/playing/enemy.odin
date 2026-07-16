@@ -140,9 +140,9 @@ updateEnemyAttack :: proc(entity: ^EnemyData, i: int) -> bool {
 		if !ok do return false
 		if p_data.state == .DEAD do return false
 
-		entities[0].health.health -= 15
+		entities[0].health -= 15
 
-		if entities[0].health.health < 0 {
+		if entities[0].health < 0 {
 			changePlayerState(p_data, .DEAD)
 		} else {
 			changePlayerState(p_data, .HURT)
