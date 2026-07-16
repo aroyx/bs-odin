@@ -43,10 +43,17 @@ drawAnimate :: proc(
 		return
 	}
 
-	anim_time := math.mod(
-		f32(time.duration_milliseconds(time.diff(anim_state.animation_start_time, time.now()))),
-		anim_state.current_animation_length,
+	lapsed: f32 = auto_cast time.duration_milliseconds(
+		time.diff(anim_state.animation_start_time, time.now()),
 	)
+
+	anim_time: f32
+
+	if anim_state.current_animation == .DYING {
+		anim_time = math.min(lapsed, anim_state.current_animation_length - 1)
+	} else {
+		anim_time = math.mod(lapsed, anim_state.current_animation_length)
+	}
 
 	cs := camera.state.cs
 	tex_w, tex_h: f32 = 230, 500

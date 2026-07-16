@@ -67,14 +67,28 @@ playerStateMachineUpdate :: proc(dt: f32) {
 					if math.abs(dir.x) > cs * 4 || math.abs(dir.y) > cs * 4 do continue // to far to do smth
 
 					if rl.CheckCollisionPointRec(e_pos, attak_box) {
+						id := entities.physics_id[i]
+						data, ok := &entities[i].data.(EnemyData)
+
+						if !ok do continue
+
+						entities[i].health.health -= 30
+
+						if entities[i].health.health < 0 {
+							data.state = .DEAD
+							changeAnimation(&data.animation, .DYING)
+							data.stun_cooldown = data.animation.current_animation_length / 1000
+						} else {
+							data.state = .HURT
+							changeAnimation(&data.animation, .HURT)
+							data.stun_cooldown = data.animation.current_animation_length / 1000
+						}
+
 						knock_dir := linalg.normalize0(dir)
 						force: f32 = 5
 						impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
-						box2d.Body_ApplyLinearImpulseToCenter(
-							entities[i].physics_id,
-							impulse,
-							true,
-						)
+
+						box2d.Body_ApplyLinearImpulseToCenter(id, impulse, true)
 					}
 				}
 			}
@@ -119,6 +133,7 @@ playerStateMachineUpdate :: proc(dt: f32) {
 					p_data.animation.flip_x = 1
 				}
 			}
+
 		case .HURT:
 			if p_data.stun_cooldown <= 0 {
 				p_data.state = .IDLE
@@ -129,7 +144,7 @@ playerStateMachineUpdate :: proc(dt: f32) {
 		// revive? idk
 		}
 
-		if p_data.stun_cooldown > 0 {
+		if p_data.stun_cooldown > 0 && p_data.state != .HURT {
 			box2d.Body_SetLinearVelocity(entities.physics_id[0], {})
 		}
 	}

@@ -55,7 +55,10 @@ EnemyData :: struct {
 	skin:            CharacterSkin,
 	animation:       AnimationState,
 	target_pos:      linalg.Vector2f32,
-	target_time: f32,
+	attack_landed:   bool,
+	target_time:     f32,
+	stun_cooldown:   f32,
+	attack_cooldown: f32,
 }
 
 EnemyState :: enum u8 {
@@ -152,7 +155,7 @@ generateEntities :: proc() {
 	for i in 1 ..< len(entities) {
 		// enemy animation
 		entities.pos[i] = getRandomLandPosition()
-		entities.health[0] = {
+		entities.health[i] = {
 			health = 100,
 		}
 
