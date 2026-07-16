@@ -4,6 +4,7 @@ import "../camera"
 import "../physics"
 import "../terrain"
 import "../utils"
+import "thirdparty:orui"
 
 import "core:math"
 import "core:math/linalg"
@@ -45,14 +46,14 @@ update :: proc(dt: f32) {
 		h := rl.GetRenderHeight()
 		camera.sizeUpdate(w, h)
 		terrain.generateRenderChunks()
-        camera.startTagAlong(entities[0].pos)
+		camera.startTagAlong(entities[0].pos)
 	}
 
 	playerStateMachineUpdate(dt)
 	enemyStateMachineUpdate(dt)
 
-    updateEntitiesPosition()
-    sortEntitiesYaxis()
+	updateEntitiesPosition()
+	sortEntitiesYaxis()
 
 	if rl.IsKeyPressed(.R) {
 		draw_physics = !draw_physics

@@ -6,33 +6,34 @@ import "../utils"
 import "thirdparty:orui"
 import rl "vendor:raylib"
 
-
 playing_state: ClientState = {
 	on_enter  = on_enter,
-	on_exit  = on_exit,
+	on_exit   = on_exit,
 	on_update = on_update,
 	on_render = on_render,
 }
 
 @(private = "file")
 on_enter :: proc() {
-    playing.enter()
+	playing.enter()
 }
 
 @(private = "file")
 on_exit :: proc() {
-    playing.exit()
+	playing.exit()
 }
 
 @(private = "file")
 on_update :: proc(dt: f32) {
 	clearId()
-    playing.update(dt)
+	playing.update(dt)
 }
 
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground({2, 5, 17, 255})
+
+	playing.render()
 
 	{orui.container(orui.id(getId()), {width = orui.grow(), height = orui.grow()})
 		{orui.container(orui.id(getId()), {width = orui.grow()})}
@@ -57,6 +58,4 @@ on_render :: proc() {
 			changeState(&end_screen_state)
 		}
 	}
-
-    playing.render()
 }

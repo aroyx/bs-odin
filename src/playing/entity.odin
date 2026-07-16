@@ -88,6 +88,7 @@ Health :: struct {
 // 	wait_for: f32, // time to rest before can regenerate
 // }
 
+@(private)
 updateEntitiesPosition :: proc() {
 	for i in 0 ..< len(entities) {
 		id := entities.physics_id[i]
