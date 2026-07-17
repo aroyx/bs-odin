@@ -19,7 +19,7 @@ inited_player := false
 on_enter :: proc() {
 	rl.SetExitKey(.KEY_NULL)
 	if !inited_player {
-		playing.initPlayer()
+		playing.playerSkinRandomize()
 		inited_player = true
 	}
 }

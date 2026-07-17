@@ -13,7 +13,7 @@ CharacterPartGroup :: enum u8 {
 	WEAPON,
 }
 
-initPlayer :: proc() {
+playerSkinRandomize :: proc() {
 	randomSkin(&player_skin)
 }
 

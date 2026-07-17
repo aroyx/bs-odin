@@ -86,26 +86,55 @@ on_render :: proc() {
 
 	{orui.container(
 			orui.id(getId()),
-			{width = orui.grow(), height = orui.fixed(50), background_color = BLUE},
-		)
-
-		if iconWithText(
-			"back_button",
-			"\ue06e",
-			"Back",
 			{
 				width = orui.grow(),
-				height = orui.grow(),
-				font_size = 20,
-				color = rl.BLACK,
-				background_color = YELLOW,
-				align = {.Center, .Center},
-				padding = orui.padding(5),
-				border = {top = 4},
-				border_color = rl.BLACK,
+				height = orui.fixed(50),
+				direction = .LeftToRight,
 			},
-		) {
-			changeState(&main_menu_state)
+		)
+
+		{orui.container(
+				orui.id(getId()),
+				{width = orui.grow(), height = orui.fixed(50), direction = .LeftToRight},
+			)
+
+			if iconWithText(
+				"back_button",
+				"\ue06e",
+				"Back",
+				{
+					width = orui.percent(0.5),
+					height = orui.grow(),
+					font_size = 20,
+					color = rl.BLACK,
+					background_color = YELLOW,
+					align = {.Center, .Center},
+					padding = orui.padding(5),
+					border = {top = 4, right = 2},
+					border_color = rl.BLACK,
+				},
+			) {
+				changeState(&main_menu_state)
+			}
+
+			if iconWithText(
+				"random button",
+				"\ue2c5",
+				"Random",
+				{
+					width = orui.percent(0.5),
+					height = orui.grow(),
+					font_size = 20,
+					color = rl.BLACK,
+					background_color = rl.PINK,
+					align = {.Center, .Center},
+					padding = orui.padding(5),
+					border = {top = 4, left = 2},
+					border_color = rl.BLACK,
+				},
+			) {
+				playing.playerSkinRandomize()
+			}
 		}
 	}
 }
@@ -119,7 +148,6 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 			width       = orui.grow(),
 			height      = orui.fixed(150),
 			direction   = .LeftToRight,
-			// background_color = BLUE,
 			align_cross = .Center,
 			padding     = orui.padding(20, 0),
 		},
