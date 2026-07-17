@@ -69,6 +69,13 @@ setPartTier :: proc(group: CharacterPartGroup, tier: anim.CharacterTier) {
 	}
 }
 
+setSet :: proc(type: anim.CharacterType, tier: anim.CharacterTier) {
+	for group in CharacterPartGroup {
+		setPartType(group, type)
+		setPartTier(group, tier)
+	}
+}
+
 getPartFromGroup :: proc(group: CharacterPartGroup) -> anim.BodyPart {
 	switch group {
 	case .BODY:

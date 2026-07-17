@@ -79,18 +79,19 @@ on_render :: proc() {
 			},
 		)
 
+		// set
+		uiSetSelector()
+
+		// parts
 		for type in playing.CharacterPartGroup {
 			uiTypeSelector(type)
 		}
 	}
 
+	// back and randomize button
 	{orui.container(
 			orui.id(getId()),
-			{
-				width = orui.grow(),
-				height = orui.fixed(50),
-				direction = .LeftToRight,
-			},
+			{width = orui.grow(), height = orui.fixed(50), direction = .LeftToRight},
 		)
 
 		{orui.container(
@@ -133,23 +134,143 @@ on_render :: proc() {
 					border_color = rl.BLACK,
 				},
 			) {
+                set_enabled = false
 				playing.playerSkinRandomize()
 			}
 		}
 	}
 }
 
+@(private = "file")
+current_set_index := 0
+
+@(private = "file")
+set_enabled := false
+
+@(private = "file")
+uiSetSelector :: proc() {
+	orui.label(
+		orui.id(getId()),
+		"SET",
+		{
+			font_size = 24,
+			width = orui.grow(),
+			height = orui.fit(),
+			padding = orui.padding(5),
+			color = rl.BLACK,
+			align = {.Center, .Center},
+			border = orui.border(4),
+			border_color = rl.BLACK,
+			corner_radius = orui.corner(4),
+			background_color = RED,
+		},
+	)
+
+	orui.container(
+		orui.id(getId()),
+		{
+			width = orui.grow(),
+			height = orui.fixed(150),
+			direction = .LeftToRight,
+			align_cross = .Center,
+			padding = orui.padding(20, 0),
+		},
+	)
+
+	num_types := len(anim.CharacterType)
+	num_tiers := len(anim.CharacterTier)
+
+	total_options := num_types * num_tiers
+
+	if orui.label(
+		orui.id(getId()),
+		"\ue06e",
+		{
+			width = orui.fixed(40),
+			height = orui.fixed(40),
+			font = utils.getIconFont(),
+			font_size = 30,
+			color = rl.BLACK,
+			background_color = WHITE,
+			align = {.Center, .Center},
+			border = getBorder(fmt.tprintf("border_left_%d", getId())),
+			border_color = rl.BLACK,
+			corner_radius = orui.corner(20),
+		},
+	) {
+		set_enabled = true
+
+		current_set_index = (current_set_index - 1 + total_options) % total_options
+		new_type := anim.CharacterType(current_set_index / num_tiers)
+		new_tier := anim.CharacterTier(current_set_index % num_tiers)
+
+		playing.setSet(new_type, new_tier)
+	}
+
+	{
+		prev_index := (current_set_index - 1 + total_options) % total_options
+		next_index := (current_set_index + 1) % total_options
+
+		curr_tex := anim.getPartTex(
+			anim.CharacterType(current_set_index / num_tiers),
+			anim.CharacterTier(current_set_index % num_tiers),
+			.SET,
+		)
+
+		prev_tex := anim.getPartTex(
+			anim.CharacterType(prev_index / num_tiers),
+			anim.CharacterTier(prev_index % num_tiers),
+			.SET,
+		)
+
+		next_tex := anim.getPartTex(
+			anim.CharacterType(next_index / num_tiers),
+			anim.CharacterTier(next_index % num_tiers),
+			.SET,
+		)
+
+        displaySetImage(prev_tex, curr_tex, next_tex)
+	}
+
+	// right chevron
+	if orui.label(
+		orui.id(getId()),
+		"\ue06f",
+		{
+			width = orui.fixed(40),
+			height = orui.fixed(40),
+			font = utils.getIconFont(),
+			font_size = 30,
+			color = rl.BLACK,
+			background_color = WHITE,
+			align = {.Center, .Center},
+			border = getBorder(fmt.tprintf("border_right_%d", getId())),
+			border_color = rl.BLACK,
+			corner_radius = orui.corner(20),
+		},
+	) {
+		set_enabled = true
+
+		current_set_index = (current_set_index + 1) % total_options
+		new_type := anim.CharacterType(current_set_index / num_tiers)
+		new_tier := anim.CharacterTier(current_set_index % num_tiers)
+
+		playing.setSet(new_type, new_tier)
+	}
+}
+
+@(private = "file")
 uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 	displayName(group)
 
 	orui.container(
 		orui.id(getId()),
 		{
-			width       = orui.grow(),
-			height      = orui.fixed(150),
-			direction   = .LeftToRight,
+			width = orui.grow(),
+			height = orui.fixed(150),
+			direction = .LeftToRight,
 			align_cross = .Center,
-			padding     = orui.padding(20, 0),
+			padding = orui.padding(20, 0),
 		},
 	)
 
@@ -189,6 +310,8 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		if group == .WEAPON {
 			forceChangeAnimation(.SLASHING)
 		}
+
+		set_enabled = false
 	}
 
 	{
@@ -242,9 +365,12 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		if group == .WEAPON {
 			forceChangeAnimation(.SLASHING)
 		}
+
+		set_enabled = false
 	}
 }
 
+@(private = "file")
 displayName :: proc(group: playing.CharacterPartGroup) {
 	name_part_str, ok := reflect.enum_name_from_value(group)
 	if !ok do return
@@ -280,6 +406,53 @@ displayName :: proc(group: playing.CharacterPartGroup) {
 	)
 }
 
+@(private = "file")
+displaySetImage :: proc(prev_tex, curr_tex, next_tex: rl.Texture) {
+	orui.container(
+		orui.id(getId()),
+		{
+			width = orui.grow(),
+			height = orui.grow(),
+			direction = .LeftToRight,
+			gap = 10,
+			align_cross = .Center,
+			align_main = .Center,
+			padding = orui.padding(10, 0),
+		},
+	)
+
+	textures := make([]rl.Texture, 3, allocator = context.temp_allocator)
+	textures[0] = prev_tex
+	textures[1] = curr_tex
+	textures[2] = next_tex
+
+	for i in 0 ..< 3 {
+		selected := i == 1
+
+		size := selected ? 120 : 100
+		alpha: u8 = selected && set_enabled ? 255 : 200
+		weight: f32 = selected ? 1.5 : 1.0
+		percent_y: f32 = selected ? 0.9 : 0.7
+
+		orui.image(
+			orui.id(getId()),
+			&textures[i],
+			{
+				width = orui.grow(weight),
+				height = {type = .Percent, value = percent_y},
+				background_color = selected ? WHITE : rl.LIGHTGRAY,
+				border = orui.border(4),
+				corner_radius = orui.corner(10),
+				border_color = selected && set_enabled ? rl.GOLD : rl.GRAY,
+				texture_fit = .Contain,
+				align = {.Center, .Center},
+				color = {255, 255, 255, alpha},
+			},
+		)
+	}
+}
+
+@(private = "file")
 displayPartImages :: proc(prev_tex, curr_tex, next_tex: rl.Texture) {
 	orui.container(
 		orui.id(getId()),
@@ -303,7 +476,7 @@ displayPartImages :: proc(prev_tex, curr_tex, next_tex: rl.Texture) {
 		selected := i == 1
 
 		size := selected ? 120 : 100
-		alpha: u8 = selected ? 255 : 200
+		alpha: u8 = selected && !set_enabled ? 255 : 200
 		weight: f32 = selected ? 1.5 : 1.0
 		percent_y: f32 = selected ? 0.9 : 0.7
 
@@ -316,7 +489,7 @@ displayPartImages :: proc(prev_tex, curr_tex, next_tex: rl.Texture) {
 				background_color = selected ? WHITE : rl.LIGHTGRAY,
 				border = orui.border(4),
 				corner_radius = orui.corner(10),
-				border_color = selected ? rl.GOLD : rl.GRAY,
+				border_color = selected && !set_enabled ? rl.GOLD : rl.GRAY,
 				texture_fit = .Contain,
 				align = {.Center, .Center},
 				color = {255, 255, 255, alpha},

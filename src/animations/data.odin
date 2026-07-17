@@ -15,17 +15,18 @@ BodyPart :: enum u8 {
 	LEFT_LEG,
 	WEAPON, // sword.png
 	SLASH_EFFECT,
+	SET, // to view the set in avatar page (SHOULD NOT BE USED FOR ANY OTHRE REASON)
 }
 
 CharacterType :: enum u8 {
 	SKELETON,
+	ZOMBIE_VILLAGER,
 	GOBLIN,
-	GOLEM,
 	MINOTAUR,
 	REAPER,
-	SEER,
-	ZOMBIE_VILLAGER,
 	FALLEN_ANGEL,
+	SEER,
+	GOLEM,
 }
 
 CharacterTier :: enum u8 {
@@ -91,6 +92,7 @@ part_lookup := [BodyPart]string {
 	.LEFT_LEG     = "Left Leg.png",
 	.WEAPON       = "Sword.png",
 	.SLASH_EFFECT = "SlashFX.png",
+	.SET          = "Set.png",
 }
 
 @(private)
