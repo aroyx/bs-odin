@@ -117,7 +117,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 
 			entities[i].health -= 30
 
-			if entities[i].health < 0 {
+			if entities[i].health <= 0 {
 				changeEnemyState(data, .DEAD)
 			} else {
 				changeEnemyState(data, .HURT)
