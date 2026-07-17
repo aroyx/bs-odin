@@ -20,7 +20,12 @@ BodyPart :: enum u8 {
 CharacterType :: enum u8 {
 	SKELETON,
 	GOBLIN,
-	GOLEM
+	GOLEM,
+	MINOTAUR,
+	REAPER,
+	SEER,
+	ZOMBIE_VILLAGER,
+	FALLEN_ANGEL,
 }
 
 CharacterTier :: enum u8 {
@@ -30,7 +35,7 @@ CharacterTier :: enum u8 {
 }
 
 AnimationName :: enum u8 {
-    BASE,
+	BASE,
 	IDLE,
 	IDLE_BLINKING,
 	KICKING,
@@ -90,9 +95,14 @@ part_lookup := [BodyPart]string {
 
 @(private)
 type_lookup := [CharacterType]string {
-	.SKELETON = "skeleton",
-	.GOBLIN = "goblin",
-	.GOLEM = "golem",
+	.SKELETON        = "skeleton",
+	.GOBLIN          = "goblin",
+	.GOLEM           = "golem",
+	.MINOTAUR        = "minotaur",
+	.REAPER          = "reaper",
+	.SEER            = "seer",
+	.ZOMBIE_VILLAGER = "zombievillager",
+	.FALLEN_ANGEL    = "fallenangel",
 }
 
 @(private)
