@@ -16,6 +16,9 @@ init :: proc() {
 	rl.SetTraceLogLevel(.WARNING)
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
 	rl.InitWindow(1280, 720, "BS-Odin")
+    rl.InitAudioDevice()
+
+    loadMenuSounds()
 
 	utils.initFont()
 	ui.init()
@@ -56,6 +59,8 @@ close :: proc() {
 	ui.close()
 	utils.deinitFont()
 
+    unloadMenuSounds()
+    rl.CloseAudioDevice()
 	rl.CloseWindow()
 }
 

@@ -14,6 +14,11 @@ getId :: proc() -> int {
 }
 
 @(private)
+getLastId :: proc() -> int {
+	return unique_id
+}
+
+@(private)
 clearId :: proc() {
     unique_id = 0
 }

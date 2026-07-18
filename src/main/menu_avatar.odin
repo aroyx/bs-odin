@@ -116,6 +116,7 @@ on_render :: proc() {
 				},
 			) {
 				changeState(&main_menu_state)
+				playMenuClickedSound()
 			}
 
 			if iconWithText(
@@ -134,8 +135,9 @@ on_render :: proc() {
 					border_color = rl.BLACK,
 				},
 			) {
-                set_enabled = false
+				set_enabled = false
 				playing.playerSkinRandomize()
+				playMenuClickedSound()
 			}
 		}
 	}
@@ -205,6 +207,7 @@ uiSetSelector :: proc() {
 		new_tier := anim.CharacterTier(current_set_index % num_tiers)
 
 		playing.setSet(new_type, new_tier)
+		playMenuClickedSound()
 	}
 
 	{
@@ -229,7 +232,7 @@ uiSetSelector :: proc() {
 			.SET,
 		)
 
-        displaySetImage(prev_tex, curr_tex, next_tex)
+		displaySetImage(prev_tex, curr_tex, next_tex)
 	}
 
 	// right chevron
@@ -256,6 +259,7 @@ uiSetSelector :: proc() {
 		new_tier := anim.CharacterTier(current_set_index % num_tiers)
 
 		playing.setSet(new_type, new_tier)
+		playMenuClickedSound()
 	}
 }
 
@@ -312,6 +316,7 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		}
 
 		set_enabled = false
+		playMenuClickedSound()
 	}
 
 	{
@@ -367,6 +372,7 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		}
 
 		set_enabled = false
+		playMenuClickedSound()
 	}
 }
 

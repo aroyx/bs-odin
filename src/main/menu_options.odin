@@ -161,6 +161,7 @@ uiCheckbox :: proc(id: string, text: string, var: ^bool) {
 
 	if orui.clicked(id) {
 		var^ = !var^
+		playMenuClickedSound()
 	}
 
 	{
@@ -255,10 +256,13 @@ bottomButtons :: proc() {
 		} else {
 			changeState(&main_menu_state)
 		}
+
+		playMenuClickedSound()
 	}
 
 	if bottomButtonsFn("save button", "\ue14d", " Save", CYAN) {
 		utils.global = local_global
+		playMenuClickedSound()
 	}
 }
 
@@ -342,16 +346,19 @@ showSaveDiagloge :: proc() {
 		if diaglogueButton("discard btn", "\ue18e", "Discard", RED) {
 			changeState(&main_menu_state)
 			show_save_diag = false
+			playMenuClickedSound()
 		}
 
 		if diaglogueButton("save btn", "\ue14d", "Save", CYAN) {
 			utils.global = local_global
 			changeState(&main_menu_state)
 			show_save_diag = false
+			playMenuClickedSound()
 		}
 
 		if diaglogueButton("cancel", "\u0078", "Cancel", WHITE) {
 			show_save_diag = false
+			playMenuClickedSound()
 		}
 	}
 }

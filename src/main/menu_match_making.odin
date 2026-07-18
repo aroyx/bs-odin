@@ -87,9 +87,12 @@ on_render :: proc() {
 }
 
 @(private = "file")
+last_hovered := -1
+
+@(private = "file")
 menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
-	return orui.label(
-		orui.id(id), //
+	clicked := orui.label(
+		orui.id(id),
 		text,
 		{
 			width = orui.grow(),
@@ -108,4 +111,21 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 			border_color = rl.BLACK,
 		},
 	)
+
+	if clicked {
+		playMenuClickedSound()
+	}
+
+	if orui.hovered(orui.to_id(id)) {
+		if last_hovered != id {
+			playMenuHoveredSound()
+			last_hovered = id
+		}
+	} else {
+		if last_hovered == id {
+			last_hovered = -1
+		}
+	}
+
+	return clicked
 }
