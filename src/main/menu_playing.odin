@@ -2,6 +2,7 @@ package client
 
 import "../playing"
 import "../utils"
+import "thirdparty:tracy"
 
 import "thirdparty:orui"
 import rl "vendor:raylib"
@@ -35,7 +36,9 @@ on_render :: proc() {
 
 	playing.render()
 
-	{orui.container(orui.id(getId()), {width = orui.grow(), height = orui.grow()})
+	{
+		tracy.ZoneN("Orui Playing")
+		orui.container(orui.id(getId()), {width = orui.grow(), height = orui.grow()})
 		{orui.container(orui.id(getId()), {width = orui.grow()})}
 
 		if orui.label(

@@ -5,6 +5,7 @@ import "../physics"
 import "../terrain"
 import "../utils"
 import "thirdparty:orui"
+import "thirdparty:tracy"
 
 import "core:math"
 import "core:math/ease"
@@ -78,6 +79,10 @@ render :: proc() {
 
 	terrain.renderTerrain()
 
+	if draw_physics {
+		physics.drawPhysics()
+	}
+
 	cs := camera.state.cs
 	cp := camera.camPos
 
@@ -108,6 +113,7 @@ render :: proc() {
 	G1 := rl.Color{0, 210, 210, 100}
 	G2 := rl.ColorLerp(G1, rl.BLACK, 0.1)
 
+	tracy.ZoneN("Render Entities")
 	for i in render_list {
 		pos := entities.pos[i]
 
@@ -133,10 +139,6 @@ render :: proc() {
 		// draw texture only
 		}
 
-	}
-
-	if draw_physics {
-		physics.drawPhysics()
 	}
 
 	rl.EndScissorMode()

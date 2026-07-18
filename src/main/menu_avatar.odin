@@ -3,6 +3,7 @@ package client
 import "core:fmt"
 import "core:reflect"
 import "core:strings"
+import "thirdparty:tracy"
 
 import anim "../animations"
 import "../playing"
@@ -32,6 +33,7 @@ on_render :: proc() {
 
 	drawAnimPlayer()
 
+	tracy.ZoneN("Orui Avatar")
 	orui.container(
 		orui.id("main_container"),
 		{

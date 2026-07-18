@@ -1,9 +1,10 @@
 package client
 
-import "../utils"
 import "../playing"
+import "../utils"
 
 import "thirdparty:orui"
+import "thirdparty:tracy"
 import rl "vendor:raylib"
 
 main_menu_state: ClientState = {
@@ -30,16 +31,18 @@ on_update :: proc(dt: f32) {
 		utils.global.quit = true
 	}
 
-    updateAnimPlayer()
+	updateAnimPlayer()
 }
 
 @(private = "file")
 on_render :: proc() {
 	rl.ClearBackground({177, 221, 194, 255})
 
-    drawAnimPlayer()
+	drawAnimPlayer()
 
-	{orui.container(
+	{
+		tracy.ZoneN("Orui Main")
+		orui.container(
 			orui.id("main_container"),
 			{
 				direction = .LeftToRight,

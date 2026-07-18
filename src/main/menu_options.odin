@@ -1,6 +1,7 @@
 package client
 
 import "thirdparty:orui"
+import "thirdparty:tracy"
 
 import "../utils"
 
@@ -53,6 +54,7 @@ show_save_diag := false
 on_render :: proc() {
 	rl.ClearBackground(rl.SKYBLUE)
 
+	tracy.ZoneN("Orui Options")
 	orui.container(
 		orui.id("main container"), //
 		{

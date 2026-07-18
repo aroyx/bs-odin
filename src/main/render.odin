@@ -1,30 +1,28 @@
 package client
 
+import "thirdparty:tracy"
 import "core:fmt"
 
 import "../ui"
 import "../utils"
 
-import "thirdparty:tracy"
 import rl "vendor:raylib"
 
 render :: proc() {
-	tracy.ZoneN("Render Everything")
-
 	ui.start()
 
 	rl.BeginDrawing()
 
-	{
-		tracy.ZoneN("Render State")
-		if client_state != nil && client_state.on_render != nil {
-			client_state.on_render()
-		}
+	if client_state != nil && client_state.on_render != nil {
+		client_state.on_render()
 	}
 
 	renderFps()
 
-    ui.render()
+	{
+        tracy.ZoneN("Render UI")
+		ui.render()
+	}
 
 	rl.EndDrawing()
 }
