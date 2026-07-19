@@ -32,6 +32,8 @@ on_update :: proc(dt: f32) {
 	}
 
 	updateAnimPlayer()
+
+    rl.UpdateMusicStream(bgm)
 }
 
 @(private = "file")
@@ -130,9 +132,7 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 
 	if clicked {
 		playMenuClickedSound()
-	}
-
-	if orui.hovered(orui.to_id(id)) {
+	} else if orui.hovered(orui.to_id(id)) {
 		if last_hovered != id {
 			playMenuHoveredSound()
 			last_hovered = id

@@ -5,6 +5,9 @@ import "core:math/linalg"
 import "core:math/rand"
 import "vendor:box2d"
 
+@(private = "file")
+speed: f32 : 15.0
+
 @(private)
 enemyStateMachineUpdate :: proc(dt: f32) {
 	p_pos := entities.pos[0]
@@ -49,10 +52,10 @@ updateEnemyRoam :: proc(entity: ^EnemyData, i: int) {
 
 	dist := linalg.length(p_pos - e_pos)
 	cs := camera.state.cs
-	speed: f32 = 5.0
 
 	if dist <= cs * 10 { 	// player is close attack
 		changeEnemyState(entity, .CHASE)
+		playSound(.PLAYER_SHOCKED)
 	} else if linalg.length(e_pos - entity.target_pos) < cs * 0.1 { 	// already arrived at target.
 		if entity.animation.current_animation != .IDLE {
 			changeAnimation(&entity.animation, .IDLE)
@@ -82,7 +85,7 @@ updateEnemyRoam :: proc(entity: ^EnemyData, i: int) {
 			changeAnimation(&entity.animation, .WALKING)
 		}
 	} else { 	// go towards target
-		dir := linalg.normalize0(entity.target_pos - e_pos) * speed * 0.5
+		dir := linalg.normalize0(entity.target_pos - e_pos) * speed * 0.25
 		box2d.Body_ApplyForceToCenter(entities[i].physics_id, dir, true)
 
 		if dir.x < 0 do entity.animation.flip_x = -1
@@ -97,7 +100,6 @@ updateEnemyChase :: proc(entity: ^EnemyData, i: int) {
 
 	dist := linalg.length(p_pos - e_pos)
 	cs := camera.state.cs
-	speed: f32 = 5.0
 
 	if dist >= cs * 15 { 	// player ran too far
 		changeEnemyState(entity, .ROAM)

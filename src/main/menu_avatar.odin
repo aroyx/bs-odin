@@ -25,6 +25,7 @@ on_update :: proc(dt: f32) {
 	}
 
 	updateAnimPlayer()
+    rl.UpdateMusicStream(bgm)
 }
 
 @(private = "file")

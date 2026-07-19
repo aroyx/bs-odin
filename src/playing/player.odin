@@ -76,7 +76,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 		changePlayerState(p_data, .IDLE)
 	}
 
-	speed: f32 = running ? 10 : 5
+	speed: f32 = running ? 20 : 10
 	force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
 	box2d.Body_ApplyForceToCenter(entities.physics_id[0], force, true)
 
@@ -169,14 +169,17 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 
 	switch data.state {
 	case .IDLE:
+		// playSound(.PLAYER_IDLE)
 		if data.animation.current_animation != .IDLE {
 			changeAnimation(&data.animation, .IDLE)
 		}
 	case .WALK:
+		// playSound(.PLAYER_IDLE)
 		if data.animation.current_animation != .WALKING {
 			changeAnimation(&data.animation, .WALKING)
 		}
 	case .RUN:
+		// playSound(.PLAYER_IDLE)
 		if data.animation.current_animation != .RUNNING {
 			changeAnimation(&data.animation, .RUNNING)
 		}
@@ -188,11 +191,14 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		attack_landed = false
 		regen_wait = 5
+		playSound(.PLAYER_ATTACK)
 	case .HURT:
 		changeAnimation(&data.animation, .HURT)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		regen_wait = 5
+		playSound(.PLAYER_HURT)
 	case .DEAD:
+		playSound(.PLAYER_DEAD)
 		changeAnimation(&data.animation, .DYING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 	}

@@ -24,10 +24,8 @@ rotate_phone_texture: rl.Texture
 
 enter :: proc() {
 	rotate_phone_img := rl.LoadImage("res/images/rotate_phone.png")
-
 	rotate_phone_texture = rl.LoadTextureFromImage(rotate_phone_img)
 	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)
-
 	rl.UnloadImage(rotate_phone_img)
 }
 
@@ -36,6 +34,7 @@ exit :: proc() {
 	terrain.destroyChunks()
 	box2d.DestroyBody(entities.physics_id[0])
 	physics.closePhysics()
+    unloadSounds()
 }
 
 update :: proc(dt: f32) {

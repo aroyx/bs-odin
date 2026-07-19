@@ -9,14 +9,6 @@ import "../utils"
 import "thirdparty:orui"
 import rl "vendor:raylib"
 
-LoadingState :: enum u8 {
-	INIT,
-	CAMERA,
-	TERRAIN,
-	PHYSICS,
-	ENEMIES,
-	DONE,
-}
 
 loading_state: ClientState = {
 	on_enter  = on_enter,
@@ -26,6 +18,16 @@ loading_state: ClientState = {
 
 @(private = "file")
 lState := LoadingState.INIT
+
+@(private = "file")
+LoadingState :: enum u8 {
+	INIT,
+	CAMERA,
+	TERRAIN,
+	PHYSICS,
+	ENEMIES,
+	DONE,
+}
 
 @(private = "file")
 on_enter :: proc() {
@@ -64,11 +66,13 @@ on_update :: proc(dt: f32) {
 		playing.generateEntities()
 		camera.startTagAlong(playing.getPlayer().pos, 4.0)
 		lState = .DONE
+        playing.loadSounds()
 
 	case .DONE:
 		changeState(&playing_state)
 	}
 
+    rl.UpdateMusicStream(bgm)
 	clearId()
 }
 

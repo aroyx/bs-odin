@@ -17,6 +17,7 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		utils.global.quit = true
 	}
+    rl.UpdateMusicStream(bgm)
 }
 
 @(private = "file")

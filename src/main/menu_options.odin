@@ -26,6 +26,7 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		changeState(&main_menu_state)
 	}
+    rl.UpdateMusicStream(bgm)
 }
 
 @(private = "file")
@@ -232,6 +233,7 @@ tabBar :: proc(names: []string, active: ^u8) {
 			},
 		) {
 			active^ = u8(i)
+            playMenuClickedSound()
 		}
 	}
 }
