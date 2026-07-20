@@ -9,7 +9,6 @@ import "../utils"
 import "thirdparty:orui"
 import rl "vendor:raylib"
 
-
 loading_state: ClientState = {
 	on_enter  = on_enter,
 	on_update = on_update,
@@ -66,13 +65,13 @@ on_update :: proc(dt: f32) {
 		playing.generateEntities()
 		camera.startTagAlong(playing.getPlayer().pos, 4.0)
 		lState = .DONE
-        playing.loadSounds()
+		playing.loadSounds()
 
 	case .DONE:
 		changeState(&playing_state)
+		rl.StopMusicStream(bgm)
 	}
 
-    rl.UpdateMusicStream(bgm)
 	clearId()
 }
 

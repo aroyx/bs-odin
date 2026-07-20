@@ -8,8 +8,14 @@ import "thirdparty:orui"
 import rl "vendor:raylib"
 
 end_screen_state: ClientState = {
+	on_enter  = on_enter,
 	on_update = on_update,
 	on_render = on_render,
+}
+
+@(private = "file")
+on_enter :: proc() {
+    rl.PlayMusicStream(bgm)
 }
 
 @(private = "file")
@@ -17,7 +23,7 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		utils.global.quit = true
 	}
-    rl.UpdateMusicStream(bgm)
+	rl.UpdateMusicStream(bgm)
 }
 
 @(private = "file")
@@ -96,8 +102,8 @@ last_hovered := -1
 
 @(private = "file")
 menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
-    clicked := orui.label(
-		orui.id(id), 
+	clicked := orui.label(
+		orui.id(id),
 		text,
 		{
 			width = orui.grow(),
@@ -116,7 +122,7 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 			border_color = rl.BLACK,
 		},
 	)
-    
+
 	if clicked {
 		playMenuClickedSound()
 	}
@@ -132,5 +138,5 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 		}
 	}
 
-    return clicked
+	return clicked
 }
