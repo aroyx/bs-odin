@@ -7,6 +7,7 @@ import "../utils"
 import "thirdparty:orui"
 import "thirdparty:tracy"
 
+import hm "core:container/handle_map"
 import "core:math"
 import "core:math/ease"
 import "core:math/linalg"
@@ -32,9 +33,9 @@ enter :: proc() {
 exit :: proc() {
 	rl.UnloadTexture(rotate_phone_texture)
 	terrain.destroyChunks()
-	box2d.DestroyBody(entities.physics_id[0])
+	box2d.DestroyBody(hm.get(&entities, player_handle).physics_id)
 	physics.closePhysics()
-    unloadSounds()
+	unloadSounds()
 }
 
 update :: proc(dt: f32) {
@@ -47,7 +48,7 @@ update :: proc(dt: f32) {
 		h := rl.GetRenderHeight()
 		camera.sizeUpdate(w, h)
 		terrain.generateRenderChunks()
-		camera.startTagAlong(entities[0].pos)
+		camera.startTagAlong(hm.get(&entities, player_handle).pos)
 	}
 
 	playerStateMachineUpdate(dt)
@@ -113,8 +114,13 @@ render :: proc() {
 	G2 := rl.ColorLerp(G1, rl.BLACK, 0.1)
 
 	tracy.ZoneN("Render Entities")
-	for i in render_list {
-		pos := entities.pos[i]
+	p_entity := hm.get(&entities, player_handle)
+
+	it := hm.iterator_make(&entities)
+
+	index := 0
+	for e, handle in hm.iterate(&it) {
+		pos := e.pos
 
 		char_rekt := rl.Rectangle {
 			x      = pos.x - camTopLeft.x + camera.state.x_offset - cs,
@@ -125,19 +131,20 @@ render :: proc() {
 
 		if !rl.CheckCollisionRecs(rekt, char_rekt) do continue
 
-		health := entities[i].health
+		health := e.health
 
-		switch &d in entities.data[i] {
+		switch &d in e.data {
 		case EnemyData:
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
-			renderHealthBar(health, i, pos, camTopLeft, R1, R2)
+			renderHealthBar(health, index, pos, camTopLeft, R1, R2)
 		case PlayerData:
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
-			renderHealthBar(health, i, pos, camTopLeft, G1, G2)
+			renderHealthBar(health, index, pos, camTopLeft, G1, G2)
 		case FoliageData:
 		// draw texture only
 		}
 
+		index += 1
 	}
 
 	rl.EndScissorMode()

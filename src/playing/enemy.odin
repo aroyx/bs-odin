@@ -1,8 +1,11 @@
 package playing
 
-import "../camera"
+import hm "core:container/handle_map"
 import "core:math/linalg"
 import "core:math/rand"
+
+import "../camera"
+
 import "vendor:box2d"
 
 @(private = "file")
@@ -10,11 +13,12 @@ speed: f32 : 15.0
 
 @(private)
 enemyStateMachineUpdate :: proc(dt: f32) {
-	p_pos := entities.pos[0]
+	p_entity := hm.get(&entities, player_handle)
+	p_pos := p_entity.pos
 
-	for i in 0 ..< len(entities) {
-
-		#partial switch &entity in entities[i].data {
+	it := hm.iterator_make(&entities)
+	for e, handle in hm.iterate(&it) {
+		#partial switch &entity in &e.data {
 		case EnemyData:
 			if entity.state == .DEAD do continue
 
@@ -24,11 +28,11 @@ enemyStateMachineUpdate :: proc(dt: f32) {
 
 			switch entity.state {
 			case .ROAM:
-				updateEnemyRoam(&entity, i)
+				updateEnemyRoam(e, p_pos)
 			case .CHASE:
-				updateEnemyChase(&entity, i)
+				updateEnemyChase(e, p_pos)
 			case .ATTACK:
-				if !updateEnemyAttack(&entity, i) do continue
+				if !updateEnemyAttack(e, p_pos) do continue
 			case .HURT:
 				if entity.stun_cooldown <= 0 {
 					changeEnemyState(&entity, .CHASE)
@@ -39,112 +43,114 @@ enemyStateMachineUpdate :: proc(dt: f32) {
 			}
 
 			if entity.stun_cooldown > 0 && entity.state != .HURT {
-				box2d.Body_SetLinearVelocity(entities.physics_id[i], {})
+				box2d.Body_SetLinearVelocity(e.physics_id, {})
 			}
 		}
 	}
 }
 
 @(private = "file")
-updateEnemyRoam :: proc(entity: ^EnemyData, i: int) {
-	e_pos := entities[i].pos
-	p_pos := entities.pos[0]
+updateEnemyRoam :: proc(entity: ^Entity, p_pos: [2]f32) {
+	e_pos := entity.pos
+    data := &entity.data.(EnemyData)
 
 	dist := linalg.length(p_pos - e_pos)
 	cs := camera.state.cs
 
 	if dist <= cs * 10 { 	// player is close attack
-		changeEnemyState(entity, .CHASE)
+		changeEnemyState(data, .CHASE)
 		playSound(.PLAYER_SHOCKED)
-	} else if linalg.length(e_pos - entity.target_pos) < cs * 0.1 { 	// already arrived at target.
-		if entity.animation.current_animation != .IDLE {
-			changeAnimation(&entity.animation, .IDLE)
+	} else if linalg.length(e_pos - data.target_pos) < cs * 0.1 { 	// already arrived at target.
+		if data.animation.current_animation != .IDLE {
+			changeAnimation(&data.animation, .IDLE)
 		}
 
-		if entity.target_time <= 0 { 	// find a new target
+		if data.target_time <= 0 { 	// find a new target
 			x := (rand.float32() * 10 - 5) * cs
 			y := (rand.float32() * 10 - 5) * cs
 			t := rand.float32() * 3 + 2
 
-			entity.target_pos = {e_pos.x + x, e_pos.y + y}
-			entity.target_time = t
+			data.target_pos = {e_pos.x + x, e_pos.y + y}
+			data.target_time = t
 
-			if entity.animation.current_animation != .WALKING {
-				changeAnimation(&entity.animation, .WALKING)
+			if data.animation.current_animation != .WALKING {
+				changeAnimation(&data.animation, .WALKING)
 			}
 		}
-	} else if entity.target_time <= 0 {
+	} else if data.target_time <= 0 {
 		x := (rand.float32() * 20 - 10) * cs
 		y := (rand.float32() * 20 - 10) * cs
 		t := rand.float32() * 5 + 5
 
-		entity.target_pos = {e_pos.x + x, e_pos.y + y}
-		entity.target_time = t
+		data.target_pos = {e_pos.x + x, e_pos.y + y}
+		data.target_time = t
 
-		if entity.animation.current_animation != .WALKING {
-			changeAnimation(&entity.animation, .WALKING)
+		if data.animation.current_animation != .WALKING {
+			changeAnimation(&data.animation, .WALKING)
 		}
 	} else { 	// go towards target
-		dir := linalg.normalize0(entity.target_pos - e_pos) * speed * 0.25
-		box2d.Body_ApplyForceToCenter(entities[i].physics_id, dir, true)
+		dir := linalg.normalize0(data.target_pos - e_pos) * speed * 0.25
+		box2d.Body_ApplyForceToCenter(entity.physics_id, dir, true)
 
-		if dir.x < 0 do entity.animation.flip_x = -1
-		else if dir.x > 0 do entity.animation.flip_x = 1
+		if dir.x < 0 do data.animation.flip_x = -1
+		else if dir.x > 0 do data.animation.flip_x = 1
 	}
 }
 
 @(private = "file")
-updateEnemyChase :: proc(entity: ^EnemyData, i: int) {
-	e_pos := entities[i].pos
-	p_pos := entities.pos[0]
+updateEnemyChase :: proc(entity: ^Entity, p_pos: [2]f32) {
+	e_pos := entity.pos
+    data := &entity.data.(EnemyData)
 
 	dist := linalg.length(p_pos - e_pos)
 	cs := camera.state.cs
 
 	if dist >= cs * 15 { 	// player ran too far
-		changeEnemyState(entity, .ROAM)
+		changeEnemyState(data, .ROAM)
 	} else if dist <= cs * 2 { 	// attack
-		if entity.attack_cooldown <= 0 {
-			changeEnemyState(entity, .ATTACK)
+		if data.attack_cooldown <= 0 {
+			changeEnemyState(data, .ATTACK)
 		} else {
-			if entity.animation.current_animation != .IDLE {
-				changeAnimation(&entity.animation, .IDLE)
+			if data.animation.current_animation != .IDLE {
+				changeAnimation(&data.animation, .IDLE)
 			}
 		}
 	} else {
 		dir := linalg.normalize0(p_pos - e_pos) * speed * 0.5
-		box2d.Body_ApplyForceToCenter(entities[i].physics_id, dir, true)
+		box2d.Body_ApplyForceToCenter(entity.physics_id, dir, true)
 
-		if dir.x < 0 do entity.animation.flip_x = -1
-		else if dir.x > 0 do entity.animation.flip_x = 1
+		if dir.x < 0 do data.animation.flip_x = -1
+		else if dir.x > 0 do data.animation.flip_x = 1
 
-		if entity.animation.current_animation != .RUNNING {
-			changeAnimation(&entity.animation, .RUNNING)
+		if data.animation.current_animation != .RUNNING {
+			changeAnimation(&data.animation, .RUNNING)
 		}
 	}
 }
 
-updateEnemyAttack :: proc(entity: ^EnemyData, i: int) -> bool {
-	e_pos := entities[i].pos
-	p_pos := entities.pos[0]
+updateEnemyAttack :: proc(entity: ^Entity, p_pos: [2]f32) -> bool {
+	e_pos := entity.pos
+    data := &entity.data.(EnemyData)
 
 	dist := linalg.length(p_pos - e_pos)
 	cs := camera.state.cs
 	speed: f32 = 5.0
 
-	anim_length := f32(entity.animation.current_animation_length / 1000)
+	anim_length := f32(data.animation.current_animation_length / 1000)
 	land_hit_stall := anim_length * 0.3
 
-	if anim_length - entity.stun_cooldown >= land_hit_stall && !entity.attack_landed {
-		entity.attack_landed = true
-		p_data, ok := &entities[0].data.(PlayerData)
+	if anim_length - data.stun_cooldown >= land_hit_stall && !data.attack_landed {
+		data.attack_landed = true
 
-		if !ok do return false
+        p_entity, ok := hm.get(&entities, player_handle) 
+		p_data, ok1 := &p_entity.data.(PlayerData)
+
+		if !ok || !ok1 do return false
 		if p_data.state == .DEAD do return false
 
-		entities[0].health -= 15
+		p_entity.health -= 15
 
-		if entities[0].health < 0 {
+		if p_entity.health < 0 {
 			changePlayerState(p_data, .DEAD)
 		} else {
 			changePlayerState(p_data, .HURT)
@@ -154,11 +160,11 @@ updateEnemyAttack :: proc(entity: ^EnemyData, i: int) -> bool {
 		force: f32 = 5
 		impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
 
-		box2d.Body_ApplyLinearImpulseToCenter(entities[0].physics_id, impulse, true)
+		box2d.Body_ApplyLinearImpulseToCenter(p_entity.physics_id, impulse, true)
 	}
 
-	if entity.stun_cooldown <= 0 {
-		changeEnemyState(entity, .CHASE)
+	if data.stun_cooldown <= 0 {
+		changeEnemyState(data, .CHASE)
 	}
 
 	return true

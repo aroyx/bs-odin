@@ -1,8 +1,10 @@
 package playing
 
-import "../camera"
+import hm "core:container/handle_map"
 import "core:math"
 import "core:math/linalg"
+
+import "../camera"
 
 import "vendor:box2d"
 import rl "vendor:raylib"
@@ -22,7 +24,8 @@ regen_wait: f32 = 1000
 
 @(private)
 playerStateMachineUpdate :: proc(dt: f32) {
-	p_data, ok := &entities.data[0].(PlayerData)
+	p_entity := hm.get(&entities, player_handle)
+	p_data, ok := &p_entity.data.(PlayerData)
 
 	if !ok do return
 
@@ -43,8 +46,8 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	p_data.stun_cooldown -= dt
 	regen_wait -= dt
 
-	if regen_wait <= 0 && p_data.state != .DEAD && entities[0].health < 100 {
-		entities[0].health += 10
+	if regen_wait <= 0 && p_data.state != .DEAD && p_entity.health < 100 {
+		p_entity.health += 10
 		regen_wait = 1
 	}
 
@@ -66,19 +69,20 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	}
 
 	if p_data.stun_cooldown > 0 && p_data.state != .HURT {
-		box2d.Body_SetLinearVelocity(entities.physics_id[0], {})
+		box2d.Body_SetLinearVelocity(p_entity.physics_id, {})
 	}
 }
 
 @(private = "file")
 updatePlayerAttack :: proc(p_data: ^PlayerData) {
+	p_entity := hm.get(&entities, player_handle)
 	if p_data.stun_cooldown <= 0 {
 		changePlayerState(p_data, .IDLE)
 	}
 
 	speed: f32 = running ? 20 : 10
 	force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
-	box2d.Body_ApplyForceToCenter(entities.physics_id[0], force, true)
+	box2d.Body_ApplyForceToCenter(p_entity.physics_id, force, true)
 
 	anim_length := f32(p_data.animation.current_animation_length / 1000)
 	land_hit_stall := anim_length * 0.3
@@ -86,7 +90,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 	if anim_length - p_data.stun_cooldown >= land_hit_stall && !attack_landed {
 		attack_landed = true
 
-		p_pos := entities.pos[0]
+		p_pos := p_entity.pos
 		cs := camera.state.cs
 
 		box_w := cs * 2.5
@@ -102,22 +106,24 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 			height = box_h,
 		}
 
-		for i in 1 ..< len(entities) {
-			e_pos := entities.pos[i]
+		it := hm.iterator_make(&entities)
+		for e, handle in hm.iterate(&it) {
+			if handle == player_handle do continue
+
+			e_pos := e.pos
 			dir := e_pos - p_pos
 
 			if math.abs(dir.x) > cs * 4 || math.abs(dir.y) > cs * 4 do continue // to far to do smth
 
 			if !rl.CheckCollisionPointRec(e_pos, attak_box) do continue
 
-			id := entities.physics_id[i]
-			data, ok := &entities[i].data.(EnemyData)
+			data, ok := &e.data.(EnemyData)
 
 			if !ok do continue
 
-			entities[i].health -= 30
+			e.health -= 30
 
-			if entities[i].health <= 0 {
+			if e.health <= 0 {
 				changeEnemyState(data, .DEAD)
 			} else {
 				changeEnemyState(data, .HURT)
@@ -127,7 +133,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 			force: f32 = 5
 			impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
 
-			box2d.Body_ApplyLinearImpulseToCenter(id, impulse, true)
+			box2d.Body_ApplyLinearImpulseToCenter(e.physics_id, impulse, true)
 		}
 	}
 }
@@ -139,10 +145,12 @@ updatePlayerMovement :: proc(p_data: ^PlayerData) {
 	} else {
 		speed: f32 = running ? 10 : 5
 		force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
-		box2d.Body_ApplyForceToCenter(entities.physics_id[0], force, true)
+		p_entity := hm.get(&entities, player_handle)
+
+		box2d.Body_ApplyForceToCenter(p_entity.physics_id, force, true)
 
 		if x_axis != 0 || y_axis != 0 {
-			camera.startTagAlong(entities.pos[0])
+			camera.startTagAlong(p_entity.pos)
 
 			if running {
 				changePlayerState(p_data, .RUN)

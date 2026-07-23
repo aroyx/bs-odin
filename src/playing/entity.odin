@@ -1,5 +1,6 @@
 package playing
 
+import hm "core:container/handle_map"
 import "core:math/linalg"
 import "core:math/rand"
 
@@ -11,18 +12,29 @@ import "../utils"
 import "vendor:box2d"
 import "vendor:raylib"
 
-@(private)
-entities: #soa[128]Entity
-
-@(private)
-render_list: [len(entities)]int
-
 Entity :: struct {
+	handle:     EntityHandle,
 	pos:        linalg.Vector2f32,
 	physics_id: box2d.BodyId,
 	data:       EntityData,
 	health:     f32,
 }
+
+EntityHandle :: distinct hm.Handle32
+
+MAX_ENTITIES :: 1024
+
+@(private)
+entities: hm.Static_Handle_Map(MAX_ENTITIES, Entity, EntityHandle)
+
+@(private)
+render_list: [MAX_ENTITIES]EntityHandle
+
+@(private)
+entity_count: int
+
+@(private)
+player_handle: EntityHandle
 
 EntityData :: union {
 	PlayerData,
@@ -37,8 +49,6 @@ PlayerData :: struct {
 	attack_cooldown: f32,
 	stun_cooldown:   f32,
 }
-
-newdata :: distinct PlayerData
 
 PlayerState :: enum u8 {
 	IDLE,
@@ -85,11 +95,10 @@ FoliageData :: struct {
 
 @(private)
 updateEntitiesPosition :: proc() {
-	for i in 0 ..< len(entities) {
-		id := entities.physics_id[i]
-		pos := &entities.pos[i]
-		body_pos := box2d.Body_GetPosition(id)
-		pos^ = {body_pos.x * camera.state.cs, body_pos.y * camera.state.cs}
+	it := hm.iterator_make(&entities)
+
+	for entity, handle in hm.iterate(&it) {
+		entity.pos = box2d.Body_GetPosition(entity.physics_id) * camera.state.cs
 	}
 }
 
@@ -97,17 +106,24 @@ updateEntitiesPosition :: proc() {
 sortEntitiesYaxis :: proc() {
 	// since the renderlist is already "almost" sorted, insertion sort will work the best in theory
 	// https://stackoverflow.com/questions/220044/which-sort-algorithm-works-best-on-mostly-sorted-data
-	for i in 1 ..< len(render_list) {
-		key_index := render_list[i]
-		key_y := entities.pos[key_index].y
+	for i in 1 ..< entity_count {
+		i_handle := render_list[i]
+		i_entity := hm.get(&entities, i_handle)
+		i_y := i_entity.pos.y
+
 		j := i - 1
 
-		for j >= 0 && entities.pos[render_list[j]].y > key_y {
-			render_list[j + 1] = render_list[j]
-			j -= 1
+		for j >= 0 {
+			j_entity := hm.get(&entities, render_list[j])
+			j_y := j_entity.pos.y
+
+			if j_y > i_y {
+				render_list[j + 1] = render_list[j]
+				j -= 1
+			} else {break}
 		}
 
-		render_list[j + 1] = key_index
+		render_list[j + 1] = i_handle
 	}
 
 	// slice.sort_by(render_list[:], proc(i, j: ^character.Entity) -> bool {
@@ -117,69 +133,70 @@ sortEntitiesYaxis :: proc() {
 
 generateEntities :: proc() {
 	// player animation
-	entities.pos[0] = getRandomLandPosition()
-	entities.health[0] = 100
-
-	pData := PlayerData {
+	player_data := PlayerData {
 		skin = player_skin,
 		state = .IDLE,
 		animation = {flip_x = 1},
 	}
+	changeAnimation(&player_data.animation, .IDLE)
 
-	changeAnimation(&pData.animation, .IDLE)
-
-	entities.data[0] = pData
+	player_pos := getRandomLandPosition()
 
 	// player physics
 	playerBody := box2d.DefaultBodyDef()
-	playerBody.position = {
-		entities.pos[0].x / camera.state.cs,
-		entities.pos[0].y / camera.state.cs,
-	}
+	playerBody.position = {player_pos.x / camera.state.cs, player_pos.y / camera.state.cs}
 	playerBody.type = .dynamicBody
 	playerBody.fixedRotation = true
 	playerBody.linearDamping = 10
 
-	entities.physics_id[0] = box2d.CreateBody(physics.phyWorld, playerBody)
+	player_physics_id := box2d.CreateBody(physics.phyWorld, playerBody)
 
 	playerBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 	playerShapeDef := box2d.DefaultShapeDef()
-	_ = box2d.CreatePolygonShape(entities.physics_id[0], playerShapeDef, playerBox)
+	_ = box2d.CreatePolygonShape(player_physics_id, playerShapeDef, playerBox)
 
-	for i in 1 ..< len(entities) {
+	p_entity := Entity {
+		pos        = player_pos,
+		data       = player_data,
+		physics_id = player_physics_id,
+		health     = 100,
+	}
+
+	player_handle = addEntity(p_entity)
+
+	for i in 1 ..< 127 {
 		// enemy animation
-		entities.pos[i] = getRandomLandPosition()
-		entities.health[i] = 100
+		e_pos := getRandomLandPosition()
 
-		eData := EnemyData {
+		e_data := EnemyData {
 			state = .ROAM,
 			animation = {flip_x = 1},
 		}
 
-		randomSkin(&eData.skin)
-		changeAnimation(&eData.animation, .IDLE)
-
-		entities.data[i] = eData
+		randomSkin(&e_data.skin)
+		changeAnimation(&e_data.animation, .IDLE)
 
 		// enemy physics
 		enemyBody := box2d.DefaultBodyDef()
-		enemyBody.position = {
-			entities.pos[i].x / camera.state.cs,
-			entities.pos[i].y / camera.state.cs,
-		}
+		enemyBody.position = {e_pos.x / camera.state.cs, e_pos.y / camera.state.cs}
 		enemyBody.type = .dynamicBody
 		enemyBody.fixedRotation = true
 		enemyBody.linearDamping = 10
 
-		entities.physics_id[i] = box2d.CreateBody(physics.phyWorld, enemyBody)
+		e_phy_id := box2d.CreateBody(physics.phyWorld, enemyBody)
 
 		enemyBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 		enemyShapeDef := box2d.DefaultShapeDef()
-		_ = box2d.CreatePolygonShape(entities.physics_id[i], enemyShapeDef, enemyBox)
-	}
+		_ = box2d.CreatePolygonShape(e_phy_id, enemyShapeDef, enemyBox)
 
-	for i in 0 ..< len(entities) {
-		render_list[i] = i
+		e_entity := Entity {
+			pos        = e_pos,
+			data       = e_data,
+			physics_id = e_phy_id,
+			health     = 100,
+		}
+
+		addEntity(e_entity)
 	}
 }
 
@@ -202,5 +219,37 @@ getRandomLandPosition :: proc() -> linalg.Vector2f32 {
 }
 
 getPlayer :: proc() -> Entity {
-	return entities[0]
+	a, b := hm.get(&entities, player_handle)
+	if b do return a^
+	else do return {}
+}
+
+addEntity :: proc(entity: Entity) -> EntityHandle {
+	handle := hm.add(&entities, entity)
+
+	if entity_count < MAX_ENTITIES {
+		render_list[entity_count] = handle
+		entity_count += 1
+	}
+
+	return handle
+}
+
+removeEntity :: proc(handle: EntityHandle) -> bool {
+	if !hm.remove(&entities, handle) {
+		return false
+	}
+
+	for i in 0 ..< entity_count {
+		if render_list[i] != handle do continue
+
+		for j in i ..< entity_count {
+			render_list[j] = render_list[j + 1]
+		}
+
+		entity_count -= 1
+		break
+	}
+
+	return true
 }
