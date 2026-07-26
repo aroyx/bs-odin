@@ -150,7 +150,7 @@ updateEnemyAttack :: proc(entity: ^Entity, p_pos: [2]f32) -> bool {
 
 		p_entity.health -= 15
 
-		if p_entity.health < 0 {
+		if p_entity.health <= 0 {
 			changePlayerState(p_data, .DEAD)
 		} else {
 			changePlayerState(p_data, .HURT)
