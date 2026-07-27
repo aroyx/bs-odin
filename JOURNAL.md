@@ -6,8 +6,6 @@ desc: BS-Odin is a multiplayer game in the making using Odin language. This is t
 start-date: "2026-05-28"
 ---
 
-2h 40mins - coding
-
 # Devlog #1
 
 
@@ -172,3 +170,820 @@ I will add mouse input and use that to rotate a rectangle/sprite around the play
 
 
 # Devlog #2
+
+|                |                 |
+| -------------- | --------------- |
+| Time           | 5h 29m 18s      |
+| Total Time     | 23h 46m 39s     |
+| Date           | 20th June 2026  |
+
+
+Procedural Terrain Generation is working now!
+
+## Maths
+I kinda learnt a lot of maths for `Perlin` and `simplex` noise generations! Watched a lot of tutorials to get an idea of how it is generally implemented to generate terrain. It is very easy when you don't have to code the noise functions yourselves...
+
+Resources: [1](https://youtu.be/J1OdPrO7GD0?t=655), [2](https://www.youtube.com/watch?v=cLs3CGNV120)
+
+## Opensource helping
+while at it I also added imgui as a dependency. When imgui was building I saw a two big libraries (the actual imgui and sdl3 repos) clone. They were more than 100mb each. I made some simple code changes `build.py` of the original repo which brought it down to 1-2mb each.
+
+
+I made an [issue](https://gitlab.com/L-4/odin-imgui/-/boards?show=eyJpaWQiOiIyNSIsImZ1bGxfcGF0aCI6IkwtNC9vZGluLWltZ3VpIiwiaWQiOjE5MjkyMjMyMH0%3D) in the original bindings repo. Let's hope it goes well.
+
+
+## Rendering
+
+I changed the rendering technique of the tiles of the generated terrain twice. It was real hard work. This probably took most of the time. There were many errors in maths and logic during the making of terrain renderer.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c2a6550b-62d6-461f-8ae4-9c045a996aec" alt="read the bottom desc" /><br>
+  <b>A collage of images of my terrain generation working</b>
+</p>
+
+# Devlog #3
+
+|                |                 |
+| -------------- | --------------- |
+| Time           | 3h 50m 43s      |
+| Total Time     | 27h 37m 22s     |
+| Date           | 21st June 2026  |
+
+
+**Made rendering more than 4000% faster**!
+
+> Premature optimisation is the root... 
+
+So initially my renderer drew all the cells, even when not in view. There were only 64x64 cells so it was no problem for my lappy at all! But when I increased it to 512x512 my laptop took huge load (45ms rendering time)! Currently after implementing a camera thingy it is now not an issue. 
+
+The terrain is generated once and only the visible part (80x45 cells) is rendered in the screen!
+
+This change lead to render times go below 1ms again :)
+
+The maths behind camera thing was really logical error prone, and took a lot of time + I had a rough time working with dynamic arrays of Odin. Apparently you got to use `raw_data(array)` function to get the underlying data from the array. This is not documented anywhere neither did LSP find me this function when I **did** try to find it!
+
+# Other stuff
+
+I also changed the colours of the terrain. 
+
+Added background to the fps and frame_time texts
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4376a46c-7a3b-4084-b686-2570b5b41a86" alt="read the bottom desc" /><br>
+  <b>Terrain with new colors</b>
+</p>
+
+# Devlog #4
+
+|                |                 |
+| -------------- | --------------- |
+| Time           | 3h 19m 15s      |
+| Total Time     | 30h 56m 37s     |
+| Date           | 23st June 2026  |
+
+
+Implemented Marching Squares!
+
+## Brief intro to marching squares
+
+This is a technique commonly used in 2d terrain generation models. It converts the rigid 'blocky' tiling of squares to smth more organic by adding triangles to the mix. The end result is even more good looking when you add linear interpolation!
+
+## The implementation
+
+Took everything from me. I feel exhausted and tired, I need sleep. The implementation took a lot of hand written logic, [here](https://github.com/aroyx/bs-odin/blob/b66529b451304cceae60e87bb6d5bb798d2e9f20/src/client/render_terrain.odin#L150-L166) and [here](https://github.com/aroyx/bs-odin/blob/b66529b451304cceae60e87bb6d5bb798d2e9f20/src/client/render_terrain.odin#L169). But idk how but the [lookup table](https://github.com/aroyx/bs-odin/blob/b66529b451304cceae60e87bb6d5bb798d2e9f20/src/client/render_terrain.odin#L150) was perfect, and required no changes! Sure took some time to make it but the results speak for themselves I think.
+
+
+What was indeed the problem...
+
+[this code in github](https://github.com/aroyx/bs-odin/blob/b66529b451304cceae60e87bb6d5bb798d2e9f20/src/client/render_terrain.odin#L178-L179)
+
+```odin
+	_bl := bl > threshold ? 0b0010 : 0
+	_br := br > threshold ? 0b0001 : 0
+```
+The fix?
+```odin
+	_bl := bl > threshold ? 0b0001 : 0
+	_br := br > threshold ? 0b0010 : 0
+```
+
+I had these two swapped from what the standard says! Oh my gawd, this took forever to debug.
+
+## Performance
+
+The current implementation is using `Painter's Algorithm`, this works but there is a heck ton of overdraw! I hate it and probably will try to find a fix to it soon!
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f70a0dec-deed-4cf5-b77c-cdbc0dcb2f55" alt="read the bottom desc" /><br>
+  <b>Probably the best image explaining Marching squares</b>
+</p>
+
+# Devlog #5
+
+|                |                 |
+| -------------- | --------------- |
+| Time           | 7h 28m 58s      |
+| Total Time     | 38h 25m 35s     |
+| Date           | 25th June 2026  |
+
+
+A massive overhaul of game architecture.
+
+## Architecture
+I think it's safe to say that this time I **unscrambled the spaghetti  code**  that I have been writing. These things are hard but very important for a project of this scale. Else, the developer burden piles up and motivation to complete the game is dead. [#883172](https://github.com/aroyx/bs-odin/commit/8831725242e466461f5f601beef7ff50e2ba1758).
+
+
+### Performance
+
+I implemented a simple performance hack to my terrain generation. This fix gives almost 100% faster terrain generation and rendering! I've documented the fix in the comments of the code [here](https://github.com/aroyx/bs-odin/commit/f2a07aee6715d3cd126ead782515ab8d25e461ba#diff-4b53236fd9f74b14acad89df7dee49e1371a6cc85a47612e9bc40163f1c4e5fbR166-R175). [#f2a07a](https://github.com/aroyx/bs-odin/commit/f2a07aee6715d3cd126ead782515ab8d25e461ba)
+
+### Camera
+Till now the camera didn't follow the player, but now it does. The math again, wasn't easy. I introduced another bug that I [caught](https://github.com/aroyx/bs-odin/commit/c17cfd3e121ae4c1f0f6a7e89be5fb830796b005) days later. [#393da8](https://github.com/aroyx/bs-odin/commit/393da8de82347c8c3d8dfc9272b0fead2cdb9924)
+
+### Others
+
+1. Added a feature to ping server at any moment [#da64b7](https://github.com/aroyx/bs-odin/commit/da64b7d7a456c05978f6d6c174831eed52ae59da)
+2. Enforced naming convention
+3. Out of bounds array access fix
+
+https://github.com/user-attachments/assets/a309a2c8-f3a8-4461-9be0-a39eeac48f03
+
+# Devlog #6
+
+|                |                 |
+| -------------- | --------------- |
+| Time           | 6h 24m 31s      |
+| Total Time     | 44h 50m 6s      |
+| Date           | 25th June 2026  |
+
+
+**Reworked my entire Rendering and Windowing System...**
+
+## Raylib - The unfortunate switch
+
+I wanted to make a game accessible to many people. And the most accessible platform is Web. So I had to compile my application in `WASM`. While my previous renderer, `SDL_Renderer` was able to render in Web it was not meant to be used intensively, it doesn't support `shaders` among many other flaws. So I looked for other rendering libraries to use for my game.
+
+**bgfx** - no bindings for Odin
+**sokol** - I never used it, I had to ask myself if the complexity it brings with it is worth it. Very sweet option otherwise.
+**Vulkan** - No WASM
+**SDL_GPU** - No WASM
+
+Raylib comes with it's own downsides tho - It is slow, just changing to it added 2ms to my render time, it was 1ms with SDL Renderer. But it's simplicity keeps me in awe.
+
+Right now I've decided to settle with my slower Raylib and focus on important stuff like **offline mode**, **bots**, **characters**.
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/c66aa4fb-ea00-4f41-98a9-9c32e94a607c" alt="see the desc below" width="500"/><br>
+      <b>Rendering the terrain in new Raylib renderer</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/2388fd75-bbaa-463b-abc4-b2e45a8ad315" alt="see the desc below" width="500"/><br>
+      <b>Git diff of some changes</b>
+    </td>
+  </tr>
+</table>
+
+# Devlog #7
+
+|                |                 |
+| -------------- | --------------- |
+| Time           | 5h 45m 56s      |
+| Total Time     | 50h 36m 2s      |
+| Date           | 28th June 2026  |
+
+
+
+Frame Time so low, we're drawing the future.
+
+Last devlog I said `Raylib` was slow. It is on me, I am dumb. I didn't have to look more into it, `DrawMesh` did the exact thing I required!
+
+Currently, the frame renders in my laptop **under 0.9ms** instead of **3-4ms earlier** and in this devlog I document the changes I made.
+
+## Batch Rendering
+Earlier I iterated over all the vertices and rendered them. 
+```odin
+for v in vertices {
+    rlgl.Color4ub(v.color.r, v.color.g, v.color.b, v.color.a)
+    rlgl.Vertex2f(v.pos.x, v.pos.y)
+}
+```
+
+That was very slow, when I profiled it I saw that just iterating over the vertices took about **1.4ms**. Drawing took another **1.5ms**.
+
+
+So I changed the vertices data:
+
+```odin
+// old
+vertex :: struct {
+    pos: rl.Vector2,
+    color: rl.Color,
+}
+vertices: [dynamic]vertex
+
+// new
+vertices_pos: [dynamic]rl.Vector3
+vertices_col: [dynamic]rl.Color
+```
+
+
+Then I generate a `terrain_mesh` using these arrays in [this](https://github.com/aroyx/bs-odin/blob/a17082911fa25f6444bd9df4b31eb406caded874/src/client/terrain/render_terrain.odin#L254-L276) function. And use that to render everything at once!
+
+
+```odin
+if mesh_initialised && terrain_mesh.vaoId != 0 {
+    rl.DrawMesh(terrain_mesh, default_material, default_transform)
+}
+```
+#### Results
+Went from **3-4ms** to **0.5ms**. But when we move we have to generate the vertices at each frame! So if we don' t move it is **0.5ms** but if we move it is **4.0+ms**!!!
+
+## Chunking
+
+Since our terrain doesn't change, we can store the results in GPU memory and render them at will. 
+But if we try to render a texture of size `5120x5120`, our gpu will suffer really bad. So we chunk.
+
+We divide the terrain in chunks, load them into gpu and show only the parts that are visible currently.
+
+Sounds easy. But for stupid ppl like me it is hard, took me a long while to fight the memory, logic and silly mistakes. 
+
+But finally, it did work.
+
+#### Results
+It renders about **0.8ms** avg and **1ms** in high load, sometimes goes down to **0.6ms** too! That too while moving!
+
+https://github.com/user-attachments/assets/316f124f-01e0-442f-a238-1b96a0476360
+
+# Devlog #8
+
+|                |                 |
+| -------------- | --------------- |
+| Time           | 10h 32m 48s     |
+| Total Time     | 61h 8m 50s      |
+| Date           | 30th June 2026  |
+
+
+Implemented Physics, generated islands form the terrain + Server side Seed generation.
+
+## Performance 
+
+Performance is out of the window, the [algorithm](https://github.com/aroyx/bs-odin/blob/cff215c2d7055f0b42398868d83f599aefcc90f5/src/physics/gen_islands.odin#L75-L126) that generates the islands is **O(n^3)**!! This disgusts me, but I wasn't even able to come up with this solution! AI made the entire function...unfortunately I was not able to come up with the solution by myself...
+
+I understand how the function works, but I don't know how I could improve it anyway. **The one upside to this is that, this function will only run once** - during the game start. 
+
+My beloved physics engine Box2D can easily handle all these complex islands with no problem at all! So that helps :)
+
+
+## Time
+
+What took 10hrs? Most of the time was trying to generate the islands, another huge chunk of time was spent making the renderer for Box2D [#510535](https://github.com/aroyx/bs-odin/commit/5105357cb56fa15ca8c1b8ad798fe2d855e37179).
+
+IDK how, but the server side seed generation that I though would take less time took about 2hrs...[#4bac51](https://github.com/aroyx/bs-odin/commit/4bac51cec752596949dcc51a98d2f3d682b238d4)
+
+## My state of mind
+
+I am currently disappointed in myself, multiplayer is hard. Server side seed generation taking so much time destroyed my confidence. Not being able to generate the islands broke me... I am having doubts of being competent enough to complete this project.
+
+My current plan is to focus on single player - offline mode. I will handle multiplayer with server later. Currently I will focus on things that are fun and actually have meaning. First I'll make it work fully in web, then I will do character...
+
+https://github.com/user-attachments/assets/4cae9c22-2a36-4432-b20e-ef2c9243b612
+
+# Devlog #9
+
+|                |               |
+| -------------- | --------------|
+| Time           | 8h 40m 13s    |
+| Total Time     | 69h 49m 3s    |
+| Date           | 2nd July 2026 |
+
+
+From bare metals to web. A rough road.
+
+My game is now available to play in [bs-odin.onkush.dev](https://bs-odin.onkush.dev)
+
+I built my application for the Web and it works. Probably the most dirty work I had to do in this project overall. I probably have read all available `Odin`/`WASM` templates.
+
+--- 
+
+## Setting the Sail
+I knew what `WASM` is, I once to compile one of my `C++` games to `WASM` too, but seeing **more than 500+ errors** in the first try took a big toll on me and I didn't bother. I don't want this project to end up like that.
+
+I didn't have to search much to find a [template](https://github.com/karl-zylinski/odin-raylib-web/) that builds `Odin` + `raylib` in `WASM`. So I started to implement '**Offline Mode**' for my game. Didn't take much time tbh, easy work. So I went to sleep and assigned `WASM` implementation to future me.
+
+## Thunderstorm
+Next morning, I looked at how the {template](https://github.com/karl-zylinski/odin-raylib-web/) works - really simple and straightforward. I copied their code with proper attribution ofc. After fixing some build bugs, I ran my `build.sh` and...It didn't work. But nothing works the first time...
+
+Spoiler, it didn't work in the 69th time either.
+
+## Tsunami
+By evening, I was able to make it compile, I won't get into the specifics but it had to do with multiple definition of functions within Odin core libraries.
+
+So, after it compiled. I had a huge sigh of relief, I ran it in my browser and bam! A fully dark screen! Wait...What? NOO
+
+I opened up the console... and Alas! Errors, not 500 errors, only one error `Uncaught (in promise) InternalError: too much recursion`
+ 
+I couldn't find what caused this error, how to fix it, how to narrow it down. Lastly I gave up and went to sleep. After I woke up! I one by one tested each file and their dependency. Lastly I found the culprit...it was `Box2D` :agasp: 
+
+After I dug deeper I found the fix, but it was concerned with changing the source code of Odin...so virtually no one can compile my game to `WASM` but me...
+
+I'll try to find a workaround for it, till then - if it works, it works.
+
+## The arrival to the forbidden Island
+
+After a lot of hardwork, I got the fruits of my labour. This journey was not as much fun, but seeing my game run in my browser is so much worth it!
+
+I fixed  few visual glitches and frame time capture fixes. And then I pushed it into my domain :)
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/396220fb-1ea3-46fe-b2f1-63330258dace" alt="read the bottom desc" /><br>
+  <b>Image of my game working in web</b>
+</p>
+
+# Devlog #10
+
+|                |               |
+| -------------- | --------------|
+| Time           | 6h 8m 5s      |
+| Total Time     | 75h 57m 8s    |
+| Date           | 4th July 2026 |
+
+
+Drops and drops together make an ocean. Did nothing major just some small stuff
+
+---
+- Added buttons (RayGUI) for navigation [#7608e9](https://github.com/aroyx/bs-odin/commit/7608e96f26c45110a99d244070fe66966847df6e)
+---
+- Added Loading Screen before match starts. [#76c086](https://github.com/aroyx/bs-odin/commit/76c086970e3850f638627e56e1d6935702f2801c), [#26ddc4](https://github.com/aroyx/bs-odin/commit/26ddc4b9750f27adae45b52f41fb3c9a180bca7e)
+---
+- Made the game fully self-contained. The game executable requires no dlls, no other libraries or assets either. Everything is bundled together in a single executable! 
+
+For this to work, I used `#load("file_source")` function. It returns `[]u8` or in `C` terms `*uint8_t`.
+
+
+But this won't work with the `raygui` style loader function `rl.GuiLoadStyle()` that requires the 'filename' and not the data.
+
+
+So for that reason. I read the source code of raygui an d implemented [their function](https://github.com/raysan5/raylib/blob/master/examples/core/raygui.h#L4844) in Odin since they don't expose the function to the user.
+
+That's about it tho!
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/151a3321-de05-4ada-bfa7-57e41f518b22" alt="see the desc below" width="500"/><br>
+      <b>Main Menu UI</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/f61a898c-fba9-45d7-99de-0507a94268a5" alt="see the desc below" width="500"/><br>
+      <b>Matchmaking UI</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/37fa2898-8478-4c2a-af74-2a9918b3b21f" alt="see the desc below" width="500"/><br>
+      <b>Loading Screen UI</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/fbe12058-c436-416d-b73d-99a828a18812" alt="see the desc below" width="500"/><br>
+      <b>Gameplay UI</b>
+    </td>
+  </tr>
+</table>
+
+# Devlog #11
+
+|                |               |
+| -------------- | --------------|
+| Time           | 6h 41m 40     |
+| Total Time     | 82h 38m 48s   |
+| Date           | 6th July 2026 |
+
+
+Nothing much this time.
+- Added options menu
+- Added physics collider to the player (finally, phew..)
+- Notify mobile users to play in landscape mode.
+
+That's about it. 
+
+All of them were relatively easy. What I did try and haven't pushed to upstream is a failed attempt to detect entry and exit from water bodies by the entities in an economical way.
+
+The code for options menu too looks so horrendous! OMG, I am not touching that again!
+
+https://github.com/user-attachments/assets/d6f73764-3952-4024-96d9-92d376a20499
+
+# Devlog #12
+
+|                |               |
+| -------------- | --------------|
+| Time           | 11h 40m 22s   |
+| Total Time     | 94h 19m 10s   |
+| Date           | 6th July 2026 |
+
+
+## Fully functional animation parser and engine!
+
+The entire thing started by me searching for assets to use for my game, then I found [these super cute chibi characters](https://craftpix.net/s/chibi/) that too FOR FREE!!
+
+I downloaded [one](https://craftpix.net/freebies/chibi-skeleton-warrior-character-sprites/) of the free ones and saw that they use `.scml` file for animations. They do have pre-rendered png images in sequence too, but that is too easy, not fun and doesn't look good!
+
+So, I planned to make a `.scml` parser, my own animation engine. And see how it goes.
+
+In the added video there's the working part and the non-working part, which I found pretty funny. 
+
+## 1. Image loader
+
+First I made a image loader that dynamically loads all the sprites that are in use. Later I will add the abitily to drop the sprites from memory when not in use.
+
+## 2. Mapping the data
+
+This was, tough. Very, very tough that I had originally anticipated. Making this parser included me staring at a file with 9k lines for hours. Trying to figure out what each elements do and how to use them interconnectedly. I first made a `scml_data.odin` where I one by one mapped all the required data to odin structs.
+
+## 3. `.scml` parser
+
+I created a new file `scml_parser.odin` and in it I loaded the `.scml` file with Odin's built in `xml` parser. The parsing took a big chunk of time too, as there are not good docs or examples available out here. But there was one single [forum post](https://forum.odin-lang.org/t/need-some-help-understanding-how-to-utilize-core-encoding-xml/1130/2) that got me going and I never had any problems thereafter. I parse the file and save the values in my global private `data` variable defined in `scml_data.odin`.
+
+I read each elements and added all the necessary ones. I observed all the attributes, data and values very carefully earlier so I had an idea of some repetitive values that I could skip. I think almost 50% of the file was repetition, which ofc I didn't save.
+
+## 4. The engine
+
+Now that I had all the data with me in, the only thing I had to do was use that.
+
+With a given time `t` I have to find the `timeline` that it lands on and interpolate the time, linearly lerp the values and issue a draw command for the single sprite.
+
+I was unable to do two specific things and had to take help from AI:
+
+1. Lerping Angle: angle lerping is different as there can be a case where we have to learp from 350 to 10, normal lerp functions would just lerp it 350->200->10 instead of 350->360->10
+2. Using the parent bones to calculate the final position of the child node. The particular function ai generated is [here](https://github.com/aroyx/bs-odin/blob/199956fdee5d212550061b17af7145149ebcd455/src/animations/engine.odin#L105).
+
+## Debugging
+
+After making the engine, we got to fix the engine.
+
+It had bugs, I debugged for a long time and then fixed them. Pretty stupid things like not pushing the timeline keys after initialising them, flipped y-axis, and angle clockwise order.
+
+## Final thoughts
+
+Finally the thing is working now, I still have to polish it and make it play nicely with my entire game. There are other optimisation opportunities available but I'll put that for later.
+
+I will now work on the avatar menu, so user can mix different things. 
+
+Working Animations:
+
+https://github.com/user-attachments/assets/94792b71-f17d-42de-9bea-4ec514864801
+
+Not Working Animations:
+
+https://github.com/user-attachments/assets/431d7916-60ad-49d5-9012-03bcce57edbc
+
+# Devlog #13
+
+|                |               |
+| -------------- | --------------|
+| Time           | 8h 16m 38s    |
+| Total Time     | 102h 35m 48s  |
+| Date           | 9th July 2026 |
+
+
+## Implemented Animation blending + UI library changed
+
+
+I wanted the player to be rendered in the **main_menu** and in the **avatar menu**. But also wanted the animations to be looping randomly.
+
+When I implemented random looping I found out that, the animations wouldn't behave properly due to **snapping**. So I **implemented animation blending**.
+
+It was **not at all easy**, had to implement another `angle_lerp` function specifically for blending angles.
+
+## Character customisation
+
+Due to me working hard earlier, changing character sprites is a cakewalk. In the attatched video. The head sprite is of **tier 2** while the rest is from **tier 1**
+
+
+## GUI
+
+I really wanted to like raygui, but it was really bad. A lot of maths required for very simple things! I didn't like it at all. So in search of a new UI library I found this niche library [orui](https://github.com/andzdroid/orui)! 
+
+This fits my needs perfectly:
+- Immediate mode
+- Super fast
+- (Not what I was looking for but a plus) Uses raylib
+- Doesn't depend on me to do the maths
+- Actually customisable
+
+
+You can see the updated GUI in the video, looks good right :) it also supports animations and transitions!
+
+https://github.com/user-attachments/assets/4b818731-d6b4-47bb-89ac-5440e0831343
+
+# Devlog #14
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 7h 5m 46s      |
+| Total Time     | 109h 41m 34s   |
+| Date           | 10th July 2026 |
+
+
+## UI Overhaul - Done!
+
+So I **changed the entire UI**, game UI is tough, even more so when you have a lot of moving components.
+
+I never had ever use any library like `orui` so it was fun, but at the same time - confusing at times. Like for example: there are only 2 components for drawing (`container` and `label`). I mean there's also element, but that is just an empty container.
+
+Also I've tried everything but you can't just get hover information for the `container` element. 
+
+I need some color suggestions for the buttons in options menu, they look kinda dull...
+
+All the colors are taken from pallets at [coolors.co](https://coolors.co)!
+
+## Icons!!
+
+So while at it, I wanted to add icons. **This was hell.** A very bad idea. Let me tell you why - `orui` doesn't support icons by default, so you've got to load another font to draw the icons.
+
+
+Now, Raylib can't draw icon fonts, until you specify all the individual codepoints...here's the code required to load a font with 3 icons:
+
+```odin
+icon_codepoints := [?]rune {
+    0xe048, // ICON_LUCIDE_ARROW_LEFT
+    0xe049, // ICON_LUCIDE_ARROW_RIGHT
+    0xe14d, // ICON_LUCIDE_SAVE
+    0xe18e, // ICON_LUCIDE_TRASH_2
+}
+
+icon_font = rl.LoadFontEx(
+    "./res/fonts/lucide.ttf",
+    32,
+    &icon_codepoints[0],
+    len(icon_codepoints),
+)
+```
+
+
+## Animation Blending
+
+Made the animation transition buttery smooth!! Look at the video!!
+
+https://github.com/user-attachments/assets/a98bb145-6f67-4636-8808-b12ddc1385d5
+
+# Devlog #15
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 4h 18m 14s     |
+| Total Time     | 113h 59m 48s   |
+| Date           | 11th July 2026 |
+
+
+## Player Customisation Screen!!
+
+RAAH, this is really done! TBH this was easier than expected. I had an 
+idea of how this will work out, and implemented just that. The menu 
+includes some _smart_ and _fancy_ mathematics too
+
+```odin
+// gettin the index
+current_index := (int(curr_type) * num_tiers) + int(curr_tier)
+
+// applying the changes, Lets say user pressed right arrow.
+new_index := (current_index + 1) % total_options
+
+setPartType(group, anim.CharacterType(new_index / num_tiers))
+setPartTier(group, anim.CharacterTier(new_index % num_tiers))
+```
+
+I am really proud of the UI. Looks great. Honestly I was really lucky 
+with the great reference images I found in the internet :)
+
+[hosted here](https://bs-odin.onkush.dev)
+
+https://github.com/user-attachments/assets/7e03f34f-dd4a-4510-addf-a7e3eafeac5b
+
+# Devlog #16
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 5h 39m 56s     |
+| Total Time     | 119h 39m 44s   |
+| Date           | 14th July 2026 |
+
+
+## Dozens of small features implemented!
+
+1. Migrated the End screen UI to the new UI library
+2. Brought back the physics collider with water from previously deleted code.
+3. Removed a rouge sleep call in loading phase. (Which was put there for testing :hs: )
+4. Instead of drawing rectangles in when playing. We now draw the characters! With randomly generated skins!!
+5. Migrated Playing and loading UI to the new library
+6. Code cleanup and refactored for better architecture
+
+## Culling [#bd56fa](https://github.com/aroyx/bs-odin/commit/bd56faceae2f909bd0a73a96aae29629f727c8cf)
+
+When adding Culling to player rendering, I got an optimisation of 5ms->2ms.
+
+
+## Animation while playing
+
+The initial phase was very easy. What I did struggle with was flipping the image. First, I tried flipping the texture themselves. 
+
+It did work but the offset of the bones were not in place. It was fine when going right, but when I turn left. It all turns bad, the 2nd video is a demonstration of that.
+
+It took a lot of tweaks and black magic to find out that I had to also flip the anchor position and angle too 😭 
+
+
+Now it is working as intented :)
+
+The video of animation working:
+
+https://github.com/user-attachments/assets/62ec643e-d19a-492b-8ba9-57b4cb9beddf
+
+The video of animation **not** working:
+
+https://github.com/user-attachments/assets/bc7a76ce-d2a4-439e-8bdc-663ef1a48b04
+
+# Devlog #17
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 9h 42m 24s     |
+| Total Time     | 129h 22m 8s    |
+| Date           | 16th July 2026 |
+
+## Enemy AI done + Tons more!
+
+Other things done this time around:
+- Fix: WASM build fixes
+- Feature: Added the back button in Avatar Menu (finally)
+- Fix: The character scale and position in Main/Avatar Menu acted funny in extreme dimentions (when too small)
+- Fix: Physics renderer didn't render polygons with 4 vertices
+- Feature: Added physics colliders for all enemies!
+- Feature: Y-Sorting enabled
+- Performance: Pushed Data Oriented Design for max performance
+- Architecture: Moved the files around, where they make more sense
+- Feature: Implemented Attacking
+- Feature: Player & Enemy State machine
+- Feature: Enemy AI (super basic tbh)
+
+### Performance
+
+All of these changes were made keeping performance in mind. As of right now the state machines need work to make them even faster!
+
+### Obstacles
+
+State machine logic is very mind numbing, I won't want to do that.... a lot of edge case problems. A lot of problems I never thought existed. 
+
+Y-Sorting was also in the harder side because I wanted a fast sort while also not needing to change the whole array of entities. I finally decided to use another array `render_list` of type `[]int` this essentially sorts the `id` (or index in this case) of the entities by `entity.pos.y`. When rendering use the ids to render. This proved to be a more efficient way to do it, than sorting the entire array of entities.
+
+### Future Todos
+
+- Implement Enemy attacking
+- Implement health system (with regenability?)
+- Draw the health bar
+- Implement death
+
+
+After these things are done. We I will think of further things like game win/game end amongst many others like game pause.
+
+https://github.com/user-attachments/assets/6da32bd6-d760-4d2e-b601-7e7b69f3aec3
+
+# Devlog #18
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 5h 18m 23s     |
+| Total Time     | 134h 40m 31s   |
+| Date           | 17th July 2026 |
+
+
+## Health System, Enemy Attack, 15 new Skin!
+
+Summary of Features added:
+- Player/Enemy Attacks
+- Health System (Damage/Heal)
+- Health Bar shown
+- 15 new Skins!
+-  Avatar Menu "Set" Selector
+
+## Avatar Set Selector 
+
+This took a lot of time than I would like. I first had to scourge through 100s of directories for each Skin (each skin has 3 "tiers") and get the 0th "idle" animation sprite.
+
+The next part was pretty straight forward owing to the time I took to make the architecture great :3 
+
+## Health Bar
+
+This wasn't hard as per say. But it is mad slow. I realised it earlier but never mentioned it. orui library is slow. UI libraries aren't meant to be this slow. Probably it is due to the rendering that makes it this much slower.
+
+How slow? My renderer could render 50 entities under 1ms, now it takes ~5ms to render 20 entities. 
+
+## Future Todos:
+
+- Performance. I will track down where orui is slow. If it is in the logic part, we can't do anything as I am not smart enough to fix logic so complex. But if it is related to rendering, we can work with that.
+- Performance. It's been a while since I diagnosed the slow parts in my code. I will deep dive into the code. Find out what is slow and try to fix them
+
+
+The next few days, I will work on to squeeze as much performance as **I can** from this game.
+
+https://github.com/user-attachments/assets/fccee486-b38c-4694-a9dd-6709939d3fea
+
+# Devlog #19
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 6h 18m 30s     |
+| Total Time     | 140h 59m 1s    |
+| Date           | 20th July 2026 |
+
+## Preformance Checkup + Audio System
+
+Things I did:
+- I stress tested my game to work with **512 & 1024** entities. Ran under **3ms** and **5ms**. The difference maker was the number of entities currently in the screen (rendering).
+- **Profiled** all the "slow" parts
+- Implemented **sound system**, for menu and game
+- **Recorded the sounds myself!!** (both in-game and ui)!
+
+
+## Performance
+
+I tried my best to find ways to increase speed in my game. Unfortunately, all the things that I thought were "slow" weren't actually slow. 
+- Orui UI build was like under **50micro seconds**.
+- Orui Rendering was under **250micro seconds**.
+- Animation system ran under **50micro** for all entities combined iirc
+
+So, for now, there has been done no performance improvements this devlog
+
+## Sound System
+
+First I made the sound system simple, for the menu. It worked and I was happy. I made 6 different similar sounds for the hover and click actions, and I play one of them randomly when clicked.
+
+```odin
+menu_hover_sounds: [6]rl.Sound
+loadMenuSounds :: proc() {
+	for i in 0 ..< len(menu_hover_sounds) {
+		path := fmt.ctprintf("res/audio/menu/menu_click_%d.wav", i + 1)
+		menu_click_sounds[i] = rl.LoadSound(path)
+	}
+}
+
+playMenuHoveredSound :: proc() {
+	i := rand.int_max(len(menu_hover_sounds))
+	rl.PlaySound(menu_hover_sounds[i])
+}
+```
+
+When I went on to make the Player sounds, I noticed that I am unable to the same sound twice simultaneously. I needed that so that I can simulate multiple enemies and other stuff.
+
+
+So I googled a bit, found [this](https://www.raylib.com/examples/audio/loader.html?name=audio_sound_multi) raylib example. And implemented it. For both menu and entities.
+
+
+```odin
+TOTAL_ALIASES :: 4
+Sound :: struct {
+	aliases: [TOTAL_ALIASES]rl.Sound,
+	index:   int,
+}
+
+loadSound :: proc(path: cstring) -> Sound {
+	sound: Sound
+	sound.aliases[0] = rl.LoadSound(path)
+
+	for i in 1 ..< TOTAL_ALIASES {
+		sound.aliases[i] = rl.LoadSoundAlias(sound.aliases[0])
+	}
+
+	sound.index = 0
+	return sound
+}
+
+playSound :: proc(sound: ^Sound) {
+	rl.PlaySound(sound.aliases[sound.index])
+	sound.index = (sound.index + 1) % TOTAL_ALIASES
+}
+
+playMenuClickedSound :: proc() {
+	i := rand.int_max(len(menu_click_sounds))
+	playSound(&menu_click_sounds[i])
+}
+```
+
+
+I also ~~stole~~ borrowed :evilrondo: [this](https://github.com/raysan5/raylib/blob/master/examples/audio/resources/country.mp3) really great background music from raylib source.
+
+https://github.com/user-attachments/assets/4df32170-1f60-4343-a496-f5bf5b777282
+
+
+# Devlog #20
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 5h 3m          |
+| Total Time     | 146h 2m 1s     |
+| Date           | 20th July 2026 |
+
+
+First `2h 40mins` was spent working on changing the `Entities`'s container from a *fixed array* to a [handle map](https://pkg.odin-lang.org/core/container/handle_map/). The fix doesn't improve speed, but adds the feature of adding and removing entity at will which the fixed array did not.
+
+The rest of the time was writing up this devlog. It took a long time, and was a real headache.
