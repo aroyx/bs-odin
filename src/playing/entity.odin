@@ -14,6 +14,7 @@ import "vendor:raylib"
 
 Entity :: struct {
 	handle:     EntityHandle,
+	id:         int, // a unique number per entity for animation and shii
 	pos:        linalg.Vector2f32,
 	physics_id: box2d.BodyId,
 	data:       EntityData,
@@ -162,7 +163,7 @@ generateEntities :: proc() {
 		health     = 100,
 	}
 
-	player_handle = addEntity(p_entity)
+	player_handle = addEntity(&p_entity)
 
 	for i in 1 ..< 127 {
 		// enemy animation
@@ -196,7 +197,7 @@ generateEntities :: proc() {
 			health     = 100,
 		}
 
-		addEntity(e_entity)
+		addEntity(&e_entity)
 	}
 }
 
@@ -224,8 +225,14 @@ getPlayer :: proc() -> Entity {
 	else do return {}
 }
 
-addEntity :: proc(entity: Entity) -> EntityHandle {
-	handle := hm.add(&entities, entity)
+@(private = "file")
+unique_id := 0
+
+addEntity :: proc(entity: ^Entity) -> EntityHandle {
+	entity.id = unique_id
+	unique_id += 1
+
+	handle := hm.add(&entities, entity^)
 
 	if entity_count < MAX_ENTITIES {
 		render_list[entity_count] = handle

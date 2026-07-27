@@ -13,7 +13,7 @@ import "thirdparty:imgui"
 
 @(private)
 terrain: ^[utils.map_size][utils.map_size]f32 = nil // 4096*4 = 16.376Kb woah that's a lot
-@(private = "file")
+@(private)
 seed: i32
 
 setSeed :: proc(pSeed: i32) {
