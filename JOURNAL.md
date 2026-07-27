@@ -1,4 +1,3 @@
-
 ---
 title: "BS-Odin"
 author: "Ankush Roy"
