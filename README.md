@@ -1,21 +1,76 @@
 # BS-Odin
-A stupidly simple game, where you go right
+A stupidly simple game. Where you either kill or die.
 
 I will probably change the name of this game. This is such a lazy ass name.
 
-Features:
-- [ ] Terrain Generation
-    - [x] Simple Terrain generation and rendering
-    - [ ] Other stuff like trees and shit
-- [ ] Character
-    - [x] Character controller
-        - [x] Keyboard inputs
-        - [ ] Mouse inputs
-    - [x] Animations
-    - [x] Character Selector
-- [ ] Enemies
-    - [ ] Randomly generate their skin
-    - [ ] Enemy AI
+## Features Added
+
+- Terrain Generation
+    - Terrain Rendering
+    - Marching Squares
+    - Linear Interpolation
+    - Chunking
+- Character
+    - Keyboard inputs
+- Animations
+- Character Selector
+- Enemies
+    - Randomly generate their skin
+    - Enemy AI
+- Performant
+- Resource efficient
+
+## Features to be added
+
+- Progression
+- Foliage
+- Point System
+- Mouse inputs
+- Screen Inputs for Android and IOS
+- Automatic building for Windows, MacOS and Linux
+
+## Building
+
+Follow these steps to build this game.
+
+> [!NOTE] 
+> You won't be able to build this for Web (WASM), because I for WASM to build I had to make some changes to the Box2D library that is bundled with Odin.
+
+0. Get source
+
+```bash
+git clone --depth=1 https://github.com/aroyx/bs-odin
+```
+
+1. Install Dependencies
+
+[Odin installation](https://odin-lang.org/docs/install/)
+[Raylib v5.5](https://github.com/raysan5/raylib/releases#release-5.5)
+
+Make sure they are in your **PATH**!
+
+2. Run script
+
+```
+./build.sh
+```
+
+and tbh, that should be it, lemme know if you face any problems
+
+
+## Libraries used
+- Odin Core Library (`linalg`, `math`, `fmt`, etc)
+- Odin Vendor Libraries
+    - [Raylib](https://github.com/raysan5/raylib) [Zlib]
+    - [Box2D](https://github.com/erincatto/box2d/) [MIT]
+- Thirdparty Libraries
+    - [Tracy](https://github.com/wolfpld/tracy) [BSD]
+        - Modified [Bindings](https://github.com/oskarnp/odin-tracy) [BSD]
+    - [ImGui](https://github.com/ocornut/imgui) [MIT]
+        - Modified [Bindings](https://gitlab.com/L-4/odin-imgui) [MIT]
+    - [orui](https://github.com/andzdroid/orui)
+        - This has been modified to work under WASM, ie I just changed the Virtual mem Arena Allocator to mem Arena Allocator
+
 
 ### AI Usage
 I've used AI to find myself topics that may help solve particular solution. AI didn't write any code.
