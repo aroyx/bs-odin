@@ -978,11 +978,16 @@ https://github.com/user-attachments/assets/4df32170-1f60-4343-a496-f5bf5b777282
 
 |                |                |
 | -------------- | -------------- |
-| Time           | 5h 3m          |
-| Total Time     | 146h 2m 1s     |
+| Time           | 5h 57m         |
+| Total Time     | 146h 56m 1s    |
 | Date           | 20th July 2026 |
 
 
 First `2h 40mins` was spent working on changing the `Entities`'s container from a *fixed array* to a [handle map](https://pkg.odin-lang.org/core/container/handle_map/). The fix doesn't improve speed, but adds the feature of adding and removing entity at will which the fixed array did not.
 
 The rest of the time was writing up this devlog. It took a long time, and was a real headache.
+
+Now todos for the next day:
+
+- Foliage (Generative)
+- Point system
