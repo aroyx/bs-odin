@@ -1,7 +1,5 @@
 # BS-Odin
-A stupidly simple game. Where you either kill or die.
-
-I will probably change the name of this game. This is such a lazy ass name.
+A stupidly simple game. Where you either kill or die. A game focused on performance, resource utilisation and being cool!
 
 ## Features Added
 
@@ -36,20 +34,23 @@ Follow these steps to build this game.
 > [!NOTE] 
 > You won't be able to build this for Web (WASM), because I for WASM to build I had to make some changes to the Box2D library that is bundled with Odin.
 
-0. Get source
+> [!WARNING]
+> This has been only tested to be working in Linux, if you face problems building this application in your device lemme know in issues, and I'll defo fix it!
+
+1. Get source
 
 ```bash
-git clone --depth=1 https://github.com/aroyx/bs-odin
+git clone --depth=1 https://github.com/aroyx/bs-odin && cd bs-odin
 ```
 
-1. Install Dependencies
+2. Install Dependencies
 
-[Odin installation](https://odin-lang.org/docs/install/)
-[Raylib v5.5](https://github.com/raysan5/raylib/releases#release-5.5)
+- [Odin installation](https://odin-lang.org/docs/install/)
+- [Raylib v5.5](https://github.com/raysan5/raylib/releases#release-5.5)
 
 Make sure they are in your **PATH**!
 
-2. Run script
+3. Run script
 
 ```
 ./build.sh
@@ -69,7 +70,7 @@ and tbh, that should be it, lemme know if you face any problems
     - [ImGui](https://github.com/ocornut/imgui) [MIT]
         - Modified [Bindings](https://gitlab.com/L-4/odin-imgui) [MIT]
     - [orui](https://github.com/andzdroid/orui)
-        - This has been modified to work under WASM, ie I just changed the Virtual mem Arena Allocator to mem Arena Allocator
+        - This has been modified to work under WASM, ie I just changed the Virtual mem Arena Allocator to mem Arena Allocator. I've opened a pull request. Hopefully they accept :pray:
 
 
 ### AI Usage
