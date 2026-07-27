@@ -1,6 +1,8 @@
 # BS-Odin
 A stupidly simple game. Where you either kill or die. A game focused on performance, resource utilisation and being cool!
 
+<img width="960" height="540" alt="Frame 1" src="https://github.com/user-attachments/assets/0254c3e5-eae3-4d10-9979-c4f6b1c8fae4" />
+
 ## Features Added
 
 - Terrain Generation
