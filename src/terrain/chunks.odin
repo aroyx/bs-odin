@@ -24,7 +24,10 @@ chunks: [utils.GRID_SIZE][utils.GRID_SIZE]Chunks
 mat: rl.Material
 
 @(private)
-shader: rl.Shader
+water_shader: rl.Shader
+
+@(private)
+terrain_shader: rl.Shader
 
 @(private = "file")
 first_time := true
@@ -32,13 +35,17 @@ first_time := true
 generateRenderChunks :: proc() {
 	tracy.ZoneN("Chunk Generation!")
 	cs := camera.state.cs
-    
-    if shader.id == 0 {
-        shader = utils.loadShader("default.vs", "terrain.fs")
+
+	if water_shader.id == 0 {
+		water_shader = utils.loadShader("default.vs", "water.fs")
+	}
+
+    if terrain_shader.id == 0 {
+		terrain_shader = utils.loadShader("default.vs", "terrain.fs")
     }
 
 	mat = rl.LoadMaterialDefault()
-    mat.shader = shader
+	mat.shader = terrain_shader
 
 	destroyChunks()
 

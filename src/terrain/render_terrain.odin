@@ -21,14 +21,12 @@ TerrainLayer :: struct {
 TerrainLayerIndex :: enum u8 {
 	SAND,
 	GRASS,
-	DEEP_GRASS,
 }
 
 @(private)
 terrain_layers: [TerrainLayerIndex]TerrainLayer = {
 	.SAND = {threshold = -0.3, color = {220, 199, 156, 255}}, // sand
 	.GRASS = {threshold = -0.01, color = {51, 204, 73, 255}}, // grass
-	.DEEP_GRASS = {threshold = 0.9, color = {6, 98, 38, 255}}, // dark grass
 }
 
 @(private)
@@ -86,12 +84,8 @@ renderTerrain :: proc() {
 		),
 	}
 
-	if shader.id != 0 {
-		is_water_loc := rl.GetShaderLocation(shader, "is_water")
-		is_water: i32 = 1
-		rl.SetShaderValue(shader, is_water_loc, &is_water, .INT)
-
-		rl.BeginShaderMode(shader)
+	if water_shader.id != 0 {
+		rl.BeginShaderMode(water_shader)
 
 		source_rec: rl.Rectangle = {
 			x      = camTopLeft.x / cs,
@@ -103,9 +97,6 @@ renderTerrain :: proc() {
 		rl.DrawTexturePro(heightmap, source_rec, rekt, {0, 0}, 0.0, rl.WHITE)
 
 		rl.EndShaderMode()
-
-		is_water = 0
-		rl.SetShaderValue(shader, is_water_loc, &is_water, .INT)
 	} else {
 		rl.DrawRectangleRec(rekt, {50, 162, 230, 255})
 	}
