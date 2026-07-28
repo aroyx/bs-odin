@@ -18,8 +18,13 @@ Chunks :: struct {
 	is_in:  bool,
 }
 
+@(private)
 chunks: [utils.GRID_SIZE][utils.GRID_SIZE]Chunks
+@(private)
 mat: rl.Material
+
+@(private)
+shader: rl.Shader
 
 @(private = "file")
 first_time := true
@@ -27,12 +32,19 @@ first_time := true
 generateRenderChunks :: proc() {
 	tracy.ZoneN("Chunk Generation!")
 	cs := camera.state.cs
+    
+    if shader.id == 0 {
+        shader = utils.loadShader("default.vs", "terrain.fs")
+    }
+
 	mat = rl.LoadMaterialDefault()
+    mat.shader = shader
+
 	destroyChunks()
 
-    gs := utils.GRID_SIZE
-    chunkSize := utils.CHUNK_SIZE
-    mps := utils.map_size
+	gs := utils.GRID_SIZE
+	chunkSize := utils.CHUNK_SIZE
+	mps := utils.map_size
 
 	for a in 0 ..< gs { 	// iterate over the chunks
 		for b in 0 ..< gs {
@@ -63,16 +75,16 @@ generateRenderChunks :: proc() {
 					min_h := min(tl, tr, bl, br)
 					max_h := max(tl, tr, bl, br)
 
-					for k := 0; k < len(terrain_layers); k += 1 {
+					for k in TerrainLayerIndex {
 						// if the following statement is true then there are no, tiles
 						// to render in this cel. So stop.
 						if max_h <= terrain_layers[k].threshold do break
 
-						if k < len(terrain_layers) - 1 {
+						if int(k) < len(terrain_layers) - 1 {
 							// if the following statement is true then,
 							// this cell will be overshadowed by another tile. So just
 							// skip rendering this one. But do render the following ones
-							if min_h >= terrain_layers[k + 1].threshold do continue
+							if min_h >= terrain_layers[TerrainLayerIndex(int(k) + 1)].threshold do continue
 						}
 
 						marchingSquares(

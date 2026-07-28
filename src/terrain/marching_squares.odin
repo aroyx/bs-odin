@@ -30,20 +30,20 @@ Points :: enum i32 {
 
 @(private = "file")
 lookup: [15][]Points : {
-	{.D,  .C,  .C4},
-	{.B,  .C3, .C},
-	{.D,  .B,  .C4, .C4, .B,  .C3},
-	{.A,  .C2, .B},
-	{.D,  .A,  .C2, .C4, .D,  .C2, .C2, .C,  .C4, .C2, .B, .C},
-	{.C2, .C3, .C,  .C,  .A,  .C2},
-	{.A,  .C2, .C3, .A,  .C3, .C4, .A,  .C4, .D},
-	{.C1, .A,  .D},
-	{.C1, .A,  .C,  .C1, .C,  .C4},
-	{.C1, .A,  .B,  .C1, .B,  .C3, .C1, .C3, .C,  .C1, .C, .D},
-	{.C1, .A,  .B,  .C1, .B,  .C3, .C1, .C3, .C4},
-	{.C1, .C2, .D,  .D,  .C2, .B},
-	{.B,  .C,  .C4, .B,  .C4, .C1, .B,  .C1, .C2},
-	{.C,  .D,  .C1, .C,  .C1, .C2, .C,  .C2, .C3},
+	{.D, .C, .C4},
+	{.B, .C3, .C},
+	{.D, .B, .C4, .C4, .B, .C3},
+	{.A, .C2, .B},
+	{.D, .A, .C2, .C4, .D, .C2, .C2, .C, .C4, .C2, .B, .C},
+	{.C2, .C3, .C, .C, .A, .C2},
+	{.A, .C2, .C3, .A, .C3, .C4, .A, .C4, .D},
+	{.C1, .A, .D},
+	{.C1, .A, .C, .C1, .C, .C4},
+	{.C1, .A, .B, .C1, .B, .C3, .C1, .C3, .C, .C1, .C, .D},
+	{.C1, .A, .B, .C1, .B, .C3, .C1, .C3, .C4},
+	{.C1, .C2, .D, .D, .C2, .B},
+	{.B, .C, .C4, .B, .C4, .C1, .B, .C1, .C2},
+	{.C, .D, .C1, .C, .C1, .C2, .C, .C2, .C3},
 	{.C1, .C2, .C3, .C1, .C3, .C4},
 }
 
@@ -89,7 +89,8 @@ marchingSquares :: proc(x, y, threshold: f32, i, j: int, color: rl.Color) {
 	}
 
 	// for physics
-	if threshold < terrain_layers[2].threshold && threshold > terrain_layers[0].threshold {
+	water_threshold: f32 = -0.8
+	if threshold < terrain_layers[.GRASS].threshold && threshold > water_threshold {
 		physics.insertEdgePolygon(a, b, c, d, total)
 	}
 }

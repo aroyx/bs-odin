@@ -17,20 +17,44 @@ TerrainLayer :: struct {
 	color:     rl.Color,
 }
 
-@(private = "file")
+@(private)
 TerrainLayerIndex :: enum u8 {
-	WATER,
 	SAND,
 	GRASS,
 	DEEP_GRASS,
 }
 
 @(private)
-terrain_layers: [4]TerrainLayer = {
-	{threshold = -0.8, color = {50, 162, 230, 255}}, // water
-	{threshold = -0.3, color = {220, 199, 156, 255}}, // sand
-	{threshold = -0.01, color = {51, 204, 73, 255}}, // grass
-	{threshold = 0.9, color = {6, 98, 38, 255}}, // dark grass
+terrain_layers: [TerrainLayerIndex]TerrainLayer = {
+	.SAND = {threshold = -0.3, color = {220, 199, 156, 255}}, // sand
+	.GRASS = {threshold = -0.01, color = {51, 204, 73, 255}}, // grass
+	.DEEP_GRASS = {threshold = 0.9, color = {6, 98, 38, 255}}, // dark grass
+}
+
+@(private)
+heightmap: rl.Texture
+
+generateHeightMap :: proc() {
+	if heightmap.id != 0 do rl.UnloadTexture(heightmap)
+
+	ms: i32 = utils.map_size
+
+	img := rl.GenImageColor(ms, ms, rl.BLACK)
+
+	for i in 0 ..< ms {
+		for j in 0 ..< ms {
+			val := terrain[i][j]
+			col := u8(
+				math.saturate((val + 1.5) / 3.0) * 255, //
+			)
+			rl.ImageDrawPixel(&img, i32(i), i32(j), {col, col, col, 255})
+		}
+	}
+
+	heightmap = rl.LoadTextureFromImage(img)
+	rl.SetTextureFilter(heightmap, .BILINEAR)
+
+	rl.UnloadImage(img)
 }
 
 renderTerrain :: proc() {
@@ -38,7 +62,7 @@ renderTerrain :: proc() {
 
 	evalUI()
 
-	// render the lowest layer "deep_water"
+	// render the lowest layer "water"
 	rekt: rl.Rectangle = {
 		height = camera.state.cs * camera.state.vcc,
 		width  = camera.state.cs * camera.state.hcc,
@@ -50,11 +74,42 @@ renderTerrain :: proc() {
 	cp := camera.camPos
 
 	camTopLeft: linalg.Vector2f32 = {
-		math.clamp(cp.x - (cs * camera.state.hcc * 0.5), 0, cs * (utils.MAP_SIZE - camera.state.hcc)),
-		math.clamp(cp.y - (cs * camera.state.vcc * 0.5), 0, cs * (utils.MAP_SIZE - camera.state.vcc)),
+		math.clamp(
+			cp.x - (cs * camera.state.hcc * 0.5),
+			0,
+			cs * (utils.MAP_SIZE - camera.state.hcc),
+		),
+		math.clamp(
+			cp.y - (cs * camera.state.vcc * 0.5),
+			0,
+			cs * (utils.MAP_SIZE - camera.state.vcc),
+		),
 	}
 
-	rl.DrawRectangleRec(rekt, {49, 70, 190, 255})
+	if shader.id != 0 {
+		is_water_loc := rl.GetShaderLocation(shader, "is_water")
+		is_water: i32 = 1
+		rl.SetShaderValue(shader, is_water_loc, &is_water, .INT)
+
+		rl.BeginShaderMode(shader)
+
+		source_rec: rl.Rectangle = {
+			x      = camTopLeft.x / cs,
+			y      = camTopLeft.y / cs,
+			width  = camera.state.hcc,
+			height = camera.state.vcc,
+		}
+
+		rl.DrawTexturePro(heightmap, source_rec, rekt, {0, 0}, 0.0, rl.WHITE)
+
+		rl.EndShaderMode()
+
+		is_water = 0
+		rl.SetShaderValue(shader, is_water_loc, &is_water, .INT)
+	} else {
+		rl.DrawRectangleRec(rekt, {50, 162, 230, 255})
+	}
+
 	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
 
 	cam_bounds: rl.Rectangle = {

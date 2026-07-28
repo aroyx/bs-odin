@@ -4,8 +4,6 @@ import "../camera"
 import "../physics"
 import "../terrain"
 import "../utils"
-import "thirdparty:orui"
-import "thirdparty:tracy"
 
 import hm "core:container/handle_map"
 import "core:math"
@@ -14,6 +12,8 @@ import "core:math/linalg"
 
 import "vendor:box2d"
 import rl "vendor:raylib"
+import "thirdparty:orui"
+import "thirdparty:tracy"
 
 @(private = "file")
 lock_camera := false
@@ -79,10 +79,6 @@ render :: proc() {
 
 	terrain.renderTerrain()
 
-	if draw_physics {
-		physics.drawPhysics()
-	}
-
 	cs := camera.state.cs
 	cp := camera.camPos
 
@@ -145,6 +141,10 @@ render :: proc() {
 		}
 
 		index += 1
+	}
+
+	if draw_physics {
+		physics.drawPhysics()
 	}
 
 	rl.EndScissorMode()

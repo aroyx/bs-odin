@@ -36,6 +36,8 @@ createTerrain :: proc() {
 	} else {
 		generateRenderChunks()
 	}
+
+    generateHeightMap()
 }
 
 isLand :: proc(world_x, world_y: f32) -> bool {
@@ -48,7 +50,7 @@ isLand :: proc(world_x, world_y: f32) -> bool {
 		return false
 	}
 
-	if terrain[gx][gy] > terrain_layers[1].threshold {
+	if terrain[gx][gy] > terrain_layers[.SAND].threshold {
 		return true
 	}
 	return false
