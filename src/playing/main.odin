@@ -112,10 +112,14 @@ render :: proc() {
 	tracy.ZoneN("Render Entities")
 	p_entity := hm.get(&entities, player_handle)
 
-	it := hm.iterator_make(&entities)
+	// for e, handle in hm.iterate(&it) {
+	for i in 0 ..< entity_count {
+		handle := render_list[i]
 
-	index := 0
-	for e, handle in hm.iterate(&it) {
+		e, ok := hm.get(&entities, handle)
+
+		if !ok do continue
+
 		pos := e.pos
 
 		char_rekt := rl.Rectangle {
@@ -132,15 +136,13 @@ render :: proc() {
 		switch &d in e.data {
 		case EnemyData:
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
-			renderHealthBar(health, index, pos, camTopLeft, R1, R2)
+			renderHealthBar(health, e.id, pos, camTopLeft, R1, R2)
 		case PlayerData:
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
-			renderHealthBar(health, index, pos, camTopLeft, G1, G2)
+			renderHealthBar(health, e.id, pos, camTopLeft, G1, G2)
 		case FoliageData:
 		// draw texture only
 		}
-
-		index += 1
 	}
 
 	if draw_physics {
