@@ -36,8 +36,6 @@ createTerrain :: proc() {
 	} else {
 		generateRenderChunks()
 	}
-
-    generateHeightMap()
 }
 
 isLand :: proc(world_x, world_y: f32) -> bool {

@@ -29,38 +29,11 @@ terrain_layers: [TerrainLayerIndex]TerrainLayer = {
 	.GRASS = {threshold = -0.01, color = {51, 204, 73, 255}}, // grass
 }
 
-@(private)
-heightmap: rl.Texture
-
-generateHeightMap :: proc() {
-	if heightmap.id != 0 do rl.UnloadTexture(heightmap)
-
-	ms: i32 = utils.map_size
-
-	img := rl.GenImageColor(ms, ms, rl.BLACK)
-
-	for i in 0 ..< ms {
-		for j in 0 ..< ms {
-			val := terrain[i][j]
-			col := u8(
-				math.saturate((val + 1.5) / 3.0) * 255, //
-			)
-			rl.ImageDrawPixel(&img, i32(i), i32(j), {col, col, col, 255})
-		}
-	}
-
-	heightmap = rl.LoadTextureFromImage(img)
-	rl.SetTextureFilter(heightmap, .BILINEAR)
-
-	rl.UnloadImage(img)
-}
-
 renderTerrain :: proc() {
 	tracy.ZoneN("Render Terrain")
 
 	evalUI()
 
-	// render the lowest layer "water"
 	rekt: rl.Rectangle = {
 		height = camera.state.cs * camera.state.vcc,
 		width  = camera.state.cs * camera.state.hcc,
@@ -84,22 +57,8 @@ renderTerrain :: proc() {
 		),
 	}
 
-	if water_shader.id != 0 {
-		rl.BeginShaderMode(water_shader)
-
-		source_rec: rl.Rectangle = {
-			x      = camTopLeft.x / cs,
-			y      = camTopLeft.y / cs,
-			width  = camera.state.hcc,
-			height = camera.state.vcc,
-		}
-
-		rl.DrawTexturePro(heightmap, source_rec, rekt, {0, 0}, 0.0, rl.WHITE)
-
-		rl.EndShaderMode()
-	} else {
-		rl.DrawRectangleRec(rekt, {50, 162, 230, 255})
-	}
+	// render the lowest layer "water"
+	rl.DrawRectangleRec(rekt, {50, 162, 230, 255})
 
 	rl.BeginScissorMode(i32(rekt.x), i32(rekt.y), i32(rekt.width), i32(rekt.height))
 
