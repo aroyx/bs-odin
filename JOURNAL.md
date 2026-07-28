@@ -985,9 +985,22 @@ https://github.com/user-attachments/assets/4df32170-1f60-4343-a496-f5bf5b777282
 
 First `2h 40mins` was spent working on changing the `Entities`'s container from a *fixed array* to a [handle map](https://pkg.odin-lang.org/core/container/handle_map/). The fix doesn't improve speed, but adds the feature of adding and removing entity at will which the fixed array did not.
 
-The rest of the time was writing up this devlog. It took a long time, and was a real headache.
+The rest of the time porting this journal from stardance devlogs. It took a long time, and was a real headache.
+
+Why was it a pain:
+0. I am stupid and I did all of them one by one instead of 1 task at a time like copying all the devlogs at once, then copying the time and rest.
+1. There were 19 Devlogs to port
+2. The Stardance website shows the devlog rendered so if I copy it, I won't get the formatting like ** for **bolds**, __ for _this_, links and all.
+    1. Solution was to go to edit page and copy from there
+3. Adding up the hours. Copying the hours was easy, adding is tuff so I asked AI to do it, one by one
+4. The date, hardest part
+    1. The date isn't displayed as `19th July`, it is displayed as `8 days ago`.
+    2. This is even more problematic when the dates are displayed as `1 month ago`.
+    3. The solution was to open the debug window, pick the element selector and click on the `1 month ago` text. I found out all the elements which display this property have a `title` tag to them which consists of the exact timestamp of the creation of the devlog
+
+From now on, the devlogs will be done in a daily basis, or atleast I'll try to.
 
 Now todos for the next day:
-
 - Foliage (Generative)
 - Point system
+
