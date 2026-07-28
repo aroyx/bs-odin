@@ -1004,3 +1004,43 @@ Now todos for the next day:
 - Foliage (Generative)
 - Point system
 
+# Devlog #21
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 5h 33m 52s     |
+| Total Time     | 152h 29m 53s   |
+| Date           | 28th July 2026 |
+
+I am so disappointed in myself, I worked hard this time, to try to include some beautiful shaders... they looked ugly. I definitely think that this time (5hrs 33mins) should not be added. As the things I tried to do didn't add up. The results were not good looking at all and I scrapped it all by the end.
+
+The unfortunate thing was that I had to take help from an AI to even get my shader up and running, I was having so much problems due to the defaults that Raylib sets.
+
+After the shader was working I went on my own to add some changes, it looks horrible. It is bad and I feel so bad at myself for wasting so much time doing this...
+
+I have saved the code in commits in this repo so I can copy the boilerplate code if I need them again, but damn 5hrs for nothing...
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/29c51fca-e7dc-419a-b3b6-bee20a58776b" alt="see the desc below" width="500"/><br>
+      <b>Rendering Artifact due to huge scaling of texture with bilinear filter</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/50c8f610-baef-48e7-a7d5-4fb9e5ff81fa" alt="see the desc below" width="500"/><br>
+      <b>Ugly shader at work</b>
+    </td>
+	<td align="center">
+      <img src="https://github.com/user-attachments/assets/0859a93b-6853-4438-9a62-16bef0629205" alt="see the desc below" width="500"/><br>
+      <b>Ugly shader again at work</b>
+    </td>
+  </tr>
+</table>
+
+I plan on sticking to my old plan now, 
+- Foliage (Generative)
+- Point system
+
+I have an idea of how I want to do these things and I think it'll be easier for me to do so!
