@@ -114,6 +114,13 @@ destroyChunks :: proc() {
 	}
 }
 
+isChunkVisible :: proc(i, j: int) -> bool {
+	if i < 0 || j < 0 || i >= utils.GRID_SIZE || j >= utils.GRID_SIZE {
+		return false
+	}
+	return chunks[i][j].is_in
+}
+
 @(private = "file")
 vertices_pos: [dynamic]rl.Vector3
 @(private = "file")

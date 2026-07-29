@@ -10,7 +10,6 @@ import "../terrain"
 import "../utils"
 
 import "vendor:box2d"
-import "vendor:raylib"
 
 Entity :: struct {
 	handle:     EntityHandle,
@@ -23,16 +22,11 @@ Entity :: struct {
 
 EntityHandle :: distinct hm.Handle32
 
-MAX_ENTITIES :: 1024
+@(private)
+entities: hm.Dynamic_Handle_Map(Entity, EntityHandle)
 
 @(private)
-entities: hm.Static_Handle_Map(MAX_ENTITIES, Entity, EntityHandle)
-
-@(private)
-render_list: [MAX_ENTITIES]EntityHandle
-
-@(private)
-entity_count: int
+render_list: [dynamic]EntityHandle
 
 @(private)
 player_handle: EntityHandle
@@ -81,7 +75,7 @@ EnemyState :: enum u8 {
 }
 
 FoliageData :: struct {
-	image: raylib.Texture,
+	plant_type: FoliageTextureType,
 }
 
 // HealthRegenerate :: union {
@@ -99,6 +93,11 @@ updateEntitiesPosition :: proc() {
 	it := hm.iterator_make(&entities)
 
 	for entity, handle in hm.iterate(&it) {
+		#partial switch type in entity.data {
+		case FoliageData:
+			continue
+		}
+
 		entity.pos = box2d.Body_GetPosition(entity.physics_id) * camera.state.cs
 	}
 }
@@ -107,7 +106,7 @@ updateEntitiesPosition :: proc() {
 sortEntitiesYaxis :: proc() {
 	// since the renderlist is already "almost" sorted, insertion sort will work the best in theory
 	// https://stackoverflow.com/questions/220044/which-sort-algorithm-works-best-on-mostly-sorted-data
-	for i in 1 ..< entity_count {
+	for i in 1 ..< len(render_list) {
 		i_handle := render_list[i]
 		i_entity := hm.get(&entities, i_handle)
 		i_y := i_entity.pos.y
@@ -165,7 +164,7 @@ generateEntities :: proc() {
 
 	player_handle = addEntity(&p_entity)
 
-	for i in 1 ..< 127 {
+	for i in 1 ..< 128 {
 		// enemy animation
 		e_pos := getRandomLandPosition()
 
@@ -199,6 +198,24 @@ generateEntities :: proc() {
 
 		addEntity(&e_entity)
 	}
+
+	// foliage for testing purposes
+	// for i in 1 ..< 512 {
+	// 	f_pos := getRandomLandPosition()
+	//
+	//        f_data := FoliageData {
+	// 		plant_type = .PLANT,
+	// 	}
+	//
+	// 	f_entity := Entity {
+	// 		pos        = f_pos,
+	// 		data       = f_data,
+	// 		physics_id = box2d.BodyId{}, // no physics needed
+	// 		health     = 100,
+	// 	}
+	//
+	// 	addEntity(&f_entity)
+	// }
 }
 
 @(private = "file")
@@ -234,28 +251,22 @@ addEntity :: proc(entity: ^Entity) -> EntityHandle {
 
 	handle := hm.add(&entities, entity^)
 
-	if entity_count < MAX_ENTITIES {
-		render_list[entity_count] = handle
-		entity_count += 1
-	}
+	append(&render_list, handle)
 
 	return handle
 }
 
 removeEntity :: proc(handle: EntityHandle) -> bool {
-	if !hm.remove(&entities, handle) {
+	ok, err := hm.remove(&entities, handle)
+	if !ok {
 		return false
 	}
 
-	for i in 0 ..< entity_count {
-		if render_list[i] != handle do continue
-
-		for j in i ..< entity_count {
-			render_list[j] = render_list[j + 1]
+	for i in 0 ..< len(render_list) {
+		if render_list[i] == handle {
+			unordered_remove(&render_list, i)
+			break
 		}
-
-		entity_count -= 1
-		break
 	}
 
 	return true

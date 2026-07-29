@@ -10,10 +10,10 @@ import "core:math"
 import "core:math/ease"
 import "core:math/linalg"
 
-import "vendor:box2d"
-import rl "vendor:raylib"
 import "thirdparty:orui"
 import "thirdparty:tracy"
+import "vendor:box2d"
+import rl "vendor:raylib"
 
 @(private = "file")
 lock_camera := false
@@ -28,6 +28,7 @@ enter :: proc() {
 	rotate_phone_texture = rl.LoadTextureFromImage(rotate_phone_img)
 	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)
 	rl.UnloadImage(rotate_phone_img)
+	loadFoliage()
 }
 
 exit :: proc() {
@@ -36,6 +37,11 @@ exit :: proc() {
 	box2d.DestroyBody(hm.get(&entities, player_handle).physics_id)
 	physics.closePhysics()
 	unloadSounds()
+
+	unLoadFoliage()
+
+	hm.dynamic_destroy(&entities)
+	delete(render_list)
 }
 
 update :: proc(dt: f32) {
@@ -53,6 +59,8 @@ update :: proc(dt: f32) {
 
 	playerStateMachineUpdate(dt)
 	enemyStateMachineUpdate(dt)
+
+    updateFoliage()
 
 	updateEntitiesPosition()
 	sortEntitiesYaxis()
@@ -113,7 +121,7 @@ render :: proc() {
 	p_entity := hm.get(&entities, player_handle)
 
 	// for e, handle in hm.iterate(&it) {
-	for i in 0 ..< entity_count {
+	for i in 0 ..< len(render_list) {
 		handle := render_list[i]
 
 		e, ok := hm.get(&entities, handle)
@@ -141,7 +149,7 @@ render :: proc() {
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
 			renderHealthBar(health, e.id, pos, camTopLeft, G1, G2)
 		case FoliageData:
-		// draw texture only
+			drawFoliage(&d, pos, camTopLeft)
 		}
 	}
 
@@ -210,4 +218,25 @@ renderHealthBar :: proc(health: f32, id: int, pos, camTopLeft: [2]f32, color1, c
 			)
 		}
 	}
+}
+
+@(private = "file")
+drawFoliage :: proc(data: ^FoliageData, pos, camTopLeft: [2]f32) {
+    tex := foliage_textures[data.plant_type]
+    
+    if tex.id == 0 do return
+
+	cs := camera.state.cs
+	tex_w, tex_h := f32(tex.width), f32(tex.height)
+
+	draw_x := pos.x - camTopLeft.x + camera.state.x_offset
+	draw_y := pos.y - camTopLeft.y + camera.state.y_offset
+
+	scale := cs * 1.5 / tex_h
+
+    offset_y := 0.08 * cs * 2.0
+    x := draw_x - (tex_w * scale * 0.5)
+    y := draw_y - (tex_h * scale) + offset_y
+
+	rl.DrawTextureEx(tex, {x, y}, 0.0, scale, rl.WHITE)
 }
