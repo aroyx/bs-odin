@@ -49,12 +49,19 @@ git clone --depth=1 https://github.com/aroyx/bs-odin && cd bs-odin
 
 - [Odin installation](https://odin-lang.org/docs/install/)
 - [Raylib v5.5](https://github.com/raysan5/raylib/releases#release-5.5)
+- [Python 3](https://www.python.org/downloads/) - Required for imgui bindings
 
 Make sure they are in your **PATH**!
 
-3. Run script
+3. Build Dependency (ImGui)
 
+```bash
+cd thirdparty/imgui/ && python3 build.py
 ```
+
+4. Build Game
+
+```bash
 ./build.sh
 ```
 
