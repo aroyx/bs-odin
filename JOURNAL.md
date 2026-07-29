@@ -1044,3 +1044,37 @@ I plan on sticking to my old plan now,
 - Point system
 
 I have an idea of how I want to do these things and I think it'll be easier for me to do so!
+
+# Devlog #22
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 4h 22m 45s     |
+| Total Time     | 156h 52m 38s   |
+| Date           | 29th July 2026 |
+
+
+Terrain now has foliage!
+
+Things done this devlog:
+- Made the `handle_map` I was using **dynamic**
+- Foliage has 16 types
+- Stole the 16 types of sprites from screenshot of paid art asset, I will pay them later I swear!
+- Made the state updates of the entities faster
+- Foliage automatically generates and destroys with chunks
+- You can beat down the foliage
+- Updated the web version - after 11 long days!
+- Fixed README build instructions
+
+
+AI helped me this time with deterministic randomness. That is [this](https://github.com/aroyx/bs-odin/blob/b45e82cda8cf0f1323be4b21e6e043ba226dd9a7/src/playing/foliage.odin#L112-L115) part of the code:
+
+```odin
+seed := (u64(u32(i)) << 32) | u64(u32(j))
+r := rand.create(seed)
+gen := rand.default_random_generator(&r)
+
+x := rand.float32(gen) // given the same i and j; x will always give thes same output!
+```
+
+
