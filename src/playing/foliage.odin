@@ -2,12 +2,12 @@ package playing
 
 import "core:math/rand"
 import "core:time"
-import "vendor:box2d"
 
 import "../camera"
 import "../terrain"
 import "../utils"
 
+import "vendor:box2d"
 import rl "vendor:raylib"
 
 @(private)
@@ -93,14 +93,19 @@ generateFoliageChunk :: proc(i, j: int) {
 	start_x := f32(i) * cnk_sz * cs
 	start_y := f32(j) * cnk_sz * cs
 
+    // AI helped me with generating the deterministic randomness
+    seed := (u64(u32(i)) << 32) | u64(u32(j))
+    r := rand.create(seed)
+    gen := rand.default_random_generator(&r)
+
 	for k in 0 ..< 20 {
-		x := start_x + (cnk_sz * rand.float32() * cs)
-		y := start_y + (cnk_sz * rand.float32() * cs)
+		x := start_x + (cnk_sz * rand.float32(gen) * cs)
+		y := start_y + (cnk_sz * rand.float32(gen) * cs)
 
 		if !terrain.isLand(x, y) do continue
 
 		f_data := FoliageData {
-			plant_type = int(rand.float32() * f32(len(foliage_textures))),
+			plant_type = int(rand.float32(gen) * f32(len(foliage_textures))),
 		}
 
 		f_entity := Entity {
