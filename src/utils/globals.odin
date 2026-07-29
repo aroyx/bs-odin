@@ -2,7 +2,7 @@ package utils
 
 global: GlobalState = {
 	quit = false,
-	options = {show_fps = false, on_mobile = false},
+	options = {show_fps = true, on_mobile = false},
 }
 
 GlobalState :: struct {

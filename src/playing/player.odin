@@ -117,24 +117,29 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 
 			if !rl.CheckCollisionPointRec(e_pos, attak_box) do continue
 
-            // can be flowers too!
-			data, ok := &e.data.(EnemyData)
+			// can be flowers too!
+			switch &data in &e.data {
+			case PlayerData:
+				continue // wtf
 
-			if !ok do continue
+			case EnemyData:
+				e.health -= 30
 
-			e.health -= 30
+				if e.health <= 0 {
+					changeEnemyState(&data, .DEAD)
+				} else {
+					changeEnemyState(&data, .HURT)
+				}
 
-			if e.health <= 0 {
-				changeEnemyState(data, .DEAD)
-			} else {
-				changeEnemyState(data, .HURT)
+				knock_dir := linalg.normalize0(dir)
+				force: f32 = 5
+				impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
+
+				box2d.Body_ApplyLinearImpulseToCenter(e.physics_id, impulse, true)
+			case FoliageData:
+				data.is_dying = true
+                data.time_left = 0.5
 			}
-
-			knock_dir := linalg.normalize0(dir)
-			force: f32 = 5
-			impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
-
-			box2d.Body_ApplyLinearImpulseToCenter(e.physics_id, impulse, true)
 		}
 	}
 }

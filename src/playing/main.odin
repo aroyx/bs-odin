@@ -57,10 +57,23 @@ update :: proc(dt: f32) {
 		camera.startTagAlong(hm.get(&entities, player_handle).pos)
 	}
 
-	playerStateMachineUpdate(dt)
-	enemyStateMachineUpdate(dt)
+	p_entity := hm.get(&entities, player_handle)
+	p_pos := p_entity.pos
 
-    updateFoliage()
+	it := hm.iterator_make(&entities)
+
+	for e, handle in hm.iterate(&it) {
+		switch &entity in &e.data {
+		case EnemyData:
+			enemyStateMachineUpdate(e, dt, p_pos)
+		case PlayerData:
+			playerStateMachineUpdate(dt)
+		case FoliageData:
+			foliageStateMachineUpdate(e, handle, dt)
+		}
+	}
+
+	updateFoliage()
 
 	updateEntitiesPosition()
 	sortEntitiesYaxis()
@@ -222,9 +235,9 @@ renderHealthBar :: proc(health: f32, id: int, pos, camTopLeft: [2]f32, color1, c
 
 @(private = "file")
 drawFoliage :: proc(data: ^FoliageData, pos, camTopLeft: [2]f32) {
-    tex := foliage_textures[data.plant_type]
-    
-    if tex.id == 0 do return
+	tex := foliage_textures[data.plant_type]
+
+	if tex.id == 0 do return
 
 	cs := camera.state.cs
 	tex_w, tex_h := f32(tex.width), f32(tex.height)
@@ -234,9 +247,9 @@ drawFoliage :: proc(data: ^FoliageData, pos, camTopLeft: [2]f32) {
 
 	scale := cs * 0.015
 
-    offset_y := 0.08 * cs * 2.0
-    x := draw_x - (tex_w * scale * 0.5)
-    y := draw_y - (tex_h * scale) + offset_y
+	offset_y := 0.08 * cs * 2.0
+	x := draw_x - (tex_w * scale * 0.5)
+	y := draw_y - (tex_h * scale) + offset_y
 
-	rl.DrawTextureEx(tex, {x, y}, 0.0, scale, rl.WHITE)
+	rl.DrawTextureEx(tex, {x, y}, 0.0, scale, {255, 255, 255, data.alpha})
 }

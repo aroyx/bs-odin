@@ -12,47 +12,39 @@ import "vendor:box2d"
 speed: f32 : 15.0
 
 @(private)
-enemyStateMachineUpdate :: proc(dt: f32) {
-	p_entity := hm.get(&entities, player_handle)
-	p_pos := p_entity.pos
+enemyStateMachineUpdate :: proc(entity: ^Entity, dt: f32, p_pos: [2]f32) {
+    data := &entity.data.(EnemyData)
 
-	it := hm.iterator_make(&entities)
-	for e, handle in hm.iterate(&it) {
-		#partial switch &entity in &e.data {
-		case EnemyData:
-			if entity.state == .DEAD do continue
+	if data.state == .DEAD do return
 
-			entity.target_time -= dt
-			entity.stun_cooldown -= dt
-			entity.attack_cooldown -= dt
+	data.target_time -= dt
+	data.stun_cooldown -= dt
+	data.attack_cooldown -= dt
 
-			switch entity.state {
-			case .ROAM:
-				updateEnemyRoam(e, p_pos)
-			case .CHASE:
-				updateEnemyChase(e, p_pos)
-			case .ATTACK:
-				if !updateEnemyAttack(e, p_pos) do continue
-			case .HURT:
-				if entity.stun_cooldown <= 0 {
-					changeEnemyState(&entity, .CHASE)
-				}
-
-			case .DEAD:
-				continue
-			}
-
-			if entity.stun_cooldown > 0 && entity.state != .HURT {
-				box2d.Body_SetLinearVelocity(e.physics_id, {})
-			}
+	switch data.state {
+	case .ROAM:
+		updateEnemyRoam(entity, p_pos)
+	case .CHASE:
+		updateEnemyChase(entity, p_pos)
+	case .ATTACK:
+		if !updateEnemyAttack(entity, p_pos) do return
+	case .HURT:
+		if data.stun_cooldown <= 0 {
+			changeEnemyState(data, .CHASE)
 		}
+	case .DEAD:
+		return
+	}
+
+	if data.stun_cooldown > 0 && data.state != .HURT {
+		box2d.Body_SetLinearVelocity(entity.physics_id, {})
 	}
 }
 
 @(private = "file")
 updateEnemyRoam :: proc(entity: ^Entity, p_pos: [2]f32) {
 	e_pos := entity.pos
-    data := &entity.data.(EnemyData)
+	data := &entity.data.(EnemyData)
 
 	dist := linalg.length(p_pos - e_pos)
 	cs := camera.state.cs
@@ -100,7 +92,7 @@ updateEnemyRoam :: proc(entity: ^Entity, p_pos: [2]f32) {
 @(private = "file")
 updateEnemyChase :: proc(entity: ^Entity, p_pos: [2]f32) {
 	e_pos := entity.pos
-    data := &entity.data.(EnemyData)
+	data := &entity.data.(EnemyData)
 
 	dist := linalg.length(p_pos - e_pos)
 	cs := camera.state.cs
@@ -130,7 +122,7 @@ updateEnemyChase :: proc(entity: ^Entity, p_pos: [2]f32) {
 
 updateEnemyAttack :: proc(entity: ^Entity, p_pos: [2]f32) -> bool {
 	e_pos := entity.pos
-    data := &entity.data.(EnemyData)
+	data := &entity.data.(EnemyData)
 
 	dist := linalg.length(p_pos - e_pos)
 	cs := camera.state.cs
@@ -142,7 +134,7 @@ updateEnemyAttack :: proc(entity: ^Entity, p_pos: [2]f32) -> bool {
 	if anim_length - data.stun_cooldown >= land_hit_stall && !data.attack_landed {
 		data.attack_landed = true
 
-        p_entity, ok := hm.get(&entities, player_handle) 
+		p_entity, ok := hm.get(&entities, player_handle)
 		p_data, ok1 := &p_entity.data.(PlayerData)
 
 		if !ok || !ok1 do return false

@@ -57,6 +57,22 @@ unLoadFoliage :: proc() {
 }
 
 @(private)
+foliageStateMachineUpdate :: proc(entity: ^Entity, handle: EntityHandle, dt: f32) {
+	data := &entity.data.(FoliageData)
+
+	if !data.is_dying do return
+
+	data.time_left -= dt
+
+	if data.time_left <= 0 {
+		removeEntity(handle)
+		return
+	}
+
+	data.alpha = u8(data.time_left / 0.5 * 255.0)
+}
+
+@(private)
 FoliageAnimationData :: struct {
 	offset_time:          f32,
 	animation_duration:   f32,
@@ -93,10 +109,10 @@ generateFoliageChunk :: proc(i, j: int) {
 	start_x := f32(i) * cnk_sz * cs
 	start_y := f32(j) * cnk_sz * cs
 
-    // AI helped me with generating the deterministic randomness
-    seed := (u64(u32(i)) << 32) | u64(u32(j))
-    r := rand.create(seed)
-    gen := rand.default_random_generator(&r)
+	// AI helped me with generating the deterministic randomness
+	seed := (u64(u32(i)) << 32) | u64(u32(j))
+	r := rand.create(seed)
+	gen := rand.default_random_generator(&r)
 
 	for k in 0 ..< 20 {
 		x := start_x + (cnk_sz * rand.float32(gen) * cs)
@@ -106,6 +122,9 @@ generateFoliageChunk :: proc(i, j: int) {
 
 		f_data := FoliageData {
 			plant_type = int(rand.float32(gen) * f32(len(foliage_textures))),
+			alpha      = 255,
+			time_left  = 0.5,
+			is_dying   = false,
 		}
 
 		f_entity := Entity {

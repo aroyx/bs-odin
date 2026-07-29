@@ -76,6 +76,9 @@ EnemyState :: enum u8 {
 
 FoliageData :: struct {
 	plant_type: int,
+	alpha:      u8,
+	is_dying:   bool,
+	time_left:  f32,
 }
 
 // HealthRegenerate :: union {
