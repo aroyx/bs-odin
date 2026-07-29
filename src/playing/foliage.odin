@@ -11,16 +11,29 @@ import "../utils"
 import rl "vendor:raylib"
 
 @(private)
-FoliageTextureType :: enum u8 {
-	PLANT,
-}
-
-@(private)
-foliage_textures: [FoliageTextureType]rl.Texture
+foliage_textures: [dynamic]rl.Texture
 
 @(private)
 loadFoliage :: proc() {
-	foliage_textures[.PLANT] = rl.LoadTexture("res/images/foliage/plant.png")
+	foliage_textures = make([dynamic]rl.Texture)
+
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant2.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant4.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant5.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant6.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant7.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/medium_plant.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/medium_plant2.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/medium_plant4.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/medium_plant7.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant2.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant3.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant4.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant5.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant6.png"))
+	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant7.png"))
 
 	for i in 0 ..< utils.GRID_SIZE {
 		for j in 0 ..< utils.GRID_SIZE {
@@ -87,7 +100,7 @@ generateFoliageChunk :: proc(i, j: int) {
 		if !terrain.isLand(x, y) do continue
 
 		f_data := FoliageData {
-			plant_type = .PLANT,
+			plant_type = int(rand.float32() * f32(len(foliage_textures))),
 		}
 
 		f_entity := Entity {

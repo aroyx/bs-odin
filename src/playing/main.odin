@@ -132,9 +132,9 @@ render :: proc() {
 
 		char_rekt := rl.Rectangle {
 			x      = pos.x - camTopLeft.x + camera.state.x_offset - cs,
-			y      = pos.y - camTopLeft.y + camera.state.y_offset - cs * 1.5,
+			y      = pos.y - camTopLeft.y + camera.state.y_offset - cs * 3.5,
 			width  = cs * 2,
-			height = cs * 3,
+			height = cs * 5,
 		}
 
 		if !rl.CheckCollisionRecs(rekt, char_rekt) do continue
@@ -232,7 +232,7 @@ drawFoliage :: proc(data: ^FoliageData, pos, camTopLeft: [2]f32) {
 	draw_x := pos.x - camTopLeft.x + camera.state.x_offset
 	draw_y := pos.y - camTopLeft.y + camera.state.y_offset
 
-	scale := cs * 1.5 / tex_h
+	scale := cs * 0.015
 
     offset_y := 0.08 * cs * 2.0
     x := draw_x - (tex_w * scale * 0.5)

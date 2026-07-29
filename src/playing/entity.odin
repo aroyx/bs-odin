@@ -75,7 +75,7 @@ EnemyState :: enum u8 {
 }
 
 FoliageData :: struct {
-	plant_type: FoliageTextureType,
+	plant_type: int,
 }
 
 // HealthRegenerate :: union {
