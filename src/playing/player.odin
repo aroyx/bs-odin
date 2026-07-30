@@ -16,9 +16,7 @@ running := false
 @(private = "file")
 attacking := false
 @(private = "file")
-x_axis: f32
-@(private = "file")
-y_axis: f32
+dir: [2]f32 = {}
 @(private = "file")
 regen_wait: f32 = 1000
 
@@ -29,15 +27,14 @@ playerStateMachineUpdate :: proc(dt: f32) {
 
 	if !ok do return
 
-	x_axis = 0
-	y_axis = 0
+	dir = {}
 	running = false
 	attacking = false
 
-	if rl.IsKeyDown(.W) || rl.IsKeyDown(.UP) do y_axis = -1
-	if rl.IsKeyDown(.S) || rl.IsKeyDown(.DOWN) do y_axis = 1
-	if rl.IsKeyDown(.A) || rl.IsKeyDown(.LEFT) do x_axis = -1
-	if rl.IsKeyDown(.D) || rl.IsKeyDown(.RIGHT) do x_axis = 1
+	if rl.IsKeyDown(.W) || rl.IsKeyDown(.UP) do dir.y = -1
+	if rl.IsKeyDown(.S) || rl.IsKeyDown(.DOWN) do dir.y = 1
+	if rl.IsKeyDown(.A) || rl.IsKeyDown(.LEFT) do dir.x = -1
+	if rl.IsKeyDown(.D) || rl.IsKeyDown(.RIGHT) do dir.x = 1
 
 	running = rl.IsKeyDown(.C)
 	attacking = rl.IsKeyDown(.X)
@@ -81,7 +78,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 	}
 
 	speed: f32 = running ? 20 : 10
-	force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
+	force: box2d.Vec2 = linalg.normalize0(dir) * speed
 	box2d.Body_ApplyForceToCenter(p_entity.physics_id, force, true)
 
 	anim_length := f32(p_data.animation.current_animation_length / 1000)
@@ -138,7 +135,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 				box2d.Body_ApplyLinearImpulseToCenter(e.physics_id, impulse, true)
 			case FoliageData:
 				data.is_dying = true
-                data.time_left = 0.5
+				data.time_left = 0.5
 			}
 		}
 	}
@@ -150,12 +147,12 @@ updatePlayerMovement :: proc(p_data: ^PlayerData) {
 		changePlayerState(p_data, .ATTACK)
 	} else {
 		speed: f32 = running ? 10 : 5
-		force: box2d.Vec2 = {x_axis * speed, y_axis * speed}
+		force: box2d.Vec2 = linalg.normalize0(dir) * speed
 		p_entity := hm.get(&entities, player_handle)
 
 		box2d.Body_ApplyForceToCenter(p_entity.physics_id, force, true)
 
-		if x_axis != 0 || y_axis != 0 {
+		if dir.x != 0 || dir.y != 0 {
 			camera.startTagAlong(p_entity.pos)
 
 			if running {
@@ -167,9 +164,9 @@ updatePlayerMovement :: proc(p_data: ^PlayerData) {
 			changePlayerState(p_data, .IDLE)
 		}
 
-		if x_axis < 0 {
+		if dir.x < 0 {
 			p_data.animation.flip_x = -1
-		} else if x_axis > 0 {
+		} else if dir.x > 0 {
 			p_data.animation.flip_x = 1
 		}
 	}
