@@ -1077,6 +1077,19 @@ x := rand.float32(gen) // given the same i and j; x will always give thes same o
 ```
 
 
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/15af666b-16e9-4596-83d6-fff2eddd0903" alt="see the desc below" width="500"/><br>
+      <b>No boundary water :(</b>
+    </td>
+	<td align="center">
+      <img src="https://github.com/user-attachments/assets/596fe535-232d-4ae8-a9aa-82144d00b65c" alt="see the desc below" width="500"/><br>
+      <b>Yes boundary water! :)</b>
+    </td>
+  </tr>
+</table>
+
 # Devlog #23
 
 |                |                |
@@ -1090,7 +1103,25 @@ Attack button and boundary waters!
 
 So the edges of the screen have been bothering me for a long while now! I've wanted to change them for a long time. Today I changed them, it was a very simple change tho! For the edge tiles, I just made their heights lower the further as they went back.
 
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/15af666b-16e9-4596-83d6-fff2eddd0903" alt="see the desc below" width="500"/><br>
+      <b>No boundary water :(</b>
+    </td>
+	<td align="center">
+      <img src="https://github.com/user-attachments/assets/596fe535-232d-4ae8-a9aa-82144d00b65c" alt="see the desc below" width="500"/><br>
+      <b>Yes boundary water! :)</b>
+    </td>
+  </tr>
+</table>
+
 And added the attack button! The attack button was supposed to be here because I wanted to provide a visual clue to the player that the attack is on "cool down" now. Plus it helps as a helpful button for players with touch inputs!
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ca49dad0-898c-4627-bf5c-35fb2f637c60" alt="read the bottom desc" /><br>
+  <b>A loota trees/plans + buttons!</b>
+</p>
 
 Summary of things I did:
 - Made the Boundary All Water!
@@ -1104,3 +1135,4 @@ Plan for tmrw:
 - Make the Joystick functional
 - Sound effects for enemy and players!
 - Pause Menu
+- add journal #22 pics
