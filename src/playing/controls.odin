@@ -85,8 +85,41 @@ drawControls :: proc() -> bool {
 }
 
 @(private = "file")
-drawJoystick :: proc() {
+is_joystick_held := false
 
+@(private)
+joy_dir := [2]f32{0, 0}
+
+@(private = "file")
+drawJoystick :: proc() {
+	{orui.container(
+			orui.id("joystick"),
+			{
+				position = {type = .Relative, value = {0, 0}},
+				width = orui.fixed(200),
+				height = orui.fixed(200),
+				corner_radius = orui.corner(100),
+				background_color = rl.ColorAlpha(BLUE, 0.6),
+				border = orui.border(6),
+				border_color = rl.ColorAlpha(BLUE, 0.9),
+				margin = {bottom = 80, left = 80},
+			},
+		)
+
+		orui.container(
+			orui.id("jbtn"),
+			{
+				position = {type = .Absolute, value = {0, 0}},
+				placement = {anchor = {0.5, 0.5}, origin = {0.5, 0.5}},
+				width = orui.fixed(100),
+				height = orui.fixed(100),
+				corner_radius = orui.corner(50),
+				background_color = rl.ColorAlpha(BLUE, 0.8),
+				border = orui.border(10),
+				border_color = BLUE,
+			},
+		)
+	}
 }
 
 @(private = "file")
