@@ -114,7 +114,7 @@ generateFoliageChunk :: proc(i, j: int) {
 	r := rand.create(seed)
 	gen := rand.default_random_generator(&r)
 
-	for k in 0 ..< 20 {
+	for k in 0 ..< 60 {
 		x := start_x + (cnk_sz * rand.float32(gen) * cs)
 		y := start_y + (cnk_sz * rand.float32(gen) * cs)
 
