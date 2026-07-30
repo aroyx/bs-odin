@@ -1,6 +1,5 @@
 package playing
 
-import anim "../animations"
 import "../utils"
 
 import "thirdparty:orui"
@@ -15,6 +14,13 @@ CYAN :: rl.Color{0, 210, 210, 255}
 ui_attack := false
 @(private)
 ui_run := false
+
+AtkBtn :: struct {
+	texture:   rl.Texture,
+	cool_down: f32,
+}
+
+attack_button_data: AtkBtn = {}
 
 @(private)
 drawControls :: proc() -> bool {
@@ -95,24 +101,11 @@ drawAttackButton :: proc() {
 				"bg_atk",
 				ui_attack ? rl.ColorAlpha(RED, 0.95) : rl.ColorAlpha(RED, 0.7),
 			),
-            border= orui.border(4),
-            border_color = RED,
+			border = orui.border(4),
+			border_color = RED,
 			padding = orui.padding(10),
 			margin = {bottom = 80, right = 80},
-		},
-	)
-
-	img := new(rl.Texture, allocator = context.temp_allocator)
-	img^ = anim.getPartTex(player_skin.type[.WEAPON], player_skin.tier[.WEAPON], .WEAPON)
-
-	orui.image(
-		orui.id("atk_img"),
-		img,
-		{
-			width = orui.grow(),
-			height = orui.grow(),
-			texture_fit = .Contain,
-			align = {.Center, .Center},
+			custom_event = &attack_button_data,
 		},
 	)
 

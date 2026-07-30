@@ -1,5 +1,6 @@
 package playing
 
+import anim "../animations"
 import "../camera"
 import "../physics"
 import "../terrain"
@@ -29,6 +30,12 @@ enter :: proc() {
 	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)
 	rl.UnloadImage(rotate_phone_img)
 	loadFoliage()
+
+	attack_button_data.texture = anim.getPartTex(
+		player_skin.type[.WEAPON],
+		player_skin.tier[.WEAPON],
+		.WEAPON,
+	)
 }
 
 exit :: proc() {
@@ -174,7 +181,7 @@ render :: proc() {
 }
 
 renderUI :: proc() -> bool {
-    return drawControls()
+	return drawControls()
 }
 
 @(private = "file")

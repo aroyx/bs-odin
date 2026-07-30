@@ -45,6 +45,8 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	p_data.stun_cooldown -= dt
 	regen_wait -= dt
 
+    attack_button_data.cool_down = p_data.attack_cooldown
+
 	if regen_wait <= 0 && p_data.state != .DEAD && p_entity.health < 100 {
 		p_entity.health += 10
 		regen_wait = 1
