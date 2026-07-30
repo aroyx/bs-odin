@@ -48,7 +48,7 @@ exit :: proc() {
 	unLoadFoliage()
 
 	hm.dynamic_destroy(&entities)
-	delete(render_list)
+	clear(&render_list)
 }
 
 update :: proc(dt: f32) {
