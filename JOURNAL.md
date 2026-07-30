@@ -1008,8 +1008,8 @@ Now todos for the next day:
 
 |                |                |
 | -------------- | -------------- |
-| Time           | 5h 33m 52s     |
-| Total Time     | 152h 29m 53s   |
+| Time           | 5h 10m         |
+| Total Time     | 152h 6m 1s     |
 | Date           | 28th July 2026 |
 
 I am so disappointed in myself, I worked hard this time, to try to include some beautiful shaders... they looked ugly. I definitely think that this time (5hrs 33mins) should not be added. As the things I tried to do didn't add up. The results were not good looking at all and I scrapped it all by the end.
@@ -1049,8 +1049,8 @@ I have an idea of how I want to do these things and I think it'll be easier for 
 
 |                |                |
 | -------------- | -------------- |
-| Time           | 4h 22m 45s     |
-| Total Time     | 156h 52m 38s   |
+| Time           | 4h 27m         |
+| Total Time     | 156h 33m 1s     |
 | Date           | 29th July 2026 |
 
 
