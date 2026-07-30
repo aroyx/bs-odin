@@ -1050,7 +1050,7 @@ I have an idea of how I want to do these things and I think it'll be easier for 
 |                |                |
 | -------------- | -------------- |
 | Time           | 4h 27m         |
-| Total Time     | 156h 33m 1s     |
+| Total Time     | 156h 33m 1s    |
 | Date           | 29th July 2026 |
 
 
@@ -1066,7 +1066,6 @@ Things done this devlog:
 - Updated the web version - after 11 long days!
 - Fixed README build instructions
 
-
 AI helped me this time with deterministic randomness. That is [this](https://github.com/aroyx/bs-odin/blob/b45e82cda8cf0f1323be4b21e6e043ba226dd9a7/src/playing/foliage.odin#L112-L115) part of the code:
 
 ```odin
@@ -1078,3 +1077,30 @@ x := rand.float32(gen) // given the same i and j; x will always give thes same o
 ```
 
 
+# Devlog #23
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 4h 32m         |
+| Total Time     | 161h 05m 1s    |
+| Date           | 30th July 2026 |
+
+
+Attack button and boundary waters!
+
+So the edges of the screen have been bothering me for a long while now! I've wanted to change them for a long time. Today I changed them, it was a very simple change tho! For the edge tiles, I just made their heights lower the further as they went back.
+
+And added the attack button! The attack button was supposed to be here because I wanted to provide a visual clue to the player that the attack is on "cool down" now. Plus it helps as a helpful button for players with touch inputs!
+
+Summary of things I did:
+- Made the Boundary All Water!
+- Normalised player movement
+- Implemented the Attack button
+- Fixed a Segfault when restarting, this was due to the unrequired deletion of a dynamic array.
+- Increased foliage amount 3 times
+- Made visual Joystick (non-functional!)
+
+Plan for tmrw:
+- Make the Joystick functional
+- Sound effects for enemy and players!
+- Pause Menu
