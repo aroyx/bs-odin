@@ -1,5 +1,6 @@
 package terrain
 
+import "core:math/linalg"
 import "core:math/noise"
 
 import "../camera"
@@ -89,6 +90,19 @@ calculateNoise :: proc(x: int, y: int) -> f32 {
 
 		amplitude *= terrain_gen_data.decay
 		frequency *= terrain_gen_data.lacunarity
+	}
+
+	// boundary
+	tx := min(x, utils.map_size - x - 1)
+	ty := min(y, utils.map_size - y - 1)
+	min_dist := f32(min(tx, ty))
+
+	boundary_margin: f32 = 10
+
+	if min_dist <= boundary_margin {
+		r: f32 = min_dist / boundary_margin
+		deep_water: f32 = -1.5
+		height = linalg.lerp(deep_water, height, r)
 	}
 
 	return height

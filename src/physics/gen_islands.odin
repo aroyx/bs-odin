@@ -18,19 +18,19 @@ Points :: enum i32 {
 @(private = "file")
 lookup: [16][]Points : {
 	{}, // 0000
-	{.C, .D}, // 0001
-	{.B, .C}, // 0010
-	{.B, .D}, // 0011
+	{.D, .C}, // 0001
+	{.C, .B}, // 0010
+	{.D, .B}, // 0011
 	{.B, .A}, // 0100
-	{.C, .D, .B, .A}, // 0101
-	{.A, .C}, // 0110
-	{.A, .D}, // 0111
+	{.D, .C, .B, .A}, // 0101
+	{.C, .A}, // 0110
+	{.D, .A}, // 0111
 	{.A, .D}, // 1000
 	{.A, .C}, // 1001
-	{.A, .D, .B, .C}, // 1010
+	{.A, .D, .C, .B}, // 1010
 	{.A, .B}, // 1011
 	{.B, .D}, // 1100
-	{.C, .B}, // 1101
+	{.B, .C}, // 1101
 	{.C, .D}, // 1110
 	{}, // 1111
 }
@@ -102,16 +102,6 @@ generateIslands :: proc() {
 					unordered_remove(&vedges, i)
 					looped = false
 					break
-				} else if linalg.distance(head, e.p2) < error {
-					append(&island, e.p1)
-					unordered_remove(&vedges, i)
-					looped = false
-					break
-				} else if linalg.distance(tail, e.p1) < error {
-					inject_at(&island, 0, e.p2)
-					unordered_remove(&vedges, i)
-					looped = false
-					break
 				} else if linalg.distance(tail, e.p2) < error {
 					inject_at(&island, 0, e.p1)
 					unordered_remove(&vedges, i)
@@ -121,29 +111,9 @@ generateIslands :: proc() {
 			}
 		}
 
-		if isClockwise(island[:]) {
-			slice.reverse(island[:])
-		}
-
+		slice.reverse(island[:])
 		append(&islands, island)
 	}
-}
-
-@(private = "file") // this is a maths formula to get a polygon's area. But it
-// only works when the vertices are arranged in clockwise order, otherwise can
-// give negative result
-isClockwise :: proc(island: []linalg.Vector2f32) -> bool {
-	sum: f32 = 0.0
-	n := len(island)
-
-	for i := 0; i < n; i += 1 {
-		p1 := island[i]
-		p2 := island[(i + 1) % n]
-
-		sum += (p2.x - p1.x) * (p2.y + p1.y)
-	}
-
-	return sum > 0
 }
 
 @(private)
