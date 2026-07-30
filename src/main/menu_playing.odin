@@ -1,10 +1,7 @@
 package client
 
 import "../playing"
-import "../utils"
-import "thirdparty:tracy"
 
-import "thirdparty:orui"
 import rl "vendor:raylib"
 
 playing_state: ClientState = {
@@ -35,30 +32,7 @@ on_render :: proc() {
 	rl.ClearBackground({2, 5, 17, 255})
 
 	playing.render()
-
-	{
-		tracy.ZoneN("Orui Playing")
-		orui.container(orui.id(getId()), {width = orui.grow(), height = orui.grow()})
-		{orui.container(orui.id(getId()), {width = orui.grow()})}
-
-		if orui.label(
-			orui.id(getId()),
-			"\u0078",
-			{
-				width = orui.fixed(40),
-				height = orui.fixed(40),
-				align = {.Center, .Center},
-				font = utils.getIconFont(),
-				font_size = 30,
-				color = rl.BLACK,
-				background_color = CYAN,
-				border = getBorder(),
-				border_color = rl.BLACK,
-				corner_radius = orui.corner(10),
-				margin = orui.margin(10),
-			},
-		) {
-			changeState(&end_screen_state)
-		}
+	if playing.renderUI() {
+		changeState(&end_screen_state)
 	}
 }

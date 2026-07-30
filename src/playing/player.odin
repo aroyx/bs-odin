@@ -36,8 +36,10 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	if rl.IsKeyDown(.A) || rl.IsKeyDown(.LEFT) do dir.x = -1
 	if rl.IsKeyDown(.D) || rl.IsKeyDown(.RIGHT) do dir.x = 1
 
-	running = rl.IsKeyDown(.C)
-	attacking = rl.IsKeyDown(.X)
+	dir = linalg.normalize0(dir)
+
+	running = rl.IsKeyDown(.C) || ui_run
+	attacking = rl.IsKeyDown(.X) || ui_attack
 
 	p_data.attack_cooldown -= dt
 	p_data.stun_cooldown -= dt
@@ -78,7 +80,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 	}
 
 	speed: f32 = running ? 20 : 10
-	force: box2d.Vec2 = linalg.normalize0(dir) * speed
+	force: box2d.Vec2 = dir * speed
 	box2d.Body_ApplyForceToCenter(p_entity.physics_id, force, true)
 
 	anim_length := f32(p_data.animation.current_animation_length / 1000)
@@ -108,9 +110,9 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 			if handle == player_handle do continue
 
 			e_pos := e.pos
-			dir := e_pos - p_pos
+			atk_dir := e_pos - p_pos
 
-			if math.abs(dir.x) > cs * 4 || math.abs(dir.y) > cs * 4 do continue // to far to do smth
+			if math.abs(atk_dir.x) > cs * 4 || math.abs(atk_dir.y) > cs * 4 do continue // to far to do smth
 
 			if !rl.CheckCollisionPointRec(e_pos, attak_box) do continue
 
@@ -128,7 +130,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 					changeEnemyState(&data, .HURT)
 				}
 
-				knock_dir := linalg.normalize0(dir)
+				knock_dir := linalg.normalize0(atk_dir)
 				force: f32 = 5
 				impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
 
@@ -147,7 +149,7 @@ updatePlayerMovement :: proc(p_data: ^PlayerData) {
 		changePlayerState(p_data, .ATTACK)
 	} else {
 		speed: f32 = running ? 10 : 5
-		force: box2d.Vec2 = linalg.normalize0(dir) * speed
+		force: box2d.Vec2 = dir * speed
 		p_entity := hm.get(&entities, player_handle)
 
 		box2d.Body_ApplyForceToCenter(p_entity.physics_id, force, true)

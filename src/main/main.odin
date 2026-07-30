@@ -12,9 +12,8 @@ import "../utils"
 import rl "vendor:raylib"
 
 init :: proc() {
-	// rl.SetConfigFlags({.WINDOW_RESIZABLE, .MSAA_4X_HINT})
 	rl.SetTraceLogLevel(.WARNING)
-	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
+	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT, .MSAA_4X_HINT})
 	rl.InitWindow(1280, 720, "BS-Odin")
     rl.InitAudioDevice()
 

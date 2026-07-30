@@ -173,6 +173,10 @@ render :: proc() {
 	rl.EndScissorMode()
 }
 
+renderUI :: proc() -> bool {
+    return drawControls()
+}
+
 @(private = "file")
 renderHealthBar :: proc(health: f32, id: int, pos, camTopLeft: [2]f32, color1, color2: rl.Color) {
 	if health <= 0 do return
