@@ -118,7 +118,21 @@ isChunkVisible :: proc(i, j: int) -> bool {
 	if i < 0 || j < 0 || i >= utils.GRID_SIZE || j >= utils.GRID_SIZE {
 		return false
 	}
-	return chunks[i][j].is_in
+
+	for x in -1 ..= 1 {
+		for y in -1 ..= 1 {
+			ix := i + x
+			iy := j + y
+
+			if ix < 0 || iy < 0 || ix >= utils.GRID_SIZE || iy >= utils.GRID_SIZE do continue
+
+			if chunks[ix][iy].is_in {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 @(private = "file")

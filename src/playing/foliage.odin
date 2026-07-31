@@ -1,6 +1,5 @@
 package playing
 
-import "core:fmt"
 import "core:math/rand"
 import "core:time"
 
@@ -26,7 +25,6 @@ loadFoliage :: proc() {
 		if !rl.FileExists(path) do continue
 
 		append(&foliage_textures, rl.LoadTexture(path))
-        fmt.println(path)
 	}
 
 	for i in 0 ..< utils.GRID_SIZE {
@@ -108,7 +106,7 @@ generateFoliageChunk :: proc(i, j: int) {
 	r := rand.create(seed)
 	gen := rand.default_random_generator(&r)
 
-	for k in 0 ..< 60 {
+	for k in 0 ..< 30 {
 		x := start_x + (cnk_sz * rand.float32(gen) * cs)
 		y := start_y + (cnk_sz * rand.float32(gen) * cs)
 
@@ -121,11 +119,14 @@ generateFoliageChunk :: proc(i, j: int) {
 			is_dying   = false,
 		}
 
+		tex := foliage_textures[f_data.plant_type]
+
 		f_entity := Entity {
 			pos        = {x, y},
 			data       = f_data,
 			physics_id = box2d.BodyId{}, // no physics needed
 			health     = 100,
+			size       = {f32(tex.width) * 0.015, f32(tex.height) * 0.015},
 		}
 
 		handle := addEntity(&f_entity)

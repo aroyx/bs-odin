@@ -14,10 +14,11 @@ import "vendor:box2d"
 Entity :: struct {
 	handle:     EntityHandle,
 	id:         int, // a unique number per entity for animation and shii
+	health:     f32,
 	pos:        linalg.Vector2f32,
 	physics_id: box2d.BodyId,
 	data:       EntityData,
-	health:     f32,
+	size:       [2]f32,
 }
 
 EntityHandle :: distinct hm.Handle32
@@ -147,7 +148,7 @@ generateEntities :: proc() {
 
 	// player physics
 	playerBody := box2d.DefaultBodyDef()
-	playerBody.position = {player_pos.x / camera.state.cs, player_pos.y / camera.state.cs}
+	playerBody.position = {player_pos.x / camera.state.cs, (player_pos.y / camera.state.cs) + 0.01}
 	playerBody.type = .dynamicBody
 	playerBody.fixedRotation = true
 	playerBody.linearDamping = 10
@@ -158,11 +159,14 @@ generateEntities :: proc() {
 	playerShapeDef := box2d.DefaultShapeDef()
 	_ = box2d.CreatePolygonShape(player_physics_id, playerShapeDef, playerBox)
 
+	cs := camera.state.cs
+
 	p_entity := Entity {
 		pos        = player_pos,
 		data       = player_data,
 		physics_id = player_physics_id,
 		health     = 100,
+		size       = {2, 3},
 	}
 
 	player_handle = addEntity(&p_entity)
@@ -197,6 +201,7 @@ generateEntities :: proc() {
 			data       = e_data,
 			physics_id = e_phy_id,
 			health     = 100,
+			size       = {2, 3},
 		}
 
 		addEntity(&e_entity)
