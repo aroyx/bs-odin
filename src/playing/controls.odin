@@ -223,7 +223,7 @@ drawAttackButton :: proc() {
 	if utils.global.options.on_mobile {
 		for i in 0 ..< rl.GetTouchPointCount() {
 			pos := rl.GetTouchPosition(i)
-			if rl.CheckCollisionPointRec(pos, joystick_data) {
+			if rl.CheckCollisionPointRec(pos, attack_button_data.rect) {
 				ui_attack = true
 				break
 			}
