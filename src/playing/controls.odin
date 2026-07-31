@@ -1,6 +1,8 @@
 package playing
 
 import "../utils"
+import "core:fmt"
+import "core:math/linalg"
 
 import "thirdparty:orui"
 import "thirdparty:tracy"
@@ -90,8 +92,20 @@ is_joystick_held := false
 @(private)
 joy_dir := [2]f32{0, 0}
 
+joystick_data: rl.Rectangle = {}
+
+@(private = "file")
+jbtn_offset: [2]f32 = {}
+
+@(private = "file")
+joy_touching := false
+
 @(private = "file")
 drawJoystick :: proc() {
+	if rl.IsMouseButtonReleased(.LEFT) {
+		joy_touching = false
+	}
+
 	{orui.container(
 			orui.id("joystick"),
 			{
@@ -103,13 +117,18 @@ drawJoystick :: proc() {
 				border = orui.border(6),
 				border_color = rl.ColorAlpha(BLUE, 0.9),
 				margin = {bottom = 80, left = 80},
+				custom_event = &joystick_data,
 			},
 		)
+
+		if orui.active() {
+			joy_touching = true
+		}
 
 		orui.container(
 			orui.id("jbtn"),
 			{
-				position = {type = .Absolute, value = {0, 0}},
+				position = {type = .Absolute, value = orui.animate("jbtnst", jbtn_offset, 0.075)},
 				placement = {anchor = {0.5, 0.5}, origin = {0.5, 0.5}},
 				width = orui.fixed(100),
 				height = orui.fixed(100),
@@ -117,9 +136,50 @@ drawJoystick :: proc() {
 				background_color = rl.ColorAlpha(BLUE, 0.8),
 				border = orui.border(10),
 				border_color = BLUE,
+				capture = .False,
+				block = .False,
 			},
 		)
 	}
+
+	if joystick_data.width <= 0 do return
+
+	center: [2]f32 = {
+		joystick_data.x + (joystick_data.width / 2),
+		joystick_data.y + (joystick_data.height / 2),
+	}
+
+	if joy_touching { 	// the joystick was touched using mouse pointer
+		pos := rl.GetMousePosition()
+
+		diff := pos - center
+		dist := linalg.length(diff)
+
+		dir := linalg.normalize0(diff)
+		max_rad := joystick_data.width / 2
+
+		a_dist := min(dist, max_rad)
+
+		jbtn_offset = dir * a_dist
+
+		joy_dir = dir * (a_dist / max_rad)
+
+		return
+	} else {
+		joy_dir = {0, 0}
+		jbtn_offset = {0, 0}
+	}
+
+	// for touch screens
+	for i in 0 ..< rl.GetTouchPointCount() {
+		pos := rl.GetTouchPosition(i)
+
+		if rl.CheckCollisionPointRec(pos, joystick_data) {
+			joy_touching = true
+		}
+	}
+
+	// fmt.println(joystick_data)
 }
 
 @(private = "file")
