@@ -1,7 +1,7 @@
 package playing
 
 import "../utils"
-import "core:fmt"
+
 import "core:math/linalg"
 
 import "thirdparty:orui"
@@ -101,6 +101,9 @@ jbtn_offset: [2]f32 = {}
 joy_touching := false
 
 @(private = "file")
+joy_touch_id: i32 = 0
+
+@(private = "file")
 drawJoystick :: proc() {
 	if rl.IsMouseButtonReleased(.LEFT) {
 		joy_touching = false
@@ -149,7 +152,34 @@ drawJoystick :: proc() {
 		joystick_data.y + (joystick_data.height / 2),
 	}
 
-	if joy_touching { 	// the joystick was touched using mouse pointer
+	touch_pos := rl.GetMousePosition()
+	touching := joy_touching
+
+	// for touch screens
+	touch_touch := false
+	for i in 0 ..< rl.GetTouchPointCount() {
+		id := rl.GetTouchPointId(i)
+		pos := rl.GetTouchPosition(i)
+
+		if joy_touch_id == -1 {
+			if rl.CheckCollisionPointRec(pos, joystick_data) {
+				joy_touch_id = id
+				touch_touch = true
+				touch_pos = pos
+				touching = true
+				break
+			}
+		} else if joy_touch_id == id {
+			touch_touch = true
+			touch_pos = pos
+			touching = true
+			break
+		}
+	}
+
+	if !touch_touch do joy_touch_id = -1
+
+	if touching {
 		pos := rl.GetMousePosition()
 
 		diff := pos - center
@@ -163,23 +193,10 @@ drawJoystick :: proc() {
 		jbtn_offset = dir * a_dist
 
 		joy_dir = dir * (a_dist / max_rad)
-
-		return
 	} else {
 		joy_dir = {0, 0}
 		jbtn_offset = {0, 0}
 	}
-
-	// for touch screens
-	for i in 0 ..< rl.GetTouchPointCount() {
-		pos := rl.GetTouchPosition(i)
-
-		if rl.CheckCollisionPointRec(pos, joystick_data) {
-			joy_touching = true
-		}
-	}
-
-	// fmt.println(joystick_data)
 }
 
 @(private = "file")
