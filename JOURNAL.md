@@ -1142,3 +1142,34 @@ Plan for tmrw:
 - Sound effects for enemy and players!
 - Pause Menu
 - add journal #22 pics
+
+# Devlog #24
+
+|                |                |
+| -------------- | -------------- |
+| Time           | 3h 50m         |
+| Total Time     | 164h 55m 1s    |
+| Date           | 31th July 2026 |
+
+
+Foliage, joystick, touch event improvements.
+
+Summary:
+- Made the joystick functional
+- Fixed issues that came with touch controls (multi touch)
+- Fixed small health bar on mobile devices
+- Changed the foliage from the one illegaly stolen from a screeshot of a ad about foliage sprites. Now I use [Kenny's foliage](https://kenney.nl/assets/foliage-pack) pack! It is free, beautiful and most importantly fits my theme a lot more than what the other one did!
+- Added proper bounding box calculation for all trees, bushes and entities. The prev solution involved setting a single big bounding box for all entities
+- Added transparancy for the bushes that are infront of player
+
+### A huge bother
+One thing that puzzles me a lot is Android support... yk the web version works awesome in android and ios. When I tried my game in my android it felt like the game was having a seizure! I absolutely hated it. I searched for long while, without any good understanding of the issue.
+
+That is going to stay here until I can know the source of the problem.
+
+Anyway, my friend tried it out in his IPad and it worked flawlessly in his :) so that's a plus :D
+
+Plan for tmrw:
+- Pause Menu
+- Sounds for players and enemies, maybe bushes too
+
