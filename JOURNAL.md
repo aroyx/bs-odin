@@ -1022,7 +1022,7 @@ I have saved the code in commits in this repo so I can copy the boilerplate code
 
 <table>
   <tr>
-    <td align="center">
+    <td align="center" colspan="2">
       <img src="https://github.com/user-attachments/assets/29c51fca-e7dc-419a-b3b6-bee20a58776b" alt="see the desc below" width="500"/><br>
       <b>Rendering Artifact due to huge scaling of texture with bilinear filter</b>
     </td>
@@ -1080,12 +1080,18 @@ x := rand.float32(gen) // given the same i and j; x will always give thes same o
 <table>
   <tr>
     <td align="center">
-      <img src="https://github.com/user-attachments/assets/15af666b-16e9-4596-83d6-fff2eddd0903" alt="see the desc below" width="500"/><br>
-      <b>No boundary water :(</b>
+      <img src="https://github.com/user-attachments/assets/1cd77740-1397-4dc4-933f-327ea678bbf6" alt="see the desc below" width="500"/><br>
+      <b>Foliage bug, cluttered</b>
     </td>
 	<td align="center">
-      <img src="https://github.com/user-attachments/assets/596fe535-232d-4ae8-a9aa-82144d00b65c" alt="see the desc below" width="500"/><br>
-      <b>Yes boundary water! :)</b>
+      <img src="https://github.com/user-attachments/assets/9647a305-2290-4bd8-9c7f-2ea0bbff45f4" alt="see the desc below" width="500"/><br>
+      <b>A lotta foliage :)</b>
+    </td>
+  </tr>
+<tr>
+    <td align="center" colspan="2">
+      <img src="https://github.com/user-attachments/assets/25f0cedf-bfbc-40be-96ca-9cfd3286a8cd" alt="see the desc below" width="500"/><br>
+      <b>A lotta foliage, but on land only</b>
     </td>
   </tr>
 </table>
