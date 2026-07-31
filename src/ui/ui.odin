@@ -38,6 +38,8 @@ render :: proc() {
 			data := render_cmd.data.(orui.RenderCommandDataCustom)
 
 			if data.custom_event == &playing.attack_button_data {
+                playing.attack_button_data.rect = data.rectangle
+
 				if playing.attack_button_data.texture.id == 0 do continue
 
 				tex := playing.attack_button_data.texture

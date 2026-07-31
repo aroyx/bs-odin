@@ -20,9 +20,12 @@ ui_run := false
 AtkBtn :: struct {
 	texture:   rl.Texture,
 	cool_down: f32,
+	rect:      rl.Rectangle,
 }
 
 attack_button_data: AtkBtn = {}
+
+joystick_data: rl.Rectangle = {}
 
 @(private)
 drawControls :: proc() -> bool {
@@ -80,7 +83,6 @@ drawControls :: proc() -> bool {
 			)
 			drawAttackButton()
 		}
-
 	}
 
 	return false
@@ -91,8 +93,6 @@ is_joystick_held := false
 
 @(private)
 joy_dir := [2]f32{0, 0}
-
-joystick_data: rl.Rectangle = {}
 
 @(private = "file")
 jbtn_offset: [2]f32 = {}
@@ -105,7 +105,7 @@ joy_touch_id: i32 = 0
 
 @(private = "file")
 drawJoystick :: proc() {
-	if rl.IsMouseButtonReleased(.LEFT) {
+	if !rl.IsMouseButtonDown(.LEFT) {
 		joy_touching = false
 	}
 
@@ -157,6 +157,7 @@ drawJoystick :: proc() {
 
 	// for touch screens
 	touch_touch := false
+
 	for i in 0 ..< rl.GetTouchPointCount() {
 		id := rl.GetTouchPointId(i)
 		pos := rl.GetTouchPosition(i)
@@ -180,9 +181,7 @@ drawJoystick :: proc() {
 	if !touch_touch do joy_touch_id = -1
 
 	if touching {
-		pos := rl.GetMousePosition()
-
-		diff := pos - center
+		diff := touch_pos - center
 		dist := linalg.length(diff)
 
 		dir := linalg.normalize0(diff)
@@ -220,6 +219,16 @@ drawAttackButton :: proc() {
 	)
 
 	ui_attack = orui.clicked() || orui.active()
+
+	if utils.global.options.on_mobile {
+		for i in 0 ..< rl.GetTouchPointCount() {
+			pos := rl.GetTouchPosition(i)
+			if rl.CheckCollisionPointRec(pos, joystick_data) {
+				ui_attack = true
+				break
+			}
+		}
+	}
 }
 
 @(private = "file")
