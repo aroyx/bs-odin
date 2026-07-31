@@ -139,6 +139,7 @@ render :: proc() {
 
 	tracy.ZoneN("Render Entities")
 	p_entity := hm.get(&entities, player_handle)
+	p_pos := p_entity.pos
 
 	// for e, handle in hm.iterate(&it) {
 	for i in 0 ..< len(render_list) {
@@ -153,14 +154,14 @@ render :: proc() {
 		w := e.size.x * camera.state.cs
 		h := e.size.y * camera.state.cs
 
-		char_rekt := rl.Rectangle {
+		bounding_box := rl.Rectangle {
 			x      = pos.x - camTopLeft.x + camera.state.x_offset - (w / 2),
 			y      = pos.y - camTopLeft.y + camera.state.y_offset - h,
 			width  = w,
 			height = h,
 		}
 
-		if !rl.CheckCollisionRecs(rekt, char_rekt) do continue
+		if !rl.CheckCollisionRecs(rekt, bounding_box) do continue
 
 		health := e.health
 
@@ -172,7 +173,7 @@ render :: proc() {
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
 			renderHealthBar(health, e.id, pos, camTopLeft, G1, G2)
 		case FoliageData:
-			drawFoliage(&d, pos, camTopLeft)
+			drawFoliage(&d, pos, camTopLeft, p_pos, bounding_box)
 		}
 	}
 
@@ -248,7 +249,11 @@ renderHealthBar :: proc(health: f32, id: int, pos, camTopLeft: [2]f32, color1, c
 }
 
 @(private = "file")
-drawFoliage :: proc(data: ^FoliageData, pos, camTopLeft: [2]f32) {
+drawFoliage :: proc(
+	data: ^FoliageData,
+	pos, camTopLeft, p_pos: [2]f32,
+	bounding_box: rl.Rectangle,
+) {
 	tex := foliage_textures[data.plant_type]
 
 	if tex.id == 0 do return
@@ -264,6 +269,19 @@ drawFoliage :: proc(data: ^FoliageData, pos, camTopLeft: [2]f32) {
 	offset_y := 0.08 * cs * 4.0
 	x := draw_x - (tex_w * scale * 0.5)
 	y := draw_y - (tex_h * scale) + offset_y
+
+	if !data.is_dying {
+		p_pos_screen :[2]f32= {
+            p_pos.x - camTopLeft.x + camera.state.x_offset, 
+            p_pos.y - camTopLeft.y + camera.state.y_offset, 
+        }
+
+		if rl.CheckCollisionPointRec(p_pos_screen, bounding_box) {
+			data.alpha = 150
+		} else {
+			data.alpha = 255
+		}
+	}
 
 	rl.DrawTextureEx(tex, {x, y}, 0.0, scale, {255, 255, 255, data.alpha})
 }
