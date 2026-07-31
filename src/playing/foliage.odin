@@ -1,5 +1,6 @@
 package playing
 
+import "core:fmt"
 import "core:math/rand"
 import "core:time"
 
@@ -17,23 +18,16 @@ foliage_textures: [dynamic]rl.Texture
 loadFoliage :: proc() {
 	foliage_textures = make([dynamic]rl.Texture)
 
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant2.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant4.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant5.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant6.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/big_plant7.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/medium_plant.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/medium_plant2.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/medium_plant4.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/medium_plant7.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant2.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant3.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant4.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant5.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant6.png"))
-	append(&foliage_textures, rl.LoadTexture("res/images/foliage/plant7.png"))
+	files := rl.LoadDirectoryFiles("res/images/foliage")
+
+	for i in 0 ..< files.count {
+		path := files.paths[i]
+
+		if !rl.FileExists(path) do continue
+
+		append(&foliage_textures, rl.LoadTexture(path))
+        fmt.println(path)
+	}
 
 	for i in 0 ..< utils.GRID_SIZE {
 		for j in 0 ..< utils.GRID_SIZE {
