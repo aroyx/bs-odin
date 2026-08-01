@@ -13,11 +13,16 @@ import rl "vendor:raylib"
 
 init :: proc() {
 	rl.SetTraceLogLevel(.WARNING)
-	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT, .MSAA_4X_HINT})
-	rl.InitWindow(1280, 720, "BS-Odin")
-    rl.InitAudioDevice()
+	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
 
-    loadMenuSounds()
+	if !utils.global.options.on_mobile {
+		rl.SetConfigFlags({.MSAA_4X_HINT})
+	}
+
+	rl.InitWindow(1280, 720, "BS-Odin")
+	rl.InitAudioDevice()
+
+	loadMenuSounds()
 
 	utils.initFont()
 	ui.init()
@@ -58,8 +63,8 @@ close :: proc() {
 	ui.close()
 	utils.deinitFont()
 
-    unloadMenuSounds()
-    rl.CloseAudioDevice()
+	unloadMenuSounds()
+	rl.CloseAudioDevice()
 	rl.CloseWindow()
 }
 
