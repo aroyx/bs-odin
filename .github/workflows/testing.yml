@@ -36,10 +36,13 @@ jobs:
         release: dev-2026-05
 
     - name: Build ImGui
-      uses: actions/checkout@v7
       uses: actions/setup-python@v7
       with:
         python-version: '3.12.3'    
+      run: cd thirdparty/imgui && python build.py
+
+    - name: Build Box2D
+      run: sh $(odin root)/vendor/box2d/build_box2d.sh
 
     - name: Run Script
       run: |
