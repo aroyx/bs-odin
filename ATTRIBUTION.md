@@ -1,0 +1,45 @@
+This file includes attribution to all the sprites/audio/fonts I have used in this game.
+
+You are very well welcome to use the audio I made myself in the `res/audio/menu` directory for any purposes without any attribution (but it'll be appreciated!) 
+
+You do not have permission to use any other resources in the `res` directory! They were made by generous people from various websites. And if you wish to use those resources, head over to their websites and download them yourself, maybe also help the artists while in the process. I've linked all the resources accordingly.
+
+## Sprites
+The character Sprites are taken from [craftpix](https://craftpix.net/)
+1. [Fallenangel](https://craftpix.net/freebies/free-fallen-angel-chibi-2d-game-sprites/)
+2. [Goblin](https://craftpix.net/freebies/free-orc-ogre-and-goblin-chibi-2d-game-sprites/)
+3. [Golem](https://craftpix.net/freebies/free-golems-chibi-2d-game-sprites/)
+4. [Minotaur](https://craftpix.net/freebies/free-minotaur-chibi-character-sprites/)
+5. [Reaper](https://craftpix.net/freebies/free-reaper-man-chibi-2d-game-sprites/)
+6. [Seer](https://craftpix.net/freebies/free-seer-chibi-character-sprites/)
+7. [Skeleton](https://craftpix.net/freebies/chibi-skeleton-warrior-character-sprites/)
+8. [Zombievillager](https://craftpix.net/freebies/free-zombie-villager-chibi-character-sprites/)
+
+The foliage were taken from [Kenny](https://kenney.nl) in this [Foliage Pack](https://kenney.nl/assets/foliage-pack)
+
+## Audio
+
+1. `res/audio/bgm/country.mp3` - [Country.mp3](https://github.com/raysan5/raylib/blob/master/examples/audio/resources/country.mp3) - I found this while browsing raylib's examples/docs website. I liked it so I picked it up from source. You may want to find the original creator of this music and see license before using it in a commercial product.
+2. `res/audio/menu/*.wav` - All the files inside `res/audio/menu` are made by me, use them without asking or attribution in any commercial/non-commercial work. If you do use them lmk I'll be stocked to know!
+3. `res/audio/character/attack`
+    1. [400 Sounds Pack](https://ci.itch.io/400-sounds-pack) - The following files are a part of this pack!
+		1. `kick.wav`
+		2. `punch.wav`
+		3. `punch_2.wav`
+		4. `punch_3.wav`
+		5. `slap.wav`
+		6. `swipe.wav`
+    2. `swoosh*.mp3` all of the swoosh sounds are taken from [pixabay](https://pixabay.com/). Below is the link to all the sounds in random order.
+        1. [universfield-fast-swoosh-383967.mp3](https://cdn.pixabay.com/download/audio/2025/08/03/audio_f3fcedb3d6.mp3?filename=universfield-fast-swoosh-383967.mp3)
+        2. [universfield-swoosh-05-329226.mp3](https://cdn.pixabay.com/download/audio/2025/04/18/audio_7d59b40dd6.mp3?filename=universfield-swoosh-05-329226.mp3)
+        3. [freesound_community-sword-sound-2-36274.mp3](https://cdn.pixabay.com/download/audio/2022/03/10/audio_fd4d7a62d4.mp3?filename=freesound_community-sword-sound-2-36274.mp3)
+        4. [666herohero-slash-21834.mp3](https://cdn.pixabay.com/download/audio/2022/03/01/audio_274b32a58a.mp3?filename=666herohero-slash-21834.mp3)
+        5. [freesound_community-sword-sound-2-36274.mp3](https://cdn.pixabay.com/download/audio/2022/03/10/audio_fd4d7a62d4.mp3?filename=freesound_community-sword-sound-2-36274.mp3)
+
+
+## Fonts
+
+1. [Magic Font](https://fankit.supercell.com/d/vkEdmkUCngKw/font) - I don't think you should use this in commercial products. The original creator **Supercell** never acknowledged this.
+2. [Lucide Icons](https://lucide.dev/)
+3. [ImGuiFontStudio](https://github.com/aiekick/ImGuiFontStudio/) - I didn't want to import the entire Lucide font, so I used this tool to only import the 8-10 icons I required. Also Raylib can't get codepoints in fonts, so I use this tool to generate the codepoints too.
+
