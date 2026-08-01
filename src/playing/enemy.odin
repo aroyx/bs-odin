@@ -13,7 +13,7 @@ speed: f32 : 15.0
 
 @(private)
 enemyStateMachineUpdate :: proc(entity: ^Entity, dt: f32, p_pos: [2]f32) {
-    data := &entity.data.(EnemyData)
+	data := &entity.data.(EnemyData)
 
 	if data.state == .DEAD do return
 
@@ -51,7 +51,7 @@ updateEnemyRoam :: proc(entity: ^Entity, p_pos: [2]f32) {
 
 	if dist <= cs * 10 { 	// player is close attack
 		changeEnemyState(data, .CHASE)
-		playSound(.PLAYER_SHOCKED)
+		playSound(.GASP)
 	} else if linalg.length(e_pos - data.target_pos) < cs * 0.1 { 	// already arrived at target.
 		if data.animation.current_animation != .IDLE {
 			changeAnimation(&data.animation, .IDLE)
@@ -153,6 +153,8 @@ updateEnemyAttack :: proc(entity: ^Entity, p_pos: [2]f32) -> bool {
 		impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
 
 		box2d.Body_ApplyLinearImpulseToCenter(p_entity.physics_id, impulse, true)
+
+		playSound(.ATTACK)
 	}
 
 	if data.stun_cooldown <= 0 {
@@ -182,8 +184,10 @@ changeEnemyState :: proc(data: ^EnemyData, new_state: EnemyState) {
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 	case .HURT:
 		changeAnimation(&data.animation, .HURT)
+        playSound(.HURT)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 	case .DEAD:
+		playSound(.DYING)
 		changeAnimation(&data.animation, .DYING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 	}

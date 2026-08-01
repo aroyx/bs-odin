@@ -118,6 +118,8 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 		}
 
 		it := hm.iterator_make(&entities)
+		attack_hit := false
+
 		for e, handle in hm.iterate(&it) {
 			if handle == player_handle do continue
 
@@ -147,10 +149,21 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 				impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
 
 				box2d.Body_ApplyLinearImpulseToCenter(e.physics_id, impulse, true)
+
+				// sounds
+				playSound(.ATTACK)
+				attack_hit = true
 			case FoliageData:
 				data.is_dying = true
 				data.time_left = 0.5
+
+				playSound(.CUT_FOLIAGE)
+				attack_hit = true
 			}
+		}
+
+		if !attack_hit {
+			playSound(.ATTACK_MISS)
 		}
 	}
 }
@@ -216,14 +229,13 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		attack_landed = false
 		regen_wait = 5
-		playSound(.PLAYER_ATTACK)
 	case .HURT:
 		changeAnimation(&data.animation, .HURT)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		regen_wait = 5
-		playSound(.PLAYER_HURT)
+		playSound(.HURT)
 	case .DEAD:
-		playSound(.PLAYER_DEAD)
+		playSound(.DYING)
 		changeAnimation(&data.animation, .DYING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 	}
