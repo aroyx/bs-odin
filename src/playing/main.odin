@@ -21,6 +21,8 @@ lock_camera := false
 
 player_skin: CharacterSkin
 
+playing_end := false
+
 @(private = "file")
 rotate_phone_texture: rl.Texture
 
@@ -185,7 +187,7 @@ render :: proc() {
 }
 
 renderUI :: proc() -> bool {
-	return drawControls()
+	return drawControls() || playing_end
 }
 
 @(private = "file")

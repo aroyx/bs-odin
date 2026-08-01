@@ -3,6 +3,7 @@ package playing
 import hm "core:container/handle_map"
 import "core:math"
 import "core:math/linalg"
+import "core:time"
 
 import "../camera"
 
@@ -19,6 +20,8 @@ attacking := false
 dir: [2]f32 = {}
 @(private = "file")
 regen_wait: f32 = 1000
+@(private = "file")
+death_time: time.Time
 
 @(private)
 playerStateMachineUpdate :: proc(dt: f32) {
@@ -75,7 +78,14 @@ playerStateMachineUpdate :: proc(dt: f32) {
 			regen_wait = 5
 		}
 
-	case .DEAD, .JUMP:
+	case .DEAD:
+		diff := f32(time.duration_milliseconds(time.diff(death_time, time.now())))
+
+        if diff >= 3000 {
+            playing_end = true
+        }
+
+	case .JUMP:
 	// revive? idk
 	}
 
@@ -234,11 +244,12 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		regen_wait = 5
 		playSound(.HURT)
-        camera.startShake(100)
+		camera.startShake(100)
 	case .DEAD:
 		playSound(.DYING)
 		changeAnimation(&data.animation, .DYING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
-        camera.startShake(300)
+		camera.startShake(300)
+		death_time = time.now()
 	}
 }
