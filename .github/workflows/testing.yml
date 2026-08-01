@@ -1,0 +1,40 @@
+name: Build
+permissions:
+  contents: read
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'thirdparty/**'
+  pull_request:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+      fail-fast: false
+      
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Make odin available
+      uses: laytan/setup-odin@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        release: dev-2026-05
+    
+    - name: Run Script
+      run: |
+        ./build.sh
