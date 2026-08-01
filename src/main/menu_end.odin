@@ -28,7 +28,7 @@ on_update :: proc(dt: f32) {
 
 @(private = "file")
 on_render :: proc() {
-	rl.ClearBackground({80, 30, 80, 255})
+	rl.ClearBackground(RED)
 	// utils.drawCenteredText("Game End!", .LARGE, tint = rl.WHITE, y_offset = -12)
 	// utils.drawCenteredText("Thank you very much for playing!!", tint = rl.WHITE, y_offset = 24)
 

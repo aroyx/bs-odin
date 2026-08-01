@@ -22,6 +22,10 @@ init :: proc() {
 	rl.InitWindow(1280, 720, "BS-Odin")
 	rl.InitAudioDevice()
 
+	when ODIN_OS == .JS {
+		rl.SetAudioStreamBufferSizeDefault(128)
+	}
+
 	loadMenuSounds()
 
 	utils.initFont()
