@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14]
+      fail-fast: false
+      
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Install Odin
+      uses: laytan/setup-odin@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        release: dev-2026-05
+
+    - name: Install Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: '3.12.2'    
+
+    - name: Build ImGui
+      run: cd thirdparty/imgui && python build.py
+
+    - name: Build Box2D
+      run: sh $(odin root)/vendor/box2d/build_box2d.sh
+
+    - name: Run Script
+      run: |
+        ./build.sh b rel
+        mv bin/release/bs_odin/bs_odin bs_odin
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v3
+      with:
+        files: |
+          bs_odin
+          res/
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
