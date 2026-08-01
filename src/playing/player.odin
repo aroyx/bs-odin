@@ -24,6 +24,8 @@ regen_wait: f32 = 1000
 death_time: time.Time
 @(private = "file")
 footstep_timer: f32 = 0.5
+@(private = "file")
+breathed := false
 
 @(private)
 playerStateMachineUpdate :: proc(dt: f32) {
@@ -66,6 +68,11 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	if regen_wait <= 0 && p_data.state != .DEAD && p_entity.health < 100 {
 		p_entity.health += 10
 		regen_wait = 1
+
+        if !breathed {
+            playSound(.BREATHE)
+            breathed = true
+        }
 	}
 
 	switch p_data.state {
@@ -79,6 +86,7 @@ playerStateMachineUpdate :: proc(dt: f32) {
 		if p_data.stun_cooldown <= 0 {
 			changePlayerState(p_data, .IDLE)
 			regen_wait = 5
+            breathed = false
 		}
 
 	case .DEAD:
@@ -250,10 +258,12 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		attack_landed = false
 		regen_wait = 5
+        breathed = false
 	case .HURT:
 		changeAnimation(&data.animation, .HURT)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		regen_wait = 5
+        breathed = false
 		playSound(.HURT)
 		camera.startShake(100)
 	case .DEAD:
