@@ -32,6 +32,9 @@ render_list: [dynamic]EntityHandle
 @(private)
 player_handle: EntityHandle
 
+@(private)
+total_enemies := 0
+
 EntityData :: union {
 	PlayerData,
 	EnemyData,
@@ -260,6 +263,10 @@ addEntity :: proc(entity: ^Entity) -> EntityHandle {
 	handle := hm.add(&entities, entity^)
 
 	append(&render_list, handle)
+
+	if _, ok := entity.data.(EnemyData); ok {
+        total_enemies += 1
+	}
 
 	return handle
 }

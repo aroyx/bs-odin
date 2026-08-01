@@ -54,6 +54,10 @@ exit :: proc() {
 }
 
 update :: proc(dt: f32) {
+    if total_enemies <= 0 {
+        playing_end = true
+    }
+
 	physics.physicsTick()
 
 	camera.update()

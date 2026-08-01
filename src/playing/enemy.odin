@@ -191,5 +191,6 @@ changeEnemyState :: proc(data: ^EnemyData, new_state: EnemyState) {
 		playSound(.DYING)
 		changeAnimation(&data.animation, .DYING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
+        total_enemies -= 1
 	}
 }
