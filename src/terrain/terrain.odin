@@ -49,7 +49,7 @@ isLand :: proc(world_x, world_y: f32) -> bool {
 		return false
 	}
 
-	if terrain[gx][gy] > terrain_layers[.SAND].threshold {
+	if terrain[gx][gy] > terrain_layers[.GRASS].threshold {
 		return true
 	}
 	return false
