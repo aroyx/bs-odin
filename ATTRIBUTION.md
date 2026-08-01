@@ -43,6 +43,10 @@ The foliage were taken from [Kenny](https://kenney.nl) in this [Foliage Pack](ht
         [freesound_community-grunts-33249.mp3](https://cdn.pixabay.com/download/audio/2022/03/10/audio_95a6828981.mp3?filename=freesound_community-grunts-33249.mp3) - this sound is a merged clip of multiple gruns, I just broke them up in different clips using [audiomulticut.com](https://audiomulticut.com/split)
     5. `dying*.mp3` [pixabay](https://pixabay.com)
         [kuzu420-dying-guy-288051.mp3](https://cdn.pixabay.com/download/audio/2025/01/15/audio_e8bd09f330.mp3?filename=kuzu420-dying-guy-288051.mp3)
+    6. `footstep*.mp3` [pixabay](https://pixabay.com)
+        1. [data_pion-st1-footstep-sfx-323053.mp3](https://cdn.pixabay.com/download/audio/2025/04/04/audio_821051ee1e.mp3?filename=data_pion-st1-footstep-sfx-323053.mp3)
+        2. [data_pion-st3-footstep-sfx-323056.mp3](https://cdn.pixabay.com/download/audio/2025/04/04/audio_021bd323e7.mp3?filename=data_pion-st3-footstep-sfx-323056.mp3)
+        3. [data_pion-st2-footstep-sfx-323055.mp3](https://cdn.pixabay.com/download/audio/2025/04/04/audio_ccffc153ef.mp3?filename=data_pion-st2-footstep-sfx-323055.mp3)
 
 
 ## Fonts
