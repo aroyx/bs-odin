@@ -22,6 +22,8 @@ dir: [2]f32 = {}
 regen_wait: f32 = 1000
 @(private = "file")
 death_time: time.Time
+@(private = "file")
+footstep_timer: f32 = 0.5
 
 @(private)
 playerStateMachineUpdate :: proc(dt: f32) {
@@ -47,6 +49,7 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	p_data.attack_cooldown -= dt
 	p_data.stun_cooldown -= dt
 	regen_wait -= dt
+	footstep_timer -= dt
 
 	attack_button_data.cool_down = p_data.attack_cooldown
 
@@ -81,9 +84,9 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	case .DEAD:
 		diff := f32(time.duration_milliseconds(time.diff(death_time, time.now())))
 
-        if diff >= 3000 {
-            playing_end = true
-        }
+		if diff >= 3000 {
+			playing_end = true
+		}
 
 	case .JUMP:
 	// revive? idk
@@ -194,8 +197,16 @@ updatePlayerMovement :: proc(p_data: ^PlayerData) {
 
 			if running {
 				changePlayerState(p_data, .RUN)
+				if footstep_timer <= 0 {
+					footstep_timer = 0.25
+					playSound(.FOOTSTEP)
+				}
 			} else {
 				changePlayerState(p_data, .WALK)
+				if footstep_timer <= 0 {
+					footstep_timer = 0.5
+					playSound(.FOOTSTEP)
+				}
 			}
 		} else {
 			changePlayerState(p_data, .IDLE)
