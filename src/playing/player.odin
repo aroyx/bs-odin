@@ -234,9 +234,11 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		regen_wait = 5
 		playSound(.HURT)
+        camera.startShake(100)
 	case .DEAD:
 		playSound(.DYING)
 		changeAnimation(&data.animation, .DYING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
+        camera.startShake(300)
 	}
 }

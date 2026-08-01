@@ -1,8 +1,10 @@
 package camera
 
+import "core:math/rand"
 import "core:math"
 import "core:math/ease"
 import "core:math/linalg"
+import "core:time"
 
 import "../utils"
 
@@ -71,7 +73,7 @@ elapsed: f32 = 0.0
 dur: f32 = 0.5 // sec
 
 startTagAlong :: proc(pos: linalg.Vector2f32, pDur: f32 = 0.5) {
-    dur = pDur
+	dur = pDur
 	elapsed = 0
 	startPos = camPos
 	targetPos = pos
@@ -80,19 +82,45 @@ startTagAlong :: proc(pos: linalg.Vector2f32, pDur: f32 = 0.5) {
 update :: proc() {
 	if elapsed >= dur {
 		camPos = targetPos
-		return
+	} else {
+		elapsed += auto_cast utils.dt
+		if elapsed > dur do elapsed = dur
+
+		t := elapsed / dur
+		// e := ease.exponential_out(t) // dur = 1.5
+		e := ease.cubic_out(t) // dur = 0.5
+
+		camPos = startPos + (targetPos - startPos) * e
 	}
 
-	elapsed += auto_cast utils.dt
-	if elapsed > dur do elapsed = dur
-
-	t := elapsed / dur
-	// e := ease.exponential_out(t) // dur = 1.5
-	e := ease.cubic_out(t) // dur = 0.5
-
-	camPos = startPos + (targetPos - startPos) * e
+	shakeCamera()
 }
 
 isMoving :: proc() -> bool {
 	return elapsed < dur
+}
+
+@(private = "file")
+shake_start: time.Time
+
+@(private = "file")
+shake_dur: f32
+
+@(private = "file")
+shakeCamera :: proc() {
+	diff := f32(time.duration_milliseconds(time.diff(shake_start, time.now())))
+
+	if diff >= shake_dur do return
+
+    a := diff / shake_dur
+
+    offset_x := (rand.float32() * 2.0 - 1) * state.cs * a * 0.5
+    offset_y := (rand.float32() * 2.0 - 1) * state.cs * a * 0.5
+
+    camPos += {offset_x, offset_y}
+}
+
+startShake :: proc(dur: f32) {
+	shake_dur = dur
+	shake_start = time.now()
 }
