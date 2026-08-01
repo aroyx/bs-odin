@@ -49,6 +49,8 @@ The foliage were taken from [Kenny](https://kenney.nl) in this [Foliage Pack](ht
         3. [data_pion-st2-footstep-sfx-323055.mp3](https://cdn.pixabay.com/download/audio/2025/04/04/audio_ccffc153ef.mp3?filename=data_pion-st2-footstep-sfx-323055.mp3)
     7. `breathe.mp3` [pixabay](https://pixabay.com)
         [amber2023-inhale-exhale-230173.mp3](https://cdn.pixabay.com/download/audio/2024/08/05/audio_5b806d63e5.mp3?filename=amber2023-inhale-exhale-230173.mp3)
+    8. `heartbeat.mp3` [pixabay](https://pixabay.com)
+        [brvhrtz-heartbeat-02-225103.mp3](https://cdn.pixabay.com/download/audio/2024/07/16/audio_349cb270cb.mp3?filename=brvhrtz-heartbeat-02-225103.mp3)
 
 
 ## Fonts
