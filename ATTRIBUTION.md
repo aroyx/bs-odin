@@ -21,7 +21,7 @@ The foliage were taken from [Kenny](https://kenney.nl) in this [Foliage Pack](ht
 
 1. `res/audio/bgm/country.mp3` - [Country.mp3](https://github.com/raysan5/raylib/blob/master/examples/audio/resources/country.mp3) - I found this while browsing raylib's examples/docs website. I liked it so I picked it up from source. You may want to find the original creator of this music and see license before using it in a commercial product.
 2. `res/audio/menu/*.wav` - All the files inside `res/audio/menu` are made by me, use them without asking or attribution in any commercial/non-commercial work. If you do use them lmk I'll be stocked to know!
-3. `res/audio/character/attack`
+3. `res/audio/character/`
     1. [400 Sounds Pack](https://ci.itch.io/400-sounds-pack) - The following files are a part of this pack!
 		1. `kick.wav`
 		2. `punch.wav`
@@ -35,6 +35,14 @@ The foliage were taken from [Kenny](https://kenney.nl) in this [Foliage Pack](ht
         3. [freesound_community-sword-sound-2-36274.mp3](https://cdn.pixabay.com/download/audio/2022/03/10/audio_fd4d7a62d4.mp3?filename=freesound_community-sword-sound-2-36274.mp3)
         4. [666herohero-slash-21834.mp3](https://cdn.pixabay.com/download/audio/2022/03/01/audio_274b32a58a.mp3?filename=666herohero-slash-21834.mp3)
         5. [freesound_community-sword-sound-2-36274.mp3](https://cdn.pixabay.com/download/audio/2022/03/10/audio_fd4d7a62d4.mp3?filename=freesound_community-sword-sound-2-36274.mp3)
+    3. `gasp*.mp3` [pixabay](https://pixabay.com)
+        1. [freesound_community-shocked-gasp-105959.mp3](https://cdn.pixabay.com/download/audio/2022/03/24/audio_61f76c9069.mp3?filename=freesound_community-shocked-gasp-105959.mp3)
+        2. [freesound_community-gasp-82819.mp3](https://cdn.pixabay.com/download/audio/2022/03/15/audio_e444a05ecc.mp3?filename=freesound_community-gasp-82819.mp3)
+        3. [freesound_community-male-gasp-1-7183.mp3](https://cdn.pixabay.com/download/audio/2021/08/09/audio_110f4765f6.mp3?filename=freesound_community-male-gasp-1-7183.mp3)
+    4. `hurt*.mp3` [pixabay](https://pixabay.com)
+        [freesound_community-grunts-33249.mp3](https://cdn.pixabay.com/download/audio/2022/03/10/audio_95a6828981.mp3?filename=freesound_community-grunts-33249.mp3) - this sound is a merged clip of multiple gruns, I just broke them up in different clips using [audiomulticut.com](https://audiomulticut.com/split)
+    5. `dying*.mp3` [pixabay](https://pixabay.com)
+        [kuzu420-dying-guy-288051.mp3](https://cdn.pixabay.com/download/audio/2025/01/15/audio_e8bd09f330.mp3?filename=kuzu420-dying-guy-288051.mp3)
 
 
 ## Fonts
