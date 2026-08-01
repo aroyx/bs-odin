@@ -175,6 +175,7 @@ changeEnemyState :: proc(data: ^EnemyData, new_state: EnemyState) {
 		data.target_time = 0
 	case .CHASE:
 		changeAnimation(&data.animation, .RUNNING)
+        playSound(.ROAR)
 	case .ATTACK:
 		data.state = .ATTACK
 		data.attack_cooldown = 1

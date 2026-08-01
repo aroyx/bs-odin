@@ -11,6 +11,7 @@ SoundType :: enum u8 {
 	GASP,
 	HURT,
 	DYING,
+	ROAR,
 }
 
 @(private = "file") // each soundtype can have multiple sound (variations)
@@ -59,6 +60,11 @@ loadSounds :: proc() {
 	loadSound(.DYING, "res/audio/character/dying2.mp3")
 	loadSound(.DYING, "res/audio/character/dying3.mp3")
 	loadSound(.DYING, "res/audio/character/dying4.mp3")
+
+	loadSound(.ROAR, "res/audio/character/roar1.mp3")
+	loadSound(.ROAR, "res/audio/character/roar2.mp3")
+	loadSound(.ROAR, "res/audio/character/roar3.mp3")
+	loadSound(.ROAR, "res/audio/character/roar4.mp3")
 }
 
 @(private)
