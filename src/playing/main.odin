@@ -38,6 +38,8 @@ enter :: proc() {
 		player_skin.tier[.WEAPON],
 		.WEAPON,
 	)
+
+    playing_end = false
 }
 
 exit :: proc() {

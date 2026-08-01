@@ -174,6 +174,7 @@ generateEntities :: proc() {
 
 	player_handle = addEntity(&p_entity)
 
+    total_enemies = 0
 	for i in 1 ..< 128 {
 		// enemy animation
 		e_pos := getRandomLandPosition()
