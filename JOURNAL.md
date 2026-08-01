@@ -1089,9 +1089,13 @@ x := rand.float32(gen) // given the same i and j; x will always give thes same o
     </td>
   </tr>
 <tr>
-    <td align="center" colspan="2">
+    <td align="center">
       <img src="https://github.com/user-attachments/assets/25f0cedf-bfbc-40be-96ca-9cfd3286a8cd" alt="see the desc below" width="500"/><br>
       <b>A lotta foliage, but on land only</b>
+    </td>
+	<td align="center">
+      <img src="https://github.com/user-attachments/assets/b0ee1c3c-8480-4cfd-b0d7-493b90d4fe3a" alt="see the desc below" width="500"/><br>
+      <b>Variation in Foliage!</b>
     </td>
   </tr>
 </table>
@@ -1161,6 +1165,19 @@ Summary:
 - Changed the foliage from the one illegaly stolen from a screeshot of a ad about foliage sprites. Now I use [Kenny's foliage](https://kenney.nl/assets/foliage-pack) pack! It is free, beautiful and most importantly fits my theme a lot more than what the other one did!
 - Added proper bounding box calculation for all trees, bushes and entities. The prev solution involved setting a single big bounding box for all entities
 - Added transparancy for the bushes that are infront of player
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/34fc1166-9d01-4c1f-9e64-14af8e6076e7" alt="see the desc below" width="500"/><br>
+      <b>The new foliage textures</b>
+    </td>
+	<td align="center">
+      <img src="https://github.com/user-attachments/assets/96521c10-9fa4-4fda-88a4-92a965f15689" alt="see the desc below" width="500"/><br>
+      <b>Transparency at work</b>
+    </td>
+  </tr>
+</table>
 
 ### A huge bother
 One thing that puzzles me a lot is Android support... yk the web version works awesome in android and ios. When I tried my game in my android it felt like the game was having a seizure! I absolutely hated it. I searched for long while, without any good understanding of the issue.
