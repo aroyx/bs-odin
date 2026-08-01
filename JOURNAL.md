@@ -1190,3 +1190,45 @@ Plan for tmrw:
 - Pause Menu
 - Sounds for players and enemies, maybe bushes too
 
+# Devlog #25
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 6h           |
+| Total Time     | 170h 55m 1s  |
+| Date           | 1st Aug 2026 |
+
+
+So, today was a productive day. I spent the whole day finding sound effects, using them appropriately and doing other fixes along the way. A lotta things got done today! A total of astounding 37 commits!
+Though a lot of them were of github workflow fixes, I will not let the truth come between my glory.
+
+Here's a summary of it:
+- Added LICENSE (MIT)
+- Disable MSAAx4 for mobile devices
+- Fix player spawning in water
+- Added ATTRIBUTION.md to give credits to all the artists. This took a long time ngl!
+- Added automatic github build for MacOS and Linux.
+    - Also tried for Windows, didn't work. Since I do not have the expertise of Windows, I will leave that be for now
+- Added automatic github release when I release a tag of this format (`v*.*.*`)
+- Added Sound effects for the following:
+	- attack
+    - attack_miss
+    - cut_foliage
+    - gasp
+    - hurt
+    - dying
+    - roar
+    - footstep
+    - breathe
+    - heartbeat
+- Added game lose/win condition
+- Added screen shake for when hit/die
+- A lotta fixes for all the things I implemented
+
+## Another problem
+
+The world of WASM is a pain, IDK why but the audio in web builds are sometimes lagging behind a whole second or are perfect to the millisecond. I tried to find a fix by googling, but the fixes didn't work.
+
+## Really close to v1
+
+So, I want to ship the game very soon. I will work tmrw on the text that says "Num of players left", "Pause Menu", AI usage markdown file. Also make a video explaining the game i think. Maybe change the starting size to 20? IDK
