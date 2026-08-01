@@ -8,7 +8,7 @@
 # Heads up: "release" takes time to build due to `-o:speed`. In my device it it 5x slower.
 
 ## Defaults
-EXE="client"
+EXE="bs_odin"
 MODE="run"
 FLAGS="-show-timings"
 ENABLE_TRACY=false
@@ -19,7 +19,7 @@ EMSCRIPTEN_SDK_DIR="$HOME/repos/emsdk"
 
 for arg in "$@"; do
     case $arg in
-        client|c)    EXE="client"         ;;
+        client|c)    EXE="bs_odin"         ;;
         wasm|w)      EXE="wasm"           ;;
         run|r)       MODE="run"           ;;
         build|b)     MODE="build"         ;;
@@ -29,7 +29,7 @@ for arg in "$@"; do
     esac
 done
 
-if [[ "$EXE" == "client" ]]; then
+if [[ "$EXE" == "bs_odin" ]]; then
     SRC_DIR="src/main/desktop"
 elif [[ "$EXE" == "wasm" ]]; then
     SRC_DIR="src/main/web"
