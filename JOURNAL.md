@@ -1232,3 +1232,7 @@ The world of WASM is a pain, IDK why but the audio in web builds are sometimes l
 ## Really close to v1
 
 So, I want to ship the game very soon. I will work tmrw on the text that says "Num of players left", "Pause Menu", AI usage markdown file. Also make a video explaining the game i think. Maybe change the starting size to 20? IDK
+
+Anyway, so here's a video of me getting bullied by npcs, just a headsup, after I recorded this some more sound effects were added like "footsteps", "heartbeat", breathing"
+
+https://github.com/user-attachments/assets/07f1ad4a-a81a-4924-be24-4bfa5e5fc0ad
