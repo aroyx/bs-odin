@@ -42,16 +42,18 @@ jobs:
     - name: Build Box2D
       run: sh $(odin root)/vendor/box2d/build_box2d.sh
 
-    - name: Run Script
+    - name: Run Script & Produce the zip
       run: |
         ./build.sh b rel
-        mv bin/release/bs_odin/bs_odin bs_odin
+        mkdir bs_odin_${{ matrix.os }}
+        mv bin/release/bs_odin/bs_odin bs_odin_${{ matrix.os }}/bs_odin
+        mv res/ bs_odin_${{ matrix.os }}/res
+        zip -r bs_odin_${{ matrix.os }}.zip bs_odin_${{ matrix.os }}
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v3
       with:
         files: |
-          bs_odin
-          res/
+          bs_odin_${{ matrix.os }}.zip
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
