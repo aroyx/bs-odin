@@ -34,7 +34,13 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         release: dev-2026-05
-    
+
+    - name: Build ImGui
+      uses: actions/checkout@v7
+      uses: actions/setup-python@v7
+      with:
+        python-version: '3.12.3'    
+
     - name: Run Script
       run: |
         ./build.sh
