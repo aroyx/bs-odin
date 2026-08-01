@@ -49,11 +49,13 @@ jobs:
     - name: Run Script
       run: |
         ./build.sh b rel
+        mv bin/release/bs_odin/bs_odin bs_odin
+
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v7
       with:
         name: bs_odin_${{ matrix.os }}
         path: | 
-          bin/release/bs_odin/bs_odin
+          bs_odin
           res/
