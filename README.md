@@ -1,6 +1,8 @@
 # BS-Odin
 A stupidly simple game. Where you either kill or die. A game focused on performance, resource utilisation and being cool!
 
+This game was made during the [Horizons](https://horizons.hackclub.com/) event by [Hackclub](https://hackclub.com). If you are 18 or under, you have join hackclub and have fun!!!!!!!
+
 <img width="960" height="540" alt="Frame 1" src="https://github.com/user-attachments/assets/0254c3e5-eae3-4d10-9979-c4f6b1c8fae4" />
 
 https://github.com/user-attachments/assets/e6a52292-9994-4728-8318-c3a1fb2e6908
@@ -109,6 +111,10 @@ and tbh, that should be it, lemme know if you face any problems
         - Modified [Bindings](https://gitlab.com/L-4/odin-imgui) [MIT]
     - [orui](https://github.com/andzdroid/orui)
         - This has been modified to work under WASM, ie I just changed the Virtual mem Arena Allocator to mem Arena Allocator. I've opened a pull request. Hopefully they accept :pray:
+
+## Development
+
+All work is done in main branch but I will move work to another branch till the project isn't reviewed in horizons.
 
 ## LICENSE
 
