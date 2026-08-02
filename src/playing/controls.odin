@@ -101,9 +101,6 @@ jbtn_offset: [2]f32 = {}
 joy_touching := false
 
 @(private = "file")
-joy_touch_id: i32 = 0
-
-@(private = "file")
 drawJoystick :: proc() {
 	if !rl.IsMouseButtonDown(.LEFT) {
 		joy_touching = false
@@ -155,30 +152,15 @@ drawJoystick :: proc() {
 	touch_pos := rl.GetMousePosition()
 	touching := joy_touching
 
-	// for touch screens
-	touch_touch := false
-
 	for i in 0 ..< rl.GetTouchPointCount() {
-		id := rl.GetTouchPointId(i)
 		pos := rl.GetTouchPosition(i)
 
-		if joy_touch_id == -1 {
-			if rl.CheckCollisionPointRec(pos, joystick_data) {
-				joy_touch_id = id
-				touch_touch = true
-				touch_pos = pos
-				touching = true
-				break
-			}
-		} else if joy_touch_id == id {
-			touch_touch = true
+		if rl.CheckCollisionPointRec(pos, joystick_data) {
 			touch_pos = pos
 			touching = true
 			break
 		}
 	}
-
-	if !touch_touch do joy_touch_id = -1
 
 	if touching {
 		diff := touch_pos - center
