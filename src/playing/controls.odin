@@ -9,6 +9,7 @@ import "thirdparty:orui"
 import "thirdparty:tracy"
 import rl "vendor:raylib"
 
+YELLOW :: rl.Color{254, 217, 183, 255}
 WHITE :: rl.Color{253, 252, 220, 255}
 BLUE :: rl.Color{0, 129, 167, 255}
 RED :: rl.Color{240, 113, 103, 255}

@@ -145,7 +145,7 @@ bottomButtons :: proc() {
 		},
 	)
 
-	if bottomButtonsFn("save button", "\ue14d", " Save", BLUE) {
+	if bottomButtonsFn("save button", "\ue14d", " Save", YELLOW) {
 		utils.global = local_global
 		audio.playMenuClickedSound()
 	}
