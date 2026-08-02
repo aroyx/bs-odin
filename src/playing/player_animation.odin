@@ -24,12 +24,12 @@ AnimationState :: struct {
 }
 
 randomSkin :: proc(skin: ^CharacterSkin) {
-	for part in anim.BodyPart {
+	for part in CharacterPartGroup {
 		type := anim.CharacterType(rand.int_max(len(anim.CharacterType)))
 		tier := anim.CharacterTier(rand.int_max(len(anim.CharacterTier)))
 
-		skin.type[part] = type
-		skin.tier[part] = tier
+        setPartType(part, type, skin)
+        setPartTier(part, tier, skin)
 	}
 }
 
