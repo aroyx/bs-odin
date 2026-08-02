@@ -132,4 +132,5 @@ All AI usage:
 5. Other than those, I sometimes used AI to find answers to some questions like "is my game fully statically linked", "how do I publish my wasm game built using odin and raylib in my website that uses cloudflare?".
 6. I also asked it questions to some problems but it's answers didn't satisfy my needs/my game architecture so I never used its outputted code. Example: "audio delay in WASM Raylib how to fix", "multi-touch not working in wasm raylib, src/playing/controls.odin: <insert file contents>"
 
+**AI has not written a single word in this readme or any other markdown files in this repo.** The journal is very personal and written to the best of my capabilities.
 In my game of about 7k lines as of writing, I'd doubt AI wrote any more than 300 lines.
