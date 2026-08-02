@@ -1,7 +1,7 @@
 package playing
 
-import "../utils"
 import "../audio"
+import "../utils"
 
 import "core:math/linalg"
 
@@ -61,8 +61,8 @@ drawControls :: proc() {
 				margin = orui.margin(10),
 			},
 		) {
-            pause_menu = true
-            audio.playMenuClickedSound()
+			pause_menu = true
+			audio.playMenuClickedSound()
 		}
 	}
 
@@ -104,10 +104,6 @@ joy_touching := false
 
 @(private = "file")
 drawJoystick :: proc() {
-	if !rl.IsMouseButtonDown(.LEFT) {
-		joy_touching = false
-	}
-
 	{orui.container(
 			orui.id("joystick"),
 			{
@@ -122,10 +118,6 @@ drawJoystick :: proc() {
 				custom_event = &joystick_data,
 			},
 		)
-
-		if orui.active() {
-			joy_touching = true
-		}
 
 		orui.container(
 			orui.id("jbtn"),
@@ -152,15 +144,26 @@ drawJoystick :: proc() {
 	}
 
 	touch_pos := rl.GetMousePosition()
-	touching := joy_touching
+	touching := false
 
 	for i in 0 ..< rl.GetTouchPointCount() {
 		pos := rl.GetTouchPosition(i)
 
-		if rl.CheckCollisionPointRec(pos, joystick_data) {
+		is_near := joy_touching && linalg.distance(pos, center) < joystick_data.width * 2
+
+		if rl.CheckCollisionPointRec(pos, joystick_data) || is_near {
 			touch_pos = pos
 			touching = true
 			break
+		}
+	}
+
+	if !touching && rl.IsMouseButtonDown(.LEFT) {
+		pos := rl.GetMousePosition()
+		is_near := joy_touching && linalg.distance(pos, center) < joystick_data.width * 2
+		if rl.CheckCollisionPointRec(pos, joystick_data) || is_near {
+			touch_pos = pos
+			touching = true
 		}
 	}
 
@@ -180,6 +183,8 @@ drawJoystick :: proc() {
 		joy_dir = {0, 0}
 		jbtn_offset = {0, 0}
 	}
+
+	joy_touching = touching
 }
 
 @(private = "file")
@@ -202,17 +207,23 @@ drawAttackButton :: proc() {
 		},
 	)
 
-	ui_attack = orui.clicked() || orui.active()
+	ui_attack = false
 
-	if utils.global.options.on_mobile {
-		for i in 0 ..< rl.GetTouchPointCount() {
+	tcnt := rl.GetTouchPointCount()
+	if tcnt > 0 {
+		for i in 0 ..< tcnt {
 			pos := rl.GetTouchPosition(i)
 			if rl.CheckCollisionPointRec(pos, attack_button_data.rect) {
 				ui_attack = true
 				break
 			}
 		}
-	}
+	} else {
+        pos := rl.GetMousePosition()
+        if rl.IsMouseButtonDown(.LEFT) && rl.CheckCollisionPointRec(pos, attack_button_data.rect) {
+            ui_attack = true
+        }
+    }
 }
 
 @(private = "file")
