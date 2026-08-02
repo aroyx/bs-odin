@@ -220,7 +220,7 @@ renderHealthBar :: proc(health: f32, id: int, pos, camTopLeft: [2]f32, color1, c
 	draw_y := pos.y - camTopLeft.y + camera.state.y_offset + (cs * 0.25)
 
 	max_w := cs * 2
-	h := max(cs / 3, 8)
+	h := linalg.clamp(cs / 3, 8, 20)
 
 	x := draw_x - (max_w * 0.5)
 	y := draw_y - (cs * 3)
