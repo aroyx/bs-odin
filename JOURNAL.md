@@ -1236,3 +1236,32 @@ So, I want to ship the game very soon. I will work tmrw on the text that says "N
 Anyway, so here's a video of me getting bullied by npcs, just a headsup, after I recorded this some more sound effects were added like "footsteps", "heartbeat", breathing"
 
 https://github.com/user-attachments/assets/07f1ad4a-a81a-4924-be24-4bfa5e5fc0ad
+
+# Devlog #26
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 4h 23m       |
+| Total Time     | 175h 18m 1s  |
+| Date           | 2nd Aug 2026 |
+
+I shipped the game today! I feel such relief in myself today. I do not know, but I feel like this deadline of Horizons approaching was acting as anxiety for me. There's still some days to spare, but I am not able to let my anxiety get harsher anymore. It has been about 2 months since I have started working on this game, I love odin the more I use it. And I love working on the game a lot! I will still work on this game. College has yet to start, before that I have to give it my all!
+
+So today, I did a lot of things! Noting them here:
+- Added Pause menu
+- Show the text that says "Num of players left" but as "Number of enemies alive: 67"
+- Zoomed in a little bit, we should appreciate the artist's work more properly. Such exquisiteness!
+- Tried to fix multi-touch with no avail
+- Added AI declaration in README
+- Made the favicon.ico for game website, SHIT, I SHOULD'VE USED THAT FOR MY DESKTOP ALSO!! RN IT HAS NOTHING :noooooo:
+- Finally shipped the project.
+
+Okay, I read an instruction something around "You cannot work on this project until it is reviewed". So I will do my next work in another branch. I haven't yet thought about a name, but I will pretty soon!
+
+And now this probably concludes my last game on Hackclub. I will still keep journalling tho! It is mad fun!! I still sometimes go back to see my [Splitwave Journal](https://github.com/aroyx/SplitWave/blob/main/JOURNAL.md). Maybe I will come back to see this one day, so I will continue this :)
+
+Notes for tmrw:
+- Add the favicon for desktop icons
+- Clean the mess of code I created while in the rush
+- Fix architecture, performance, resource utilisation
+- Bombs, I need to make a plan on how I will do that
