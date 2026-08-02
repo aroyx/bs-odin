@@ -3,6 +3,17 @@ A stupidly simple game. Where you either kill or die. A game focused on performa
 
 <img width="960" height="540" alt="Frame 1" src="https://github.com/user-attachments/assets/0254c3e5-eae3-4d10-9979-c4f6b1c8fae4" />
 
+https://github.com/user-attachments/assets/e6a52292-9994-4728-8318-c3a1fb2e6908
+
+## Controls
+- `C` to sprint
+- `X` to attack
+- `WASD or UP/Down/Left/Right`  to move
+- Mouse to navigate around
+
+## Journal
+The entire process of making this game has been journal-ed in [JOURNAL.md](https://github.com/aroyx/bs-odin/blob/main/JOURNAL.md), all the resources used to make this game has been documented in [ATTRIBUTION.md](https://github.com/aroyx/bs-odin/blob/main/ATTRIBUTION.md) 
+
 ## Features Added
 
 - Terrain Generation
@@ -12,17 +23,15 @@ A stupidly simple game. Where you either kill or die. A game focused on performa
     - Chunking
 - Character
     - Keyboard inputs
-- Animations
-- Character Selector
+    - Animations
+    - Customisation
 - Enemies
     - Randomly generate their skin
     - Enemy AI
-- Performant
-- Resource efficient
+- Performant (The desktop version always stays under 5ms in a pretty washed laptop)
+- Resource efficient (Under 120mb ram usage)
 - Foliage
-- Mouse inputs
-- Point System
-- Screen Inputs for Android and IOS
+- Touch Screen Inputs for Android and IOS (Multi Touch doesn't work)
 - Automatic building for MacOS, Linux and ~~Windows~~
 
 ## Features to be added
@@ -30,7 +39,7 @@ A stupidly simple game. Where you either kill or die. A game focused on performa
 - Modifiers related to the weapons, and other wardrobe
 - Persistent Foliage removal
 - Slide
-- Arrows
+- Arrows (ARCHER enemies!!!)
 - Bombs - high priority when the game is stable
 
 ## Running The Game
