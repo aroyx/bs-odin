@@ -19,19 +19,34 @@ A stupidly simple game. Where you either kill or die. A game focused on performa
     - Enemy AI
 - Performant
 - Resource efficient
+- Foliage
+- Mouse inputs
+- Point System
+- Screen Inputs for Android and IOS
+- Automatic building for MacOS, Linux and ~~Windows~~
 
 ## Features to be added
-
 - Progression
-- Foliage
-- Point System
-- Mouse inputs
-- Screen Inputs for Android and IOS
-- Automatic building for Windows, MacOS and Linux
+- Modifiers related to the weapons, and other wardrobe
+- Persistent Foliage removal
+- Slide
+- Arrows
+- Bombs - high priority when the game is stable
+
+## Running The Game
+
+The game works perfectly fine in the Web for Desktop devices and is hosted [here](bs-odin.onkush.dev). I also have added smart phone support, but multi-touch doesn't work yet. So you won't be able to run and atack at the same time. You have to stop before attacking. Also the terrain shakes in weaker Android phones (I have no idea in the entire world why).
+
+If you are from Linux or MacOS you can also download the auto compiled binaries from releases section. Unzip the archive and run the binary.
+
+Odin tries its best to statically link all the files, still please open an issue if you get an error like this:
+```
+error while loading shared libraries...
+```
 
 ## Building
 
-Follow these steps to build this game.
+Follow these steps to build this game. On Linux or MacOS. I am not a Windows user and such I do not know how things are there, I tried to build it in Windows but with no avail. Feel free to contribute windows instructions if you think you know about it.
 
 > [!NOTE] 
 > You won't be able to build this for Web (WASM), because I for WASM to build I had to make some changes to the Box2D library that is bundled with Odin.
@@ -47,16 +62,17 @@ git clone --depth=1 https://github.com/aroyx/bs-odin && cd bs-odin
 
 2. Install Dependencies
 
-- [Odin installation](https://odin-lang.org/docs/install/)
+- [Odin vdev-2026-05 installation](https://github.com/odin-lang/Odin/releases/tag/dev-2026-05), [Odin Install Help](https://odin-lang.org/docs/install/)
 - [Raylib v5.5](https://github.com/raysan5/raylib/releases#release-5.5)
 - [Python 3](https://www.python.org/downloads/) - Required for imgui bindings
 
 Make sure they are in your **PATH**!
 
-3. Build Dependency (ImGui)
+3. Build Dependency (ImGui & box2d)
 
 ```bash
 cd thirdparty/imgui/ && python3 build.py
+sh $(odin root)/vendor/box2d/build_box2d.sh
 ```
 
 4. Build Game
@@ -67,6 +83,10 @@ cd thirdparty/imgui/ && python3 build.py
 
 and tbh, that should be it, lemme know if you face any problems
 
+## Known Issues
+1. Terrain (not camera) shakes when moving in some Android devices (specifically on slower devices) on Web Build
+2. Multi-Touch doesn't work in WASM (Library issue, I am pretty sure I am doing everything alr, I spent like more 3hrs trying to fix this on 2nd Aug)
+3. In WASM the audio doesn't start until you press the screen once. (This is a wasm limitation can't do anything)
 
 ## Libraries used
 - Odin Core Library (`linalg`, `math`, `fmt`, etc)
