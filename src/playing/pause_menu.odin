@@ -1,62 +1,21 @@
-package client
-
-import "thirdparty:orui"
-import "thirdparty:tracy"
+package playing
 
 import "../audio"
 import "../utils"
 
+import "thirdparty:orui"
 import rl "vendor:raylib"
-
-options_state: ClientState = {
-	on_enter  = on_enter,
-	on_update = on_update,
-	on_render = on_render,
-}
 
 @(private = "file")
 local_global: utils.GlobalState = {}
 
 @(private = "file")
-on_enter :: proc() {
-	local_global = utils.global
-}
-
-@(private = "file")
-on_update :: proc(dt: f32) {
-	if rl.IsKeyPressed(.ESCAPE) {
-		changeState(&main_menu_state)
-	}
-    rl.UpdateMusicStream(audio.bgm)
-}
-
-@(private = "file")
-MenuState :: enum u8 {
-	DISPLAY = 0,
-	GAME    = 1,
-	MISC    = 2,
-}
-
-@(private = "file")
-menu := MenuState.DISPLAY
-
-@(private = "file")
-cstr: [len(MenuState)]string = {"Display", "Game", "Misc"}
-
-@(private = "file")
-active_bar: u8 = 0
-
-@(private = "file")
-a, b, c, d, e := false, false, false, false, false
-
-@(private = "file")
 show_save_diag := false
 
-@(private = "file")
-on_render :: proc() {
+@(private)
+show_pause_menu :: proc() {
 	rl.ClearBackground(rl.SKYBLUE)
 
-	tracy.ZoneN("Orui Options")
 	orui.container(
 		orui.id("main container"), //
 		{
@@ -83,8 +42,6 @@ on_render :: proc() {
 		},
 	)
 
-	tabBar(cstr[:], active = &active_bar)
-
 	{
 		orui.container(
 			orui.id("checkboxes container"),
@@ -92,7 +49,7 @@ on_render :: proc() {
 				width = orui.grow(),
 				height = orui.grow(),
 				direction = .TopToBottom,
-				border = {left = 4, right = 4},
+				border = {top = 4, left = 4, right = 4},
 				border_color = rl.BLACK,
 				background_color = CYAN,
 				gap = 10,
@@ -102,16 +59,7 @@ on_render :: proc() {
 			},
 		)
 
-		menu = auto_cast active_bar
-
-		switch (menu) {
-		case .DISPLAY:
-			display_menu_show()
-		case .GAME:
-			gameMenuShow()
-		case .MISC:
-			miscMenuShow()
-		}
+		display_menu_show()
 	}
 
 	bottomButtons()
@@ -121,25 +69,6 @@ on_render :: proc() {
 display_menu_show :: proc() {
 	uiCheckbox("l+1", "Show FPS", &local_global.options.show_fps)
 	uiCheckbox("c+1", "Mobile Navigation", &local_global.options.on_mobile)
-	uiCheckbox("e+1", "This doesn't work :)", &e)
-	uiCheckbox("b+1", "Don't press this :O", &b)
-}
-
-@(private = "file")
-gameMenuShow :: proc() {
-	uiCheckbox("a+1", "Tails", &a)
-	uiCheckbox("b+1", "Head", &b)
-	uiCheckbox("c+1", "Makes a ", &c)
-	uiCheckbox("d+1", "vector together", &d)
-	uiCheckbox("e+1", "These's nothign to look here", &e)
-}
-
-@(private = "file")
-miscMenuShow :: proc() {
-	uiCheckbox("e+1", "God", &e)
-	uiCheckbox("d+1", "please forbdid a child", &d)
-	uiCheckbox("b+1", "a child who has", &b)
-	uiCheckbox("a+1", "Too much fun", &a)
 }
 
 @(private = "file")
@@ -200,46 +129,6 @@ uiCheckbox :: proc(id: string, text: string, var: ^bool) {
 	)
 }
 
-@(private = "file")
-tabBar :: proc(names: []string, active: ^u8) {
-	orui.container(
-		orui.id("tabbar container"),
-		{
-			direction = .LeftToRight,
-			width = orui.grow(),
-			height = orui.fixed(70),
-			background_color = {34, 84, 122, 255},
-			gap = 20,
-			padding = orui.padding(10),
-			corner_radius = {top_left = 10, top_right = 10},
-			border = orui.border(4),
-			border_color = rl.BLACK,
-		},
-	)
-
-	for name, i in names {
-		col: rl.Color = (active^ == u8(i)) ? {128, 237, 153, 255} : {129, 195, 215, 255}
-		if orui.label(
-			orui.id("tab buttosn", i),
-			name,
-			{
-				color = rl.BLACK,
-				align = {.Center, .Center},
-				font_size = 20,
-				width = orui.grow(),
-				height = orui.grow(),
-				background_color = orui.animate("bg-col", col, 0.3),
-				corner_radius = orui.corner(4),
-				border_color = rl.BLACK,
-				border = getBorder(),
-			},
-		) {
-			active^ = u8(i)
-            audio.playMenuClickedSound()
-		}
-	}
-}
-
 bottomButtons :: proc() {
 	orui.container(
 		orui.id("bottom buttons"),
@@ -256,18 +145,25 @@ bottomButtons :: proc() {
 		},
 	)
 
-	if bottomButtonsFn("back button", "\ue06e", "Back", RED) {
+	if bottomButtonsFn("save button", "\ue14d", " Save", BLUE) {
+		utils.global = local_global
+		audio.playMenuClickedSound()
+	}
+
+	if bottomButtonsFn("resume", "\ue13c", " Resume", CYAN) {
 		if utils.global != local_global {
 			show_save_diag = true
 		} else {
-			changeState(&main_menu_state)
+			pause_menu = false
 		}
 
 		audio.playMenuClickedSound()
 	}
 
-	if bottomButtonsFn("save button", "\ue14d", " Save", CYAN) {
+
+	if bottomButtonsFn("quit button", "\u0078", " Quit", RED) {
 		utils.global = local_global
+        playing_end = true
 		audio.playMenuClickedSound()
 	}
 }
@@ -291,6 +187,43 @@ bottomButtonsFn :: proc(id: string, icon: string, text: string, col: rl.Color) -
 			border_color = rl.BLACK,
 		},
 	)
+}
+
+@(private)
+iconWithText :: proc(id: string, icon: string, text: string, config: orui.ElementConfig) -> bool {
+	ctn_config := config
+	ctn_config.direction = .LeftToRight
+	ctn_config.align_content = .Center
+	ctn_config.align_main = .Center
+	ctn_config.gap = 10
+
+	orui.container(orui.id(id, 1), ctn_config)
+
+	orui.label(
+		orui.id(id, 2),
+		icon,
+		{
+			width = orui.fixed(config.font_size),
+			height = orui.grow(),
+			font = utils.getIconFont(),
+			font_size = config.font_size + 4,
+			color = rl.BLACK,
+			align = {.Center, .Center},
+			block = .False,
+		},
+	)
+
+	text_config := config
+	text_config.background_color = rl.BLANK
+	text_config.width = orui.fit()
+	text_config.border_color = rl.BLACK
+	text_config.border = {}
+	text_config.corner_radius = {}
+	text_config.block = .False
+
+	orui.label(orui.id(id, 3), text, text_config)
+
+	return orui.clicked(orui.to_id(id, 1))
 }
 
 @(private = "file")
@@ -350,14 +283,14 @@ showSaveDiagloge :: proc() {
 		)
 
 		if diaglogueButton("discard btn", "\ue18e", "Discard", RED) {
-			changeState(&main_menu_state)
+			pause_menu = false
 			show_save_diag = false
 			audio.playMenuClickedSound()
 		}
 
 		if diaglogueButton("save btn", "\ue14d", "Save", CYAN) {
 			utils.global = local_global
-			changeState(&main_menu_state)
+			pause_menu = false
 			show_save_diag = false
 			audio.playMenuClickedSound()
 		}

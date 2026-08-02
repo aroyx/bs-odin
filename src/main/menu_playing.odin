@@ -31,8 +31,7 @@ on_update :: proc(dt: f32) {
 on_render :: proc() {
 	rl.ClearBackground({2, 5, 17, 255})
 
-	playing.render()
-	if playing.renderUI() {
+	if playing.render() {
 		changeState(&end_screen_state)
 	}
 }

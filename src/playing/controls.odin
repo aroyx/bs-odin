@@ -1,6 +1,7 @@
 package playing
 
 import "../utils"
+import "../audio"
 
 import "core:math/linalg"
 
@@ -8,6 +9,7 @@ import "thirdparty:orui"
 import "thirdparty:tracy"
 import rl "vendor:raylib"
 
+WHITE :: rl.Color{253, 252, 220, 255}
 BLUE :: rl.Color{0, 129, 167, 255}
 RED :: rl.Color{240, 113, 103, 255}
 CYAN :: rl.Color{0, 210, 210, 255}
@@ -28,7 +30,7 @@ attack_button_data: AtkBtn = {}
 joystick_data: rl.Rectangle = {}
 
 @(private)
-drawControls :: proc() -> bool {
+drawControls :: proc() {
 	tracy.ZoneN("Orui Playing")
 
 	// main controls
@@ -37,13 +39,13 @@ drawControls :: proc() -> bool {
 		{width = orui.grow(), height = orui.grow(), direction = .TopToBottom},
 	)
 
-	// top part - exit button
+	// top part - pause button
 	{orui.container(orui.id("tp"), {height = orui.grow(), width = orui.grow()})
 		{orui.container(orui.id("tmp"), {width = orui.grow()})}
 
 		if orui.label(
-			orui.id("xicn"),
-			"\u0078",
+			orui.id("pisn"),
+			"\ue12e",
 			{
 				width = orui.fixed(40),
 				height = orui.fixed(40),
@@ -58,7 +60,8 @@ drawControls :: proc() -> bool {
 				margin = orui.margin(10),
 			},
 		) {
-			return true
+            pause_menu = true
+            audio.playMenuClickedSound()
 		}
 	}
 
@@ -84,8 +87,6 @@ drawControls :: proc() -> bool {
 			drawAttackButton()
 		}
 	}
-
-	return false
 }
 
 @(private = "file")

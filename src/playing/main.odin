@@ -26,6 +26,9 @@ playing_end := false
 @(private = "file")
 rotate_phone_texture: rl.Texture
 
+@(private)
+pause_menu := false
+
 enter :: proc() {
 	rotate_phone_img := rl.LoadImage("res/images/rotate_phone.png")
 	rotate_phone_texture = rl.LoadTextureFromImage(rotate_phone_img)
@@ -39,7 +42,8 @@ enter :: proc() {
 		.WEAPON,
 	)
 
-    playing_end = false
+	playing_end = false
+    pause_menu = false
 }
 
 exit :: proc() {
@@ -56,9 +60,13 @@ exit :: proc() {
 }
 
 update :: proc(dt: f32) {
-    if total_enemies <= 0 {
-        playing_end = true
-    }
+	if pause_menu {
+		return
+	}
+
+	if total_enemies <= 0 {
+		playing_end = true
+	}
 
 	physics.physicsTick()
 
@@ -101,7 +109,12 @@ update :: proc(dt: f32) {
 @(private = "file")
 draw_physics := false
 
-render :: proc() {
+render :: proc() -> bool {
+	if pause_menu {
+		show_pause_menu()
+		return playing_end
+	}
+
 	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
 	if utils.global.options.on_mobile && win_w / win_h < 1.0 { 	// in potrait mode
 		tw, th := f32(rotate_phone_texture.width), f32(rotate_phone_texture.height)
@@ -110,7 +123,7 @@ render :: proc() {
 		pos := rl.Vector2{(win_w - tw * scale) / 2.0, (win_h - th * scale) / 2.0}
 
 		rl.DrawTextureEx(rotate_phone_texture, pos, 0.0, scale, rl.WHITE)
-		return
+		return false
 	}
 
 	terrain.renderTerrain()
@@ -190,10 +203,10 @@ render :: proc() {
 	}
 
 	rl.EndScissorMode()
-}
 
-renderUI :: proc() -> bool {
-	return drawControls() || playing_end
+    drawControls()
+
+    return playing_end
 }
 
 @(private = "file")
@@ -279,10 +292,10 @@ drawFoliage :: proc(
 	y := draw_y - (tex_h * scale) + offset_y
 
 	if !data.is_dying {
-		p_pos_screen :[2]f32= {
-            p_pos.x - camTopLeft.x + camera.state.x_offset, 
-            p_pos.y - camTopLeft.y + camera.state.y_offset, 
-        }
+		p_pos_screen: [2]f32 = {
+			p_pos.x - camTopLeft.x + camera.state.x_offset,
+			p_pos.y - camTopLeft.y + camera.state.y_offset,
+		}
 
 		if rl.CheckCollisionPointRec(p_pos_screen, bounding_box) {
 			data.alpha = 150
