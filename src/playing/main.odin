@@ -45,6 +45,7 @@ enter :: proc() {
 
 	playing_end = false
 	pause_menu = false
+    local_global = utils.global
 }
 
 exit :: proc() {

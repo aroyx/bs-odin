@@ -6,7 +6,7 @@ import "../utils"
 import "thirdparty:orui"
 import rl "vendor:raylib"
 
-@(private = "file")
+@(private)
 local_global: utils.GlobalState = {}
 
 @(private = "file")
