@@ -5,6 +5,7 @@ import "../camera"
 import "../physics"
 import "../terrain"
 import "../utils"
+import "core:fmt"
 
 import hm "core:container/handle_map"
 import "core:math"
@@ -43,7 +44,7 @@ enter :: proc() {
 	)
 
 	playing_end = false
-    pause_menu = false
+	pause_menu = false
 }
 
 exit :: proc() {
@@ -111,7 +112,7 @@ draw_physics := false
 
 render :: proc() -> bool {
 	if pause_menu {
-		show_pause_menu()
+		showPauseMenu()
 		return playing_end
 	}
 
@@ -204,9 +205,10 @@ render :: proc() -> bool {
 
 	rl.EndScissorMode()
 
-    drawControls()
+	drawControls()
+	drawNumEnemyAlive()
 
-    return playing_end
+	return playing_end
 }
 
 @(private = "file")
@@ -305,4 +307,19 @@ drawFoliage :: proc(
 	}
 
 	rl.DrawTextureEx(tex, {x, y}, 0.0, scale, {255, 255, 255, data.alpha})
+}
+
+@(private = "file")
+drawNumEnemyAlive :: proc() {
+	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
+	sz := utils.FontSize.MEDIUM
+	fs := utils.getFontSize(sz)
+
+	txt := fmt.ctprintf("Number of enemies alive: %d", total_enemies)
+	txt_size := rl.MeasureTextEx(utils.getFont(sz)^, txt, fs, 1)
+
+	x := (win_w - txt_size.x) * 0.5
+    y := win_h - max(win_h * 0.1, txt_size.y)
+
+    utils.drawText(txt, sz, {x, y}, rl.WHITE)
 }

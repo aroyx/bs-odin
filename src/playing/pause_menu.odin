@@ -13,7 +13,7 @@ local_global: utils.GlobalState = {}
 show_save_diag := false
 
 @(private)
-show_pause_menu :: proc() {
+showPauseMenu :: proc() {
 	rl.ClearBackground(rl.SKYBLUE)
 
 	orui.container(
@@ -59,14 +59,14 @@ show_pause_menu :: proc() {
 			},
 		)
 
-		display_menu_show()
+		displayMenuShow()
 	}
 
 	bottomButtons()
 }
 
 @(private = "file")
-display_menu_show :: proc() {
+displayMenuShow :: proc() {
 	uiCheckbox("l+1", "Show FPS", &local_global.options.show_fps)
 	uiCheckbox("c+1", "Mobile Navigation", &local_global.options.on_mobile)
 }

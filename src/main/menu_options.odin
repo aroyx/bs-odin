@@ -106,7 +106,7 @@ on_render :: proc() {
 
 		switch (menu) {
 		case .DISPLAY:
-			display_menu_show()
+			displayMenuShow()
 		case .GAME:
 			gameMenuShow()
 		case .MISC:
@@ -118,7 +118,7 @@ on_render :: proc() {
 }
 
 @(private = "file")
-display_menu_show :: proc() {
+displayMenuShow :: proc() {
 	uiCheckbox("l+1", "Show FPS", &local_global.options.show_fps)
 	uiCheckbox("c+1", "Mobile Navigation", &local_global.options.on_mobile)
 	uiCheckbox("e+1", "This doesn't work :)", &e)
