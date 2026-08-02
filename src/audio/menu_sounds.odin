@@ -1,4 +1,4 @@
-package client
+package audio
 
 import "core:fmt"
 import "core:math/rand"
@@ -15,7 +15,6 @@ menu_click_sounds: [6]audio.Sound
 
 bgm: rl.Music
 
-@(private)
 loadMenuSounds :: proc() {
 	for i in 0 ..< len(menu_hover_sounds) {
 		path := fmt.ctprintf("res/audio/menu/menu_hover_%d.wav", i + 1)
@@ -31,7 +30,6 @@ loadMenuSounds :: proc() {
     rl.PlayMusicStream(bgm)
 }
 
-@(private)
 unloadMenuSounds :: proc() {
 	for sound in menu_hover_sounds {
 		audio.unloadSound(sound)
@@ -39,13 +37,11 @@ unloadMenuSounds :: proc() {
     rl.UnloadMusicStream(bgm)
 }
 
-@(private)
 playMenuHoveredSound :: proc() {
 	i := rand.int_max(len(menu_hover_sounds))
 	audio.playSound(&menu_hover_sounds[i])
 }
 
-@(private)
 playMenuClickedSound :: proc() {
 	i := rand.int_max(len(menu_click_sounds))
 	audio.playSound(&menu_click_sounds[i])

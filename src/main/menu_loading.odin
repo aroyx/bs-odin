@@ -1,5 +1,6 @@
 package client
 
+import "../audio/"
 import "../camera"
 import "../physics"
 import "../playing"
@@ -69,7 +70,7 @@ on_update :: proc(dt: f32) {
 
 	case .DONE:
 		changeState(&playing_state)
-		rl.StopMusicStream(bgm)
+		rl.StopMusicStream(audio.bgm)
 	}
 
 	clearId()

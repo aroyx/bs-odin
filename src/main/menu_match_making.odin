@@ -1,5 +1,6 @@
 package client
 
+import "../audio"
 import "../utils"
 
 import "thirdparty:orui"
@@ -16,7 +17,7 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		changeState(&main_menu_state)
 	}
-    rl.UpdateMusicStream(bgm)
+	rl.UpdateMusicStream(audio.bgm)
 }
 
 @(private = "file")
@@ -114,12 +115,12 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 	)
 
 	if clicked {
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	}
 
 	if orui.hovered(orui.to_id(id)) {
 		if last_hovered != id {
-			playMenuHoveredSound()
+			audio.playMenuHoveredSound()
 			last_hovered = id
 		}
 	} else {

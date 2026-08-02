@@ -6,6 +6,7 @@ import "core:strings"
 import "thirdparty:tracy"
 
 import anim "../animations"
+import "../audio"
 import "../playing"
 import "../utils"
 
@@ -25,7 +26,7 @@ on_update :: proc(dt: f32) {
 	}
 
 	updateAnimPlayer()
-    rl.UpdateMusicStream(bgm)
+	rl.UpdateMusicStream(audio.bgm)
 }
 
 @(private = "file")
@@ -119,7 +120,7 @@ on_render :: proc() {
 				},
 			) {
 				changeState(&main_menu_state)
-				playMenuClickedSound()
+				audio.playMenuClickedSound()
 			}
 
 			if iconWithText(
@@ -140,7 +141,7 @@ on_render :: proc() {
 			) {
 				set_enabled = false
 				playing.playerSkinRandomize()
-				playMenuClickedSound()
+				audio.playMenuClickedSound()
 			}
 		}
 	}
@@ -210,7 +211,7 @@ uiSetSelector :: proc() {
 		new_tier := anim.CharacterTier(current_set_index % num_tiers)
 
 		playing.setSet(new_type, new_tier)
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	}
 
 	{
@@ -262,7 +263,7 @@ uiSetSelector :: proc() {
 		new_tier := anim.CharacterTier(current_set_index % num_tiers)
 
 		playing.setSet(new_type, new_tier)
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	}
 }
 
@@ -319,7 +320,7 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		}
 
 		set_enabled = false
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	}
 
 	{
@@ -375,7 +376,7 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		}
 
 		set_enabled = false
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	}
 }
 

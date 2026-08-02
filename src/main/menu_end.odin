@@ -3,6 +3,7 @@ package client
 import "core:fmt"
 
 import "../utils"
+import "../audio"
 
 import "thirdparty:orui"
 import rl "vendor:raylib"
@@ -15,7 +16,7 @@ end_screen_state: ClientState = {
 
 @(private = "file")
 on_enter :: proc() {
-    rl.PlayMusicStream(bgm)
+    rl.PlayMusicStream(audio.bgm)
 }
 
 @(private = "file")
@@ -23,7 +24,7 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		utils.global.quit = true
 	}
-	rl.UpdateMusicStream(bgm)
+	rl.UpdateMusicStream(audio.bgm)
 }
 
 @(private = "file")
@@ -124,12 +125,12 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 	)
 
 	if clicked {
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	}
 
 	if orui.hovered(orui.to_id(id)) {
 		if last_hovered != id {
-			playMenuHoveredSound()
+			audio.playMenuHoveredSound()
 			last_hovered = id
 		}
 	} else {

@@ -5,6 +5,7 @@ import "core:fmt"
 import "core:math/rand"
 
 import "../animations"
+import "../audio"
 import "../terrain"
 import "../ui"
 import "../utils"
@@ -26,7 +27,7 @@ init :: proc() {
 		rl.SetAudioStreamBufferSizeDefault(128)
 	}
 
-	loadMenuSounds()
+	audio.loadMenuSounds()
 
 	utils.initFont()
 	ui.init()
@@ -67,7 +68,7 @@ close :: proc() {
 	ui.close()
 	utils.deinitFont()
 
-	unloadMenuSounds()
+	audio.unloadMenuSounds()
 	rl.CloseAudioDevice()
 	rl.CloseWindow()
 }

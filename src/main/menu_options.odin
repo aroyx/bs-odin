@@ -3,6 +3,7 @@ package client
 import "thirdparty:orui"
 import "thirdparty:tracy"
 
+import "../audio"
 import "../utils"
 
 import rl "vendor:raylib"
@@ -26,7 +27,7 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		changeState(&main_menu_state)
 	}
-    rl.UpdateMusicStream(bgm)
+    rl.UpdateMusicStream(audio.bgm)
 }
 
 @(private = "file")
@@ -164,7 +165,7 @@ uiCheckbox :: proc(id: string, text: string, var: ^bool) {
 
 	if orui.clicked(id) {
 		var^ = !var^
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	}
 
 	{
@@ -233,7 +234,7 @@ tabBar :: proc(names: []string, active: ^u8) {
 			},
 		) {
 			active^ = u8(i)
-            playMenuClickedSound()
+            audio.playMenuClickedSound()
 		}
 	}
 }
@@ -261,12 +262,12 @@ bottomButtons :: proc() {
 			changeState(&main_menu_state)
 		}
 
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	}
 
 	if bottomButtonsFn("save button", "\ue14d", " Save", CYAN) {
 		utils.global = local_global
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	}
 }
 
@@ -350,19 +351,19 @@ showSaveDiagloge :: proc() {
 		if diaglogueButton("discard btn", "\ue18e", "Discard", RED) {
 			changeState(&main_menu_state)
 			show_save_diag = false
-			playMenuClickedSound()
+			audio.playMenuClickedSound()
 		}
 
 		if diaglogueButton("save btn", "\ue14d", "Save", CYAN) {
 			utils.global = local_global
 			changeState(&main_menu_state)
 			show_save_diag = false
-			playMenuClickedSound()
+			audio.playMenuClickedSound()
 		}
 
 		if diaglogueButton("cancel", "\u0078", "Cancel", WHITE) {
 			show_save_diag = false
-			playMenuClickedSound()
+			audio.playMenuClickedSound()
 		}
 	}
 }

@@ -2,6 +2,7 @@ package client
 
 import "../playing"
 import "../utils"
+import "../audio"
 
 import "thirdparty:orui"
 import "thirdparty:tracy"
@@ -33,7 +34,7 @@ on_update :: proc(dt: f32) {
 
 	updateAnimPlayer()
 
-    rl.UpdateMusicStream(bgm)
+    rl.UpdateMusicStream(audio.bgm)
 }
 
 @(private = "file")
@@ -131,10 +132,10 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 	)
 
 	if clicked {
-		playMenuClickedSound()
+		audio.playMenuClickedSound()
 	} else if orui.hovered(orui.to_id(id)) {
 		if last_hovered != id {
-			playMenuHoveredSound()
+			audio.playMenuHoveredSound()
 			last_hovered = id
 		}
 	} else {
