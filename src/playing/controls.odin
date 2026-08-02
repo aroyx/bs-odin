@@ -143,7 +143,7 @@ drawJoystick :: proc() {
 		joystick_data.y + (joystick_data.height / 2),
 	}
 
-	touch_pos := rl.GetMousePosition()
+	touch_pos := center
 	touching := false
 
 	for i in 0 ..< rl.GetTouchPointCount() {
@@ -219,11 +219,11 @@ drawAttackButton :: proc() {
 			}
 		}
 	} else {
-        pos := rl.GetMousePosition()
-        if rl.IsMouseButtonDown(.LEFT) && rl.CheckCollisionPointRec(pos, attack_button_data.rect) {
-            ui_attack = true
-        }
-    }
+		pos := rl.GetMousePosition()
+		if rl.IsMouseButtonDown(.LEFT) && rl.CheckCollisionPointRec(pos, attack_button_data.rect) {
+			ui_attack = true
+		}
+	}
 }
 
 @(private = "file")
