@@ -15,6 +15,8 @@
 #define ICON_LUCIDE_CHEVRON_LEFT u8"\ue06e"
 #define ICON_LUCIDE_CHEVRON_RIGHT u8"\ue06f"
 #define ICON_LUCIDE_DICES u8"\ue2c5"
+#define ICON_LUCIDE_PAUSE u8"\ue12e"
+#define ICON_LUCIDE_PLAY u8"\ue13c"
 #define ICON_LUCIDE_SAVE u8"\ue14d"
 #define ICON_LUCIDE_TRASH_2 u8"\ue18e"
 #define ICON_LUCIDE_X u8"\u78"
