@@ -108,10 +108,19 @@ The entire repos is under the `MIT` license, excluding the `res` directory. See 
 pls don't come after me if you use my code and it blows up your entire tech stack
 
 ### AI Usage
-I've used AI to find myself topics that may help solve particular solution. AI did write some code. Another AI_USAGE.md will drop soon to disclose all AI usage
+I've used AI to find myself topics that may help solve particular solution. AI did write some code and all of that is documented below.
 
 One Example: 
 > I: "The FPS and Frame Time fluctuate a lot, I want to calculate avg FPS/Frame Time of my game, but only for the last 20-30 frames...I don't want to create an circular buffer to do it...too much memory, there must be some mathematical formula right?"
 
 > AI responds with a big text. I read the headings and find "Moving average". I open it up in wiki, read the page, try to understand the derivation. Later I found "Exponential Moving average" and then implement it in my game since it felt like the perfect solution to my problem
 
+All AI usage:
+1. I generated the islands, but I required some way to prevent the user from going into the water. After long battle with "idk why this won't work". I gave up and straight up copied the code from AI. [code](https://github.com/aroyx/bs-odin/blob/21f2515877c875cf0531055e2a7e51a06eabe9b7/src/physics/gen_islands.odin#L73-L147)
+2. I was generating foliage on the fly when a chunk is visible. But due to that, if a player left the chunk and re-enter-ed it all the foliage would be in a totally new positions. So AI helped me with this deterministic randomness. [code](https://github.com/aroyx/bs-odin/blob/65f8b387a26fbff4dad00f925f302c24942da3d9/src/playing/foliage.odin#L104-L111)
+3. I required a way to transform(pos, angle, scale, etc) children of a bone for my animations. This required math that was just not clicking my brain. I used AI to generate the function that combines the transform respecting the parents transform. [code](https://github.com/aroyx/bs-odin/blob/069fb1487444fde81edd05683fd5e0fb25693918/src/animations/engine.odin#L119-L134)
+4. AI also helped me with the state machine of Player. I had instructed it to not change the logic. Just make the code more readable and mantainable. It did that and later I worked on it later and slowly introduced more features to it. [code](https://github.com/aroyx/bs-odin/blob/15115510f2f49299d05b24fd576bbc303c84b5f5/src/playing/player.odin#L26)
+5. Other than those, I sometimes used AI to find answers to some questions like "is my game fully statically linked", "how do I publish my wasm game built using odin and raylib in my website that uses cloudflare?".
+6. I also asked it questions to some problems but it's answers didn't satisfy my needs/my game architecture so I never used its outputted code. Example: "audio delay in WASM Raylib how to fix", "multi-touch not working in wasm raylib, src/playing/controls.odin: <insert file contents>"
+
+In my game of about 7k lines as of writing, I'd doubt AI wrote any more than 300 lines.
