@@ -15,6 +15,8 @@ init :: proc() {
 	ui_ctx = new(orui.Context)
 	orui.init(ui_ctx)
 	ui_ctx.default_font = utils.getFont(.MEDIUM)^
+
+    init_mouse()
 }
 
 close :: proc() {
@@ -91,6 +93,7 @@ render :: proc() {
 	}
 
 	ImGuiRender()
+    renderMouse()
 }
 
 tick :: proc() {

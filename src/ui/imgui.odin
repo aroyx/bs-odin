@@ -13,7 +13,7 @@ when utils.IMGUI {
 		imgui.CreateContext()
 		io := imgui.GetIO()
 
-		io.ConfigFlags += {.DockingEnable, .NavEnableGamepad}
+		io.ConfigFlags += {.DockingEnable, .NavEnableGamepad, .NoMouseCursorChange}
 
 		imgui.StyleColorsDark()
 

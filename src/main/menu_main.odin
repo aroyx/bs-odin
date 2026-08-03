@@ -1,8 +1,9 @@
 package client
 
+import "../audio"
 import "../playing"
 import "../utils"
-import "../audio"
+import "../ui"
 
 import "thirdparty:orui"
 import "thirdparty:tracy"
@@ -34,7 +35,7 @@ on_update :: proc(dt: f32) {
 
 	updateAnimPlayer()
 
-    rl.UpdateMusicStream(audio.bgm)
+	rl.UpdateMusicStream(audio.bgm)
 }
 
 @(private = "file")
@@ -130,6 +131,8 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 			border_color = rl.BLACK,
 		},
 	)
+
+	ui.updateMouseOnInteract()
 
 	if clicked {
 		audio.playMenuClickedSound()
