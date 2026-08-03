@@ -31,12 +31,12 @@ start :: proc() {
 	orui.begin(ui_ctx, win_w, win_h, f32(utils.dt))
 }
 
+@(private = "file")
+call_back: proc(cmd: orui.RenderCommand) -> bool
+
 setCallBack :: proc(cb: proc(cmd: orui.RenderCommand) -> bool) {
 	call_back = cb
 }
-
-@(private = "file")
-call_back: proc(cmd: orui.RenderCommand) -> bool
 
 render :: proc() {
 	render_cmds := orui.end()

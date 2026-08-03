@@ -9,7 +9,7 @@ last_time: time.Time
 total_time, frame_time, fps, dt: f64 = 0, 0, 0, 0
 
 when ODIN_OS == .JS {
-	initTimer :: proc() {
+	startTimer :: proc() {
 		last_time = time.now()
 	}
 
