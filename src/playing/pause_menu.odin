@@ -1,6 +1,7 @@
 package playing
 
 import "../audio"
+import "../ui"
 import "../utils"
 
 import "thirdparty:orui"
@@ -93,6 +94,8 @@ uiCheckbox :: proc(id: string, text: string, var: ^bool) {
 		},
 	)
 
+	ui.updateMouseOnInteract()
+
 	if orui.clicked(id) {
 		var^ = !var^
 		audio.playMenuClickedSound()
@@ -160,10 +163,9 @@ bottomButtons :: proc() {
 		audio.playMenuClickedSound()
 	}
 
-
 	if bottomButtonsFn("quit button", "\u0078", " Quit", RED) {
 		utils.global = local_global
-        playing_end = true
+		playing_end = true
 		audio.playMenuClickedSound()
 	}
 }
@@ -198,6 +200,8 @@ iconWithText :: proc(id: string, icon: string, text: string, config: orui.Elemen
 	ctn_config.gap = 10
 
 	orui.container(orui.id(id, 1), ctn_config)
+
+	ui.updateMouseOnInteract()
 
 	orui.label(
 		orui.id(id, 2),

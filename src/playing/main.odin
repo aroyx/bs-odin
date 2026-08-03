@@ -4,10 +4,11 @@ import anim "../animations"
 import "../camera"
 import "../physics"
 import "../terrain"
+import "../ui"
 import "../utils"
-import "core:fmt"
 
 import hm "core:container/handle_map"
+import "core:fmt"
 import "core:math"
 import "core:math/ease"
 import "core:math/linalg"
@@ -45,7 +46,13 @@ enter :: proc() {
 
 	playing_end = false
 	pause_menu = false
-    local_global = utils.global
+	local_global = utils.global
+
+	ui.setCallBack(call_back)
+
+	if utils.global.options.on_mobile {
+		ui.showCursor()
+	}
 }
 
 exit :: proc() {
@@ -62,6 +69,18 @@ exit :: proc() {
 }
 
 update :: proc(dt: f32) {
+	if rl.IsKeyPressed(.ESCAPE) {
+		if pause_menu {
+			if !utils.global.options.on_mobile {
+				ui.hideCursor()
+			}
+		} else {
+			ui.showCursor()
+		}
+
+		pause_menu = !pause_menu
+	}
+
 	if pause_menu {
 		return
 	}
@@ -320,7 +339,7 @@ drawNumEnemyAlive :: proc() {
 	txt_size := rl.MeasureTextEx(utils.getFont(sz)^, txt, fs, 1)
 
 	x := (win_w - txt_size.x) * 0.5
-    y := win_h - max(win_h * 0.1, txt_size.y)
+	y := win_h - max(win_h * 0.1, txt_size.y)
 
-    utils.drawText(txt, sz, {x, y}, rl.WHITE)
+	utils.drawText(txt, sz, {x, y}, rl.WHITE)
 }
