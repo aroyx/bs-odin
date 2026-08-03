@@ -31,7 +31,7 @@ when ODIN_OS == .JS {
 	@(private = "file")
 	TARGET_FRAME_DUR :: time.Duration(time.Second / TARGET_FPS)
 
-	initTimer :: proc() {
+	startTimer :: proc() {
 		last_time = time.now()
 	}
 

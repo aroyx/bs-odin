@@ -23,7 +23,8 @@ font_sizes: [FontSize]f32 = {
 @(private = "file")
 icon_font: rl.Font
 
-initFont :: proc() {
+@(private)
+initFonts :: proc() {
 	font[.SMALL] = rl.LoadFontEx("./res/fonts/supercell.otf", i32(font_sizes[.SMALL]), nil, 0)
 	font[.MEDIUM] = rl.LoadFontEx("./res/fonts/supercell.otf", i32(font_sizes[.MEDIUM]), nil, 0)
 	font[.LARGE] = rl.LoadFontEx("./res/fonts/supercell.otf", i32(font_sizes[.LARGE]), nil, 0)
@@ -66,6 +67,7 @@ getFontSize :: proc(size: FontSize = FontSize.MEDIUM) -> f32 {
 	return font_sizes[size]
 }
 
+@(private)
 deinitFont :: proc() {
 	for f in font {
 		rl.UnloadFont(f)

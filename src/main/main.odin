@@ -1,7 +1,6 @@
 package client
 
 import "core:c"
-import "core:fmt"
 import "core:math/rand"
 
 import "../animations"
@@ -27,16 +26,12 @@ init :: proc() {
 		rl.SetAudioStreamBufferSizeDefault(128)
 	}
 
-	audio.loadMenuSounds()
-
-	utils.initFont()
+	audio.init()
+	utils.init()
 	ui.init()
 	animations.init()
 
-	a: i32 = rand.int31()
-	// a = 1667919536
-	terrain.setSeed(a)
-	fmt.println("seed:", a)
+	terrain.setSeed(rand.int31())
 
 	changeState(&main_menu_state)
 	if client_state != nil && client_state.on_enter != nil {
@@ -45,7 +40,7 @@ init :: proc() {
 }
 
 update :: proc() {
-	utils.initTimer()
+	utils.startTimer()
 	defer utils.stopTimer()
 
 	ui.tick()
@@ -66,9 +61,9 @@ close :: proc() {
 
 	animations.close()
 	ui.close()
-	utils.deinitFont()
+	utils.close()
+	audio.close()
 
-	audio.unloadMenuSounds()
 	rl.CloseAudioDevice()
 	rl.CloseWindow()
 }

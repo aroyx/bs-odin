@@ -15,7 +15,7 @@ menu_click_sounds: [6]audio.Sound
 
 bgm: rl.Music
 
-loadMenuSounds :: proc() {
+init :: proc() {
 	for i in 0 ..< len(menu_hover_sounds) {
 		path := fmt.ctprintf("res/audio/menu/menu_hover_%d.wav", i + 1)
 		menu_hover_sounds[i] = audio.loadSound(path)
@@ -30,7 +30,7 @@ loadMenuSounds :: proc() {
     rl.PlayMusicStream(bgm)
 }
 
-unloadMenuSounds :: proc() {
+close :: proc() {
 	for sound in menu_hover_sounds {
 		audio.unloadSound(sound)
 	}
