@@ -78,17 +78,17 @@ if [[ "$EXE" == "wasm" ]]; then
     ODIN_PATH=$(odin root)
     cp $ODIN_PATH/core/sys/wasm/js/odin.js $OUT_DIR
 
-    echo "odin build $SRC_DIR $COLLECTION $FLAGS -out:\"$OUT_DIR/game.wasm.o\""
-    odin build $SRC_DIR $COLLECTION $FLAGS -out:"$OUT_DIR/game.wasm.o"
+    echo "odin build $SRC_DIR $COLLECTION $FLAGS -out:\"$OUT_DIR/game.wasm.obj\""
+    odin build $SRC_DIR $COLLECTION $FLAGS -out:"$OUT_DIR/game.wasm.obj"
 
     if [[ $? == 0 ]]; then
-        FILES="$OUT_DIR/game.wasm.o ${ODIN_PATH}/vendor/raylib/wasm/libraylib.a ${ODIN_PATH}/vendor/raylib/wasm/libraygui.a ${ODIN_PATH}vendor/box2d/lib/box2d_wasm.o"
+        FILES="$OUT_DIR/game.wasm.obj ${ODIN_PATH}/vendor/raylib/wasm/libraylib.web.a ${ODIN_PATH}/vendor/raylib/wasm/libraygui.a ${ODIN_PATH}vendor/box2d/lib/box2d_wasm.o"
 
         EMCC_FLAGS="-s EXPORTED_RUNTIME_METHODS=['HEAPF32'] -s USE_GLFW=3 -s WASM_BIGINT -s ASSERTIONS=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=1 -s STACK_SIZE=33554432 --shell-file $SRC_DIR/index_template.html --preload-file res"
 
         # For debugging: Add `-g` to `emcc` (gives better error callstack in chrome)
         emcc -o $OUT_DIR/index.html $FILES $EMCC_FLAGS
-        rm $OUT_DIR/game.wasm.o
+        rm $OUT_DIR/game.wasm.obj
     fi
 else
     if [[ "$MODE" == "run" ]]; then

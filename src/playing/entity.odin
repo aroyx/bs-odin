@@ -160,7 +160,7 @@ generateEntities :: proc() {
 
 	playerBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 	playerShapeDef := box2d.DefaultShapeDef()
-	_ = box2d.CreatePolygonShape(player_physics_id, playerShapeDef, playerBox)
+	_ = box2d.CreatePolygonShape(player_physics_id, playerShapeDef, &playerBox)
 
 	cs := camera.state.cs
 
@@ -198,7 +198,7 @@ generateEntities :: proc() {
 
 		enemyBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 		enemyShapeDef := box2d.DefaultShapeDef()
-		_ = box2d.CreatePolygonShape(e_phy_id, enemyShapeDef, enemyBox)
+		_ = box2d.CreatePolygonShape(e_phy_id, enemyShapeDef, &enemyBox)
 
 		e_entity := Entity {
 			pos        = e_pos,

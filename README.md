@@ -73,7 +73,7 @@ git clone --depth=1 https://github.com/aroyx/bs-odin && cd bs-odin
 
 2. Install Dependencies
 
-- [Odin vdev-2026-05 installation](https://github.com/odin-lang/Odin/releases/tag/dev-2026-05), [Odin Install Help](https://odin-lang.org/docs/install/)
+- [Odin vdev-2026-07 installation](https://github.com/odin-lang/Odin/releases/tag/dev-2026-07), [Odin Install Help](https://odin-lang.org/docs/install/)
 - [Raylib v5.5](https://github.com/raysan5/raylib/releases#release-5.5)
 - [Python 3](https://www.python.org/downloads/) - Required for imgui bindings
 
