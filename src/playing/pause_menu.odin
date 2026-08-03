@@ -158,6 +158,9 @@ bottomButtons :: proc() {
 			show_save_diag = true
 		} else {
 			pause_menu = false
+			if !utils.global.options.on_mobile {
+				ui.hideCursor()
+			}
 		}
 
 		audio.playMenuClickedSound()
@@ -290,6 +293,10 @@ showSaveDiagloge :: proc() {
 			pause_menu = false
 			show_save_diag = false
 			audio.playMenuClickedSound()
+
+			if !utils.global.options.on_mobile {
+				ui.hideCursor()
+			}
 		}
 
 		if diaglogueButton("save btn", "\ue14d", "Save", CYAN) {
@@ -297,6 +304,10 @@ showSaveDiagloge :: proc() {
 			pause_menu = false
 			show_save_diag = false
 			audio.playMenuClickedSound()
+
+			if !utils.global.options.on_mobile {
+				ui.hideCursor()
+			}
 		}
 
 		if diaglogueButton("cancel", "\u0078", "Cancel", WHITE) {

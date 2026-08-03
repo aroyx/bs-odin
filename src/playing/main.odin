@@ -18,9 +18,6 @@ import "thirdparty:tracy"
 import "vendor:box2d"
 import rl "vendor:raylib"
 
-@(private = "file")
-lock_camera := false
-
 player_skin: CharacterSkin
 
 playing_end := false
