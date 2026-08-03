@@ -75,6 +75,7 @@ on_render :: proc() {
 					width = orui.fit(),
 					height = {type = .Percent, value = 0.2, min = 40},
 					align_main = .Center,
+                    gap = 20,
 				},
 			)
 
@@ -86,48 +87,4 @@ on_render :: proc() {
 			}
 		}
 	}
-}
-
-@(private = "file")
-last_hovered := -1
-
-@(private = "file")
-menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
-	clicked := orui.label(
-		orui.id(id),
-		text,
-		{
-			width = orui.grow(),
-			height = orui.fit(),
-			margin = orui.margin(10, 20),
-			padding = orui.padding(20, 10),
-			font_size = 20,
-			align = {.Center, .Center},
-			background_color = orui.animate(
-				"bg-color",
-				orui.active() ? rl.ColorLerp(col, rl.WHITE, 0.20) : col,
-			),
-			color = rl.BLACK,
-			corner_radius = orui.corner(4),
-			border = getBorder(),
-			border_color = rl.BLACK,
-		},
-	)
-
-	if clicked {
-		audio.playMenuClickedSound()
-	}
-
-	if orui.hovered(orui.to_id(id)) {
-		if last_hovered != id {
-			audio.playMenuHoveredSound()
-			last_hovered = id
-		}
-	} else {
-		if last_hovered == id {
-			last_hovered = -1
-		}
-	}
-
-	return clicked
 }

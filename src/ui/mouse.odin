@@ -62,6 +62,7 @@ renderMouse :: proc() {
 	if hidden {
 		w, h := rl.GetScreenWidth(), rl.GetScreenHeight()
 		rl.SetMousePosition(w / 2, h / 2)
+        return
 	}
 
 	if !on_smth {

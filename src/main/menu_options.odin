@@ -4,9 +4,15 @@ import "thirdparty:orui"
 import "thirdparty:tracy"
 
 import "../audio"
+import "../ui"
 import "../utils"
 
 import rl "vendor:raylib"
+
+// UI Layout: 
+// TabBar
+// Options
+// BottomButtons
 
 options_state: ClientState = {
 	on_enter  = on_enter,
@@ -27,7 +33,7 @@ on_update :: proc(dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		changeState(&main_menu_state)
 	}
-    rl.UpdateMusicStream(audio.bgm)
+	rl.UpdateMusicStream(audio.bgm)
 }
 
 @(private = "file")
@@ -169,6 +175,8 @@ uiCheckbox :: proc(id: string, text: string, var: ^bool) {
 		audio.playMenuClickedSound()
 	}
 
+	ui.updateMouseOnInteract()
+
 	{
 		orui.container(
 			orui.id(id, 49),
@@ -235,8 +243,10 @@ tabBar :: proc(names: []string, active: ^u8) {
 			},
 		) {
 			active^ = u8(i)
-            audio.playMenuClickedSound()
+			audio.playMenuClickedSound()
 		}
+
+		ui.updateMouseOnInteract()
 	}
 }
 

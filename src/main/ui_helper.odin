@@ -1,6 +1,8 @@
 package client
 
 import "../utils"
+import "../ui"
+
 import "thirdparty:orui"
 import rl "vendor:raylib"
 
@@ -40,6 +42,8 @@ iconWithText :: proc(id: string, icon: string, text: string, config: orui.Elemen
 	ctn_config.gap = 10
 
 	orui.container(orui.id(id, 1), ctn_config)
+
+	ui.updateMouseOnInteract()
 
 	orui.label(
 		orui.id(id, 2),

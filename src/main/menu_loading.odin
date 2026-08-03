@@ -6,6 +6,7 @@ import "../physics"
 import "../playing"
 import "../terrain"
 import "../utils"
+import "../ui"
 
 import "thirdparty:orui"
 import rl "vendor:raylib"
@@ -46,6 +47,7 @@ on_update :: proc(dt: f32) {
 	switch (lState) {
 
 	case .INIT:
+        ui.hideCursor()
 		lState = .CAMERA
 
 	case .CAMERA:
@@ -64,7 +66,7 @@ on_update :: proc(dt: f32) {
 
 	case .ENEMIES:
 		playing.generateEntities()
-		camera.startTagAlong(playing.getPlayer().pos, 4.0)
+		camera.startTagAlong(playing.getPlayer().pos, 2.0)
 		lState = .DONE
 		playing.loadSounds()
 

@@ -164,7 +164,6 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 
 			if !rl.CheckCollisionPointRec(e_pos, attak_box) do continue
 
-			// can be flowers too!
 			switch &data in &e.data {
 			case PlayerData:
 				continue // wtf

@@ -8,6 +8,7 @@ import "thirdparty:tracy"
 import anim "../animations"
 import "../audio"
 import "../playing"
+import "../ui"
 import "../utils"
 
 import "thirdparty:orui"
@@ -214,6 +215,8 @@ uiSetSelector :: proc() {
 		audio.playMenuClickedSound()
 	}
 
+	ui.updateMouseOnInteract()
+
 	{
 		prev_index := (current_set_index - 1 + total_options) % total_options
 		next_index := (current_set_index + 1) % total_options
@@ -265,6 +268,7 @@ uiSetSelector :: proc() {
 		playing.setSet(new_type, new_tier)
 		audio.playMenuClickedSound()
 	}
+	ui.updateMouseOnInteract()
 }
 
 @(private = "file")
@@ -322,6 +326,7 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		set_enabled = false
 		audio.playMenuClickedSound()
 	}
+	ui.updateMouseOnInteract()
 
 	{
 		current_index := (int(curr_type) * num_tiers) + int(curr_tier)
@@ -378,6 +383,7 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		set_enabled = false
 		audio.playMenuClickedSound()
 	}
+	ui.updateMouseOnInteract()
 }
 
 @(private = "file")

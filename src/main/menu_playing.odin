@@ -1,6 +1,7 @@
 package client
 
 import "../playing"
+import "../ui"
 
 import rl "vendor:raylib"
 
@@ -19,6 +20,7 @@ on_enter :: proc() {
 @(private = "file")
 on_exit :: proc() {
 	playing.exit()
+    ui.showCursor()
 }
 
 @(private = "file")

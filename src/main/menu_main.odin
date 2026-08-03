@@ -2,8 +2,8 @@ package client
 
 import "../audio"
 import "../playing"
-import "../utils"
 import "../ui"
+import "../utils"
 
 import "thirdparty:orui"
 import "thirdparty:tracy"
@@ -29,7 +29,7 @@ on_enter :: proc() {
 
 @(private = "file")
 on_update :: proc(dt: f32) {
-	if rl.IsKeyPressed(.Q) || rl.IsKeyPressed(.ESCAPE) {
+	if rl.IsKeyPressed(.ESCAPE) {
 		utils.global.quit = true
 	}
 
@@ -108,10 +108,7 @@ on_render :: proc() {
 	}
 }
 
-@(private = "file")
-last_hovered := -1
-
-@(private = "file")
+@(private)
 menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 	clicked := orui.label(
 		orui.id(id),
@@ -123,7 +120,7 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 			align = {.Center, .Center},
 			background_color = orui.animate(
 				"bg-color",
-				orui.active() ? rl.ColorLerp(col, rl.WHITE, 0.35) : col,
+				orui.active() ? rl.ColorLerp(col, rl.WHITE, 0.2) : col,
 			),
 			color = rl.BLACK,
 			corner_radius = orui.corner(4),
@@ -136,15 +133,6 @@ menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
 
 	if clicked {
 		audio.playMenuClickedSound()
-	} else if orui.hovered(orui.to_id(id)) {
-		if last_hovered != id {
-			audio.playMenuHoveredSound()
-			last_hovered = id
-		}
-	} else {
-		if last_hovered == id {
-			last_hovered = -1
-		}
 	}
 
 	return clicked
