@@ -1265,3 +1265,28 @@ Notes for tmrw:
 - Clean the mess of code I created while in the rush
 - Fix architecture, performance, resource utilisation
 - Bombs, I need to make a plan on how I will do that
+
+https://github.com/user-attachments/assets/e6a52292-9994-4728-8318-c3a1fb2e6908
+
+# Devlog #27
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 3h 27m       |
+| Total Time     | 178h 45m 1s  |
+| Date           | 2nd Aug 2026 |
+
+Today was a easy going day. I worked a little then I watched "Iron Lung" and relaxed a bit. BUT AT NIGHT I PLANNED ON FIXING THE DAMN MULTI-TOUCH BUG. I even made a new account in Claude to try to fix it using that AI, damn it didn't work either. The problem seemed so simple that I was reluctant to ask the author of raylib for help, now I gotta do it. May god have mercy on me :pray:
+
+Other than that I worked on code-cleanup today. 
+Added custom mouse images
+Upgraded the Odin version to July of 2026. This change fixed one bug related to WASM Raylib which was also introduced today. [Pretty much this issue](https://github.com/raysan5/raylib/issues/4940)
+
+Right now, I've made my mind, mobile support can go eat bitter gourd, I will not be worrying about Android/iOS support anymore. I might work on them when other fun stuff about my game are done.
+
+Right now I want to make the bombs a reality...
+
+Things to do tmrw:
+- Do not break the streak. I'll be going to my aunt's so I won't be able to do much. I just don't want to break the streak I am working on.
+- See for more architectureal and performatical fixes
+- Try out the bombs for now in box2d only

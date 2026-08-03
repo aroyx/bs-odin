@@ -66,7 +66,7 @@ exit :: proc() {
 }
 
 update :: proc(dt: f32) {
-	if rl.IsKeyPressed(.ESCAPE) {
+	if rl.IsKeyPressed(.ESCAPE) || rl.IsKeyPressed(.P) {
 		if pause_menu {
 			if !utils.global.options.on_mobile {
 				ui.hideCursor()
