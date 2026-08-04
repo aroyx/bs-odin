@@ -218,8 +218,10 @@ updatePlayerMovement :: proc(p_data: ^PlayerData) {
 		changePlayerState(p_data, .ATTACK)
 	} else {
 		if rl.IsMouseButtonPressed(.RIGHT) {
-			changePlayerState(p_data, .BOMB_AIM)
-			return
+			if p_data.bomb_cooldown <= 0 {
+				changePlayerState(p_data, .BOMB_AIM)
+				return
+			}
 		}
 
 		speed: f32 = running ? 10 : 5
@@ -308,12 +310,10 @@ updatePlayerBombAim :: proc(p_data: ^PlayerData) {
 
 @(private = "file")
 updatePlayerBombThrow :: proc(p_data: ^PlayerData) {
-    if p_data.stun_cooldown <= 0 {
-        changePlayerState(p_data, .IDLE)
-        return
-    }
-
-
+	if p_data.stun_cooldown <= 0 {
+		changePlayerState(p_data, .IDLE)
+		return
+	}
 
 }
 
@@ -372,9 +372,9 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 	case .BOMB_THROW:
 		changeAnimation(&data.animation, .THROWING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
-        data.bomb_cooldown = 5
-        attack_landed = false
-        regen_wait = 5
-        breathed = false
+		data.bomb_cooldown = 5
+		attack_landed = false
+		regen_wait = 5
+		breathed = false
 	}
 }
