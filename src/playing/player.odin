@@ -40,15 +40,21 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	running = false
 	attacking = false
 
-	if rl.IsKeyDown(.W) || rl.IsKeyDown(.UP) do dir.y = -1
-	if rl.IsKeyDown(.S) || rl.IsKeyDown(.DOWN) do dir.y = 1
-	if rl.IsKeyDown(.A) || rl.IsKeyDown(.LEFT) do dir.x = -1
-	if rl.IsKeyDown(.D) || rl.IsKeyDown(.RIGHT) do dir.x = 1
+	if rl.IsKeyDown(.W) do dir.y = -1
+	if rl.IsKeyDown(.S) do dir.y = 1
+	if rl.IsKeyDown(.A) do dir.x = -1
+	if rl.IsKeyDown(.D) do dir.x = 1
 
 	dir = linalg.normalize0(dir)
 
-	running = rl.IsKeyDown(.C) || ui_run
-	attacking = rl.IsKeyDown(.X) || ui_attack
+	running = rl.IsKeyDown(.LEFT_SHIFT) || ui_run
+	attacking = ui_attack
+
+	if !utils.global.options.on_mobile {
+		attacking = attacking || rl.IsMouseButtonDown(.LEFT)
+	} else {
+		attacking = attacking || rl.IsKeyDown(.X)
+    }
 
 	p_data.attack_cooldown -= dt
 	p_data.stun_cooldown -= dt

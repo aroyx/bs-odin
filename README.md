@@ -8,10 +8,10 @@ This game was made during the [Horizons](https://horizons.hackclub.com/) event b
 https://github.com/user-attachments/assets/e6a52292-9994-4728-8318-c3a1fb2e6908
 
 ## Controls
-- `C` to sprint
-- `X` to attack
-- `WASD or UP/Down/Left/Right`  to move
-- Mouse to navigate around
+- `WASD`  to move
+- `Left Shift` to sprint
+- `Mouse Left click` to attack
+- Mouse to navigate around (in mobile)
 
 ## Journal
 The entire process of making this game has been journal-ed in [JOURNAL.md](https://github.com/aroyx/bs-odin/blob/main/JOURNAL.md), all the resources used to make this game has been documented in [ATTRIBUTION.md](https://github.com/aroyx/bs-odin/blob/main/ATTRIBUTION.md) 
