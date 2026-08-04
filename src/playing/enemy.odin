@@ -175,7 +175,7 @@ changeEnemyState :: proc(data: ^EnemyData, new_state: EnemyState) {
 		data.target_time = 0
 	case .CHASE:
 		changeAnimation(&data.animation, .RUNNING)
-        playSound(.ROAR)
+		playSound(.ROAR)
 	case .ATTACK:
 		data.state = .ATTACK
 		data.attack_cooldown = 1
@@ -185,12 +185,12 @@ changeEnemyState :: proc(data: ^EnemyData, new_state: EnemyState) {
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 	case .HURT:
 		changeAnimation(&data.animation, .HURT)
-        playSound(.HURT)
+		playSound(.HURT)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 	case .DEAD:
 		playSound(.DYING)
 		changeAnimation(&data.animation, .DYING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
-        total_enemies -= 1
+		total_enemies -= 1
 	}
 }

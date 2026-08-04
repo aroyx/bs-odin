@@ -45,18 +45,20 @@ PlayerData :: struct {
 	state:           PlayerState,
 	skin:            CharacterSkin,
 	animation:       AnimationState,
-	attack_cooldown: f32,
 	stun_cooldown:   f32,
+	attack_cooldown: f32,
+	bomb_cooldown: f32,
 }
 
 PlayerState :: enum u8 {
 	IDLE,
 	WALK,
 	RUN,
-	JUMP,
 	ATTACK,
 	HURT,
 	DEAD,
+	BOMB_AIM,
+	BOMB_THROW,
 }
 
 EnemyData :: struct {
@@ -174,7 +176,7 @@ generateEntities :: proc() {
 
 	player_handle = addEntity(&p_entity)
 
-    total_enemies = 0
+	total_enemies = 0
 	for i in 1 ..< 128 {
 		// enemy animation
 		e_pos := getRandomLandPosition()
@@ -266,7 +268,7 @@ addEntity :: proc(entity: ^Entity) -> EntityHandle {
 	append(&render_list, handle)
 
 	if _, ok := entity.data.(EnemyData); ok {
-        total_enemies += 1
+		total_enemies += 1
 	}
 
 	return handle
