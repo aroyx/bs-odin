@@ -7,6 +7,7 @@ MouseState :: enum u8 {
 	NORMAL,
 	HOVER,
 	CLICK,
+	TARGET,
 }
 
 @(private = "file")
@@ -14,6 +15,9 @@ hidden := false
 
 @(private = "file")
 ms := MouseState.NORMAL
+
+@(private = "file")
+local_ms := MouseState.NORMAL
 
 @(private = "file")
 ms_img: [MouseState]rl.Texture
@@ -26,6 +30,7 @@ init_mouse :: proc() {
 	ms_img[.NORMAL] = rl.LoadTexture("res/images/mouse/normal.png")
 	ms_img[.CLICK] = rl.LoadTexture("res/images/mouse/click.png")
 	ms_img[.HOVER] = rl.LoadTexture("res/images/mouse/hover.png")
+	ms_img[.TARGET] = rl.LoadTexture("res/images/mouse/target.png")
 
 	for txt in ms_img {
 		rl.SetTextureFilter(txt, .BILINEAR)
@@ -33,7 +38,7 @@ init_mouse :: proc() {
 }
 
 changeMouseState :: proc(state: MouseState) {
-	ms = state
+	local_ms = state
 }
 
 hideCursor :: proc() {
@@ -62,13 +67,16 @@ renderMouse :: proc() {
 	if hidden {
 		w, h := rl.GetScreenWidth(), rl.GetScreenHeight()
 		rl.SetMousePosition(w / 2, h / 2)
-        return
+		return
 	}
 
 	if !on_smth {
-		ms = .NORMAL
+		ms = local_ms
 	}
+
 	pos := rl.GetMousePosition()
-	rl.DrawTextureEx(ms_img[ms], pos, 0.0, 0.5, rl.WHITE)
+	scale: f32 = ms == .TARGET ? 1.0 : 0.5
+
+	rl.DrawTextureEx(ms_img[ms], pos, 0.0, scale, rl.WHITE)
 	on_smth = false
 }
