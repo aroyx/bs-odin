@@ -1,11 +1,11 @@
 package playing
 
-import "../camera"
 import "core:math"
 
 import "core:math/linalg"
 import "core:time"
 
+import "../camera"
 import rl "vendor:raylib"
 
 @(private)
@@ -17,7 +17,7 @@ spawnBomb :: proc(pos, target: [2]f32) {
 		start      = pos,
 		dest       = target,
 		start_time = time.now(),
-		dur        = 1,
+		dur        = 2,
 		height     = 0,
 	}
 
@@ -47,7 +47,7 @@ updateBomb :: proc(e: ^Entity, handle: EntityHandle, dt: f32) {
 	e.pos = linalg.lerp(data.start, data.dest, t)
 
 	// max_height: f32 = clamp(linalg.distance(data.start, data.dest) * 0.5, 10, 50)
-	max_height: f32 = 3 * camera.state.cs
+	max_height: f32 = 5 * camera.state.cs
 
 	// this is a crazy parabola I worked on, t(x) belongs to [0, 1] and height(y) belongs to [0, max_height]
 	// https://www.desmos.com/calculator/ycnr3cclho
@@ -60,8 +60,8 @@ drawBomb :: proc(data: ^BombData, pos, camTopLeft: [2]f32) {
 	if bomb_tex.id == 0 do return
 
 	s_pos := [2]f32 {
-		pos.x - camTopLeft.x + camera.state.x_offset,
-		pos.y - camTopLeft.y + camera.state.y_offset - data.height,
+		pos.x - camTopLeft.x + camera.state.x_offset - (f32(bomb_tex.width) * 0.5),
+		pos.y - camTopLeft.y + camera.state.y_offset - data.height - (f32(bomb_tex.height) * 0.5),
 	}
 
 	rl.DrawTextureEx(bomb_tex, s_pos, 0, 1, rl.WHITE)

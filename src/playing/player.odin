@@ -327,11 +327,11 @@ updatePlayerBombAim :: proc(p_data: ^PlayerData) {
 		}
 
 		t_pos: [2]f32 = {
-			camTopLeft.x + m_pos.x - camera.state.x_offset,
-			camTopLeft.y + m_pos.y - camera.state.y_offset,
+			camTopLeft.x + m_pos.x - camera.state.x_offset + f32(bomb_tex.width) * 0.5,
+			camTopLeft.y + m_pos.y - camera.state.y_offset + f32(bomb_tex.height) * 0.5,
 		}
 
-		p_pos -= {f32(bomb_tex.width) * 0.5, cs * 2}
+		p_pos.y -= (cs * 2) - f32(bomb_tex.height) * 0.5
 
 		spawnBomb(p_pos, t_pos)
 
@@ -408,7 +408,7 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 	case .BOMB_THROW:
 		changeAnimation(&data.animation, .THROWING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
-		data.bomb_cooldown = 5
+		data.bomb_cooldown = 3
 		attack_landed = false
 		regen_wait = 5
 		breathed = false
