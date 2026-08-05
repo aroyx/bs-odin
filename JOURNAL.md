@@ -1325,3 +1325,5 @@ Okay so you might've guessed. I am working on the bombs <(-u-)>
 Next day I will probably make a working version!, can't wait to see what happens
 
 Anyway here' a video of working bomb aiming!
+
+https://github.com/user-attachments/assets/29087582-7262-4646-b633-71d34b96dbde
