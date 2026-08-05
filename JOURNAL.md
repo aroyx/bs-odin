@@ -1274,7 +1274,7 @@ https://github.com/user-attachments/assets/e6a52292-9994-4728-8318-c3a1fb2e6908
 | -------------- | ------------ |
 | Time           | 3h 27m       |
 | Total Time     | 178h 45m 1s  |
-| Date           | 2nd Aug 2026 |
+| Date           | 3rd Aug 2026 |
 
 Today was a easy going day. I worked a little then I watched "Iron Lung" and relaxed a bit. BUT AT NIGHT I PLANNED ON FIXING THE DAMN MULTI-TOUCH BUG. I even made a new account in Claude to try to fix it using that AI, damn it didn't work either. The problem seemed so simple that I was reluctant to ask the author of raylib for help, now I gotta do it. May god have mercy on me :pray:
 
@@ -1290,3 +1290,38 @@ Things to do tmrw:
 - Do not break the streak. I'll be going to my aunt's so I won't be able to do much. I just don't want to break the streak I am working on.
 - See for more architectureal and performatical fixes
 - Try out the bombs for now in box2d only
+
+# Devlog #28
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 1h 5m        |
+| Total Time     | 179h 50m 1s  |
+| Date           | 4th Aug 2026 |
+
+## Offtopic
+Okay, so I went to my aunt's, had a great time. Saw some peace and the greenest grass of my life! Here's some pictures of them.
+
+## Ontopic
+Updated the "shitty" player controls that most people did not like when they tested my game. 
+
+| Action   | Old Mapping             | New Mapping  |
+| -------- | ----------------------- | ------------ |
+| Movement | WASD/Up-Down-Left-Right | WASD         |
+| Sprint   | C                       | Left Shift   |
+| Attack   | X                       | Left Click   |
+
+
+Some new actions
+
+| Action                             | Old Mapping | New Mapping  |
+| ----------                         | ----------- | ------------ |
+| Aim Bomb                           | -           | Right click  |
+| Cancel Bomb (When Aiming the bomb) | -           | Right click  |
+| Throw Bomb (When Aiming the bomb)  | -           | Left click   |
+
+## Bombs
+Okay so you might've guessed. I am working on the bombs <(-u-)>
+Next day I will probably make a working version!, can't wait to see what happens
+
+Anyway here' a video of working bomb aiming!
