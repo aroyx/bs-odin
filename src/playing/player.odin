@@ -203,6 +203,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 
 				playSound(.CUT_FOLIAGE)
 				attack_hit = true
+			case BombData:
 			}
 		}
 
@@ -305,6 +306,41 @@ updatePlayerBombAim :: proc(p_data: ^PlayerData) {
 
 	if attacking { 	// attaking in bomb_aim means we throw bomb
 		changePlayerState(p_data, .BOMB_THROW)
+
+		p_pos := p_entity.pos
+		m_pos := rl.GetMousePosition()
+
+		cs := camera.state.cs
+		cp := camera.camPos
+
+		camTopLeft: linalg.Vector2f32 = {
+			math.clamp(
+				cp.x - (cs * camera.state.hcc * 0.5),
+				0,
+				cs * (utils.MAP_SIZE - camera.state.hcc),
+			),
+			math.clamp(
+				cp.y - (cs * camera.state.vcc * 0.5),
+				0,
+				cs * (utils.MAP_SIZE - camera.state.vcc),
+			),
+		}
+
+		t_pos: [2]f32 = {
+			camTopLeft.x + m_pos.x - camera.state.x_offset,
+			camTopLeft.y + m_pos.y - camera.state.y_offset,
+		}
+
+		p_pos -= {f32(bomb_tex.width) * 0.5, cs * 2}
+
+		spawnBomb(p_pos, t_pos)
+
+		if p_pos.x > t_pos.x {
+			p_data.animation.flip_x = -1
+		}; if p_pos.x < t_pos.x {
+			p_data.animation.flip_x = 1
+		}
+
 	}
 }
 

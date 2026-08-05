@@ -3,6 +3,7 @@ package playing
 import hm "core:container/handle_map"
 import "core:math/linalg"
 import "core:math/rand"
+import "core:time"
 
 import "../camera"
 import "../physics"
@@ -39,6 +40,7 @@ EntityData :: union {
 	PlayerData,
 	EnemyData,
 	FoliageData,
+	BombData,
 }
 
 PlayerData :: struct {
@@ -47,7 +49,7 @@ PlayerData :: struct {
 	animation:       AnimationState,
 	stun_cooldown:   f32,
 	attack_cooldown: f32,
-	bomb_cooldown: f32,
+	bomb_cooldown:   f32,
 }
 
 PlayerState :: enum u8 {
@@ -87,6 +89,12 @@ FoliageData :: struct {
 	time_left:  f32,
 }
 
+BombData :: struct {
+	start, dest: [2]f32,
+	dur, height:         f32,
+	start_time:  time.Time,
+}
+
 // HealthRegenerate :: union {
 // 	NoRegenerate,
 // 	YesRegenerate,
@@ -103,7 +111,7 @@ updateEntitiesPosition :: proc() {
 
 	for entity, handle in hm.iterate(&it) {
 		#partial switch type in entity.data {
-		case FoliageData:
+		case FoliageData, BombData:
 			continue
 		}
 

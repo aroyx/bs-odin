@@ -29,10 +29,11 @@ rotate_phone_texture: rl.Texture
 pause_menu := false
 
 enter :: proc() {
-	rotate_phone_img := rl.LoadImage("res/images/rotate_phone.png")
-	rotate_phone_texture = rl.LoadTextureFromImage(rotate_phone_img)
+	rotate_phone_texture = rl.LoadTexture("res/images/rotate_phone.png")
 	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)
-	rl.UnloadImage(rotate_phone_img)
+	bomb_tex = rl.LoadTexture("res/images/mouse/target.png")
+	rl.SetTextureFilter(bomb_tex, .BILINEAR)
+
 	loadFoliage()
 
 	attack_button_data.texture = anim.getPartTex(
@@ -54,6 +55,7 @@ enter :: proc() {
 
 exit :: proc() {
 	rl.UnloadTexture(rotate_phone_texture)
+	rl.UnloadTexture(bomb_tex)
 	terrain.destroyChunks()
 	box2d.DestroyBody(hm.get(&entities, player_handle).physics_id)
 	physics.closePhysics()
@@ -111,6 +113,8 @@ update :: proc(dt: f32) {
 			playerStateMachineUpdate(dt)
 		case FoliageData:
 			foliageStateMachineUpdate(e, handle, dt)
+		case BombData:
+			updateBomb(e, handle, dt)
 		}
 	}
 
@@ -213,6 +217,8 @@ render :: proc() -> bool {
 			renderHealthBar(health, e.id, pos, camTopLeft, G1, G2)
 		case FoliageData:
 			drawFoliage(&d, pos, camTopLeft, p_pos, bounding_box)
+		case BombData:
+			drawBomb(&d, pos, camTopLeft)
 		}
 	}
 
@@ -286,44 +292,6 @@ renderHealthBar :: proc(health: f32, id: int, pos, camTopLeft: [2]f32, color1, c
 			)
 		}
 	}
-}
-
-@(private = "file")
-drawFoliage :: proc(
-	data: ^FoliageData,
-	pos, camTopLeft, p_pos: [2]f32,
-	bounding_box: rl.Rectangle,
-) {
-	tex := foliage_textures[data.plant_type]
-
-	if tex.id == 0 do return
-
-	cs := camera.state.cs
-	tex_w, tex_h := f32(tex.width), f32(tex.height)
-
-	draw_x := pos.x - camTopLeft.x + camera.state.x_offset
-	draw_y := pos.y - camTopLeft.y + camera.state.y_offset
-
-	scale := cs * 0.015
-
-	offset_y := 0.08 * cs * 4.0
-	x := draw_x - (tex_w * scale * 0.5)
-	y := draw_y - (tex_h * scale) + offset_y
-
-	if !data.is_dying {
-		p_pos_screen: [2]f32 = {
-			p_pos.x - camTopLeft.x + camera.state.x_offset,
-			p_pos.y - camTopLeft.y + camera.state.y_offset,
-		}
-
-		if rl.CheckCollisionPointRec(p_pos_screen, bounding_box) {
-			data.alpha = 150
-		} else {
-			data.alpha = 255
-		}
-	}
-
-	rl.DrawTextureEx(tex, {x, y}, 0.0, scale, {255, 255, 255, data.alpha})
 }
 
 @(private = "file")
