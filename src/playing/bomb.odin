@@ -1,11 +1,14 @@
 package playing
 
+import hm "core:container/handle_map"
 import "core:math"
-
 import "core:math/linalg"
 import "core:time"
 
 import "../camera"
+import "../physics"
+
+import "vendor:box2d"
 import rl "vendor:raylib"
 
 @(private)
@@ -39,7 +42,58 @@ updateBomb :: proc(e: ^Entity, handle: EntityHandle, dt: f32) {
 	diff := f32(time.duration_seconds(time.diff(data.start_time, time.now())))
 	if data.dur < diff {
 		// explode
-		removeEntity(handle)
+		rad: f32 = 2.25
+		explode_def := box2d.DefaultExplosionDef()
+		explode_def.position = data.dest / camera.state.cs
+		explode_def.falloff = 0
+		explode_def.impulsePerLength = 17
+		explode_def.radius = rad
+
+		box2d.World_Explode(physics.phyWorld, explode_def)
+
+		it := hm.iterator_make(&entities)
+		radius := rad * camera.state.cs
+		rad_sq := radius * radius
+
+		for oe, handle in hm.iterate(&it) {
+			dx := abs(oe.pos.x - e.pos.x)
+			dy := abs(oe.pos.y - e.pos.y)
+			d_sq := (dx * dx) + (dy * dy)
+
+			if d_sq > rad_sq do continue
+
+			dist := math.pow(d_sq, 0.5)
+
+			damage := linalg.lerp(f32(70), f32(20), dist / radius)
+
+			switch &odata in &oe.data {
+			case PlayerData:
+				oe.health -= damage * 0.5
+
+				if oe.health <= 0 {
+					changePlayerState(&odata, .DEAD)
+				} else {
+					changePlayerState(&odata, .HURT)
+				}
+			case EnemyData:
+				oe.health -= damage
+
+				if oe.health <= 0 {
+					changeEnemyState(&odata, .DEAD)
+				} else {
+					changeEnemyState(&odata, .HURT)
+				}
+			case FoliageData:
+				odata.is_dying = true
+				odata.time_left = 0.5
+
+				playSound(.CUT_FOLIAGE)
+			case BombData:
+			//wtf
+			}
+		}
+
+		removeEntity(handle) // remove the bomb entity
 		return
 	}
 
