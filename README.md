@@ -1,3 +1,5 @@
+# IF YOU WANT TO PLAY THE LATEST VERSION, PLAY HERE: [preview.bs-odin.pages.dev](https://preview3.bs-odin.pages.dev/) 
+
 # BS-Odin
 A stupidly simple game. Where you either kill or die. A game focused on performance, resource utilisation and being cool!
 
@@ -5,7 +7,7 @@ This game was made during the [Horizons](https://horizons.hackclub.com/) event b
 
 <img width="960" height="540" alt="Frame 1" src="https://github.com/user-attachments/assets/0254c3e5-eae3-4d10-9979-c4f6b1c8fae4" />
 
-https://github.com/user-attachments/assets/e6a52292-9994-4728-8318-c3a1fb2e6908
+https://github.com/user-attachments/assets/c38ef5e9-cfac-4bb5-8c4c-cdc9ea83750a
 
 ## Controls
 - `WASD`  to move
