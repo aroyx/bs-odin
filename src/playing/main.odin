@@ -31,7 +31,7 @@ pause_menu := false
 enter :: proc() {
 	rotate_phone_texture = rl.LoadTexture("res/images/rotate_phone.png")
 	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)
-	bomb_tex = rl.LoadTexture("res/images/mouse/target.png")
+	bomb_tex = rl.LoadTexture("res/images/misc/bomb.png")
 	rl.SetTextureFilter(bomb_tex, .BILINEAR)
 
 	loadFoliage()
@@ -215,6 +215,7 @@ render :: proc() -> bool {
 		case PlayerData:
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
 			renderHealthBar(health, e.id, pos, camTopLeft, G1, G2)
+            drawBombTrajectory(&d, p_pos, camTopLeft)
 		case FoliageData:
 			drawFoliage(&d, pos, camTopLeft, p_pos, bounding_box)
 		case BombData:

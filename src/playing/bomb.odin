@@ -14,8 +14,21 @@ import rl "vendor:raylib"
 @(private)
 bomb_tex: rl.Texture
 
+@(private = "file")
+num_frames :: 8
+
+@(private = "file")
+b_tex_aspect_ratio :: 222.0 / 298.0
+
 @(private)
-spawnBomb :: proc(pos, target: [2]f32) {
+spawnBomb :: proc(p_pos, t_pos: [2]f32) {
+	height := camera.state.cs * 2
+	width := height * b_tex_aspect_ratio
+	target := t_pos + {width / 2, height / 2}
+
+	pos := p_pos
+	pos.y += height / 2
+
 	b_data: BombData = {
 		start      = pos,
 		dest       = target,
@@ -64,7 +77,7 @@ updateBomb :: proc(e: ^Entity, handle: EntityHandle, dt: f32) {
 
 			dist := math.pow(d_sq, 0.5)
 
-			damage := linalg.lerp(f32(70), f32(20), dist / radius)
+			damage := linalg.lerp(f32(100), f32(30), dist / radius)
 
 			switch &odata in &oe.data {
 			case PlayerData:
@@ -110,13 +123,59 @@ updateBomb :: proc(e: ^Entity, handle: EntityHandle, dt: f32) {
 
 @(private)
 drawBomb :: proc(data: ^BombData, pos, camTopLeft: [2]f32) {
-
 	if bomb_tex.id == 0 do return
 
 	s_pos := [2]f32 {
-		pos.x - camTopLeft.x + camera.state.x_offset - (f32(bomb_tex.width) * 0.5),
-		pos.y - camTopLeft.y + camera.state.y_offset - data.height - (f32(bomb_tex.height) * 0.5),
+		pos.x - camTopLeft.x + camera.state.x_offset,
+		pos.y - camTopLeft.y + camera.state.y_offset - data.height,
 	}
 
-	rl.DrawTextureEx(bomb_tex, s_pos, 0, 1, rl.WHITE)
+	elapsed := f32(time.duration_seconds(time.diff(data.start_time, time.now())))
+
+	index: int = int(elapsed * 6) % int(num_frames)
+	width := f32(bomb_tex.width) / f32(num_frames)
+
+	src: rl.Rectangle = {
+		x      = width * f32(index),
+		y      = 0,
+		width  = width,
+		height = f32(bomb_tex.height),
+	}
+
+	max_height: f32 = 5 * camera.state.cs
+	height := camera.state.cs * 2 * ((data.height / max_height) + 2) / 3
+
+	dst: rl.Rectangle = {
+		x      = s_pos.x,
+		y      = s_pos.y,
+		width  = height * b_tex_aspect_ratio,
+		height = height,
+	}
+
+	origin: [2]f32 = {dst.width / 2, dst.height / 2}
+
+	rl.DrawTexturePro(bomb_tex, src, dst, origin, math.sin(elapsed * 5) * 20, rl.WHITE)
+}
+
+@(private)
+drawBombTrajectory :: proc(data: ^PlayerData, p_pos, camTopLeft: [2]f32) {
+	if data.state != .BOMB_AIM do return
+
+	m_pos := rl.GetMousePosition() + {32, 32}
+
+	cs := camera.state.cs
+	cp := camera.camPos
+
+	start_pos: [2]f32 = {
+		p_pos.x - camTopLeft.x + camera.state.x_offset,
+		p_pos.y - camTopLeft.y + camera.state.y_offset - (cs * 2.5),
+	}
+
+	max_height: f32 = 5 * cs
+
+	c_pos: [2]f32 = {(start_pos.x + m_pos.x) / 2, ((start_pos.y + m_pos.y) / 2) - max_height}
+
+	traj_col: rl.Color = {50, 140, 230, 170}
+	rl.DrawSplineSegmentBezierQuadratic(start_pos, c_pos, m_pos, camera.state.cs / 4, traj_col)
+	rl.DrawCircleV(m_pos, 24, traj_col)
 }

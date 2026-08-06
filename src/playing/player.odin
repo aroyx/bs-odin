@@ -327,11 +327,11 @@ updatePlayerBombAim :: proc(p_data: ^PlayerData) {
 		}
 
 		t_pos: [2]f32 = {
-			camTopLeft.x + m_pos.x - camera.state.x_offset + f32(bomb_tex.width) * 0.5,
-			camTopLeft.y + m_pos.y - camera.state.y_offset + f32(bomb_tex.height) * 0.5,
+			camTopLeft.x + m_pos.x - camera.state.x_offset,
+			camTopLeft.y + m_pos.y - camera.state.y_offset,
 		}
 
-		p_pos.y -= (cs * 2) - f32(bomb_tex.height) * 0.5
+		p_pos.y -= (cs * 2)
 
 		spawnBomb(p_pos, t_pos)
 
