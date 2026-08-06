@@ -1327,3 +1327,15 @@ Next day I will probably make a working version!, can't wait to see what happens
 Anyway here' a video of working bomb aiming!
 
 https://github.com/user-attachments/assets/29087582-7262-4646-b633-71d34b96dbde
+
+# Devlog #29
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 3h 32m       |
+| Total Time     | 183h 22m 1s  |
+| Date           | 5th Aug 2026 |
+
+There's nothing much to talk about, I just banged my head again and again until the bomb throwing worked, now I will need to just use appropriate sprites for them.
+
+
