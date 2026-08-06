@@ -1338,4 +1338,4 @@ https://github.com/user-attachments/assets/29087582-7262-4646-b633-71d34b96dbde
 
 There's nothing much to talk about, I just banged my head again and again until the bomb throwing worked, now I will need to just use appropriate sprites for them.
 
-
+https://github.com/user-attachments/assets/c38ef5e9-cfac-4bb5-8c4c-cdc9ea83750a
