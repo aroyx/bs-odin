@@ -1350,6 +1350,10 @@ https://github.com/user-attachments/assets/c38ef5e9-cfac-4bb5-8c4c-cdc9ea83750a
 
 Okay so today was a fun day! I spent a lot of my time drawing this cool bomb sprite! I am quite proud of it :)
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/9006a5de-a7b6-4b2e-bfa7-d701dd3f9625" alt="gif of an animated bomb, the bomb is of black colour with a big thread like thing poking out of it that is burnt and the sparkles are flying all over the place. the bomb looks meh. but i made it, so it looks waow!" /><br>
+</p>
+
 Also I implemented this bomb working in my game too!
 
-
+https://github.com/user-attachments/assets/910775fb-5cb8-4629-8d35-038765d57e33
