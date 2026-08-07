@@ -68,7 +68,7 @@ updateBomb :: proc(e: ^Entity, handle: EntityHandle, dt: f32) {
 		radius := rad * camera.state.cs
 		rad_sq := radius * radius
 
-		for oe, handle in hm.iterate(&it) {
+		for oe, _ in hm.iterate(&it) {
 			dx := abs(oe.pos.x - e.pos.x)
 			dy := abs(oe.pos.y - e.pos.y)
 			d_sq := (dx * dx) + (dy * dy)
@@ -164,7 +164,6 @@ drawBombTrajectory :: proc(data: ^PlayerData, p_pos, camTopLeft: [2]f32) {
 	m_pos := rl.GetMousePosition() + {32, 32}
 
 	cs := camera.state.cs
-	cp := camera.camPos
 
 	start_pos: [2]f32 = {
 		p_pos.x - camTopLeft.x + camera.state.x_offset,

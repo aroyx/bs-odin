@@ -135,7 +135,7 @@ DrawPolygonFcn :: proc "c" (
 
 	sVertices[vertexCount] = sVertices[0]
 
-	rl.DrawLineStrip(cast([^]rl.Vector2)raw_data(sVertices), vertexCount + 1, col)
+	rl.DrawLineStrip(raw_data(sVertices), vertexCount + 1, col)
 }
 
 @(private = "file")
@@ -164,7 +164,7 @@ DrawSolidPolygonFcn :: proc "c" (
 		sVertices[i] = {world_point.x * scale, world_point.y * scale}
 	}
 
-	rl.DrawTriangleFan(cast([^]rl.Vector2)raw_data(sVertices), vertexCount, col)
+	rl.DrawTriangleFan(raw_data(sVertices), vertexCount, col)
 
 	sVertices[vertexCount] = sVertices[0]
 	r := radius * scale
@@ -175,7 +175,7 @@ DrawSolidPolygonFcn :: proc "c" (
 			rl.DrawLineEx(sVertices[i], sVertices[i + 1], r * 2.0, col)
 		}
 	} else {
-		rl.DrawLineStrip(cast([^]rl.Vector2)raw_data(sVertices), vertexCount + 1, col)
+		rl.DrawLineStrip(raw_data(sVertices), vertexCount + 1, col)
 	}
 }
 

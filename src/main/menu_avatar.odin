@@ -329,7 +329,6 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 	ui.updateMouseOnInteract()
 
 	{
-		current_index := (int(curr_type) * num_tiers) + int(curr_tier)
 		prev_index := (current_index - 1 + total_options) % total_options
 		next_index := (current_index + 1) % total_options
 
@@ -445,7 +444,6 @@ displaySetImage :: proc(prev_tex, curr_tex, next_tex: rl.Texture) {
 	for i in 0 ..< 3 {
 		selected := i == 1
 
-		size := selected ? 120 : 100
 		alpha: u8 = selected && set_enabled ? 255 : 200
 		weight: f32 = selected ? 1.5 : 1.0
 		percent_y: f32 = selected ? 0.9 : 0.7
@@ -491,7 +489,6 @@ displayPartImages :: proc(prev_tex, curr_tex, next_tex: rl.Texture) {
 	for i in 0 ..< 3 {
 		selected := i == 1
 
-		size := selected ? 120 : 100
 		alpha: u8 = selected && !set_enabled ? 255 : 200
 		weight: f32 = selected ? 1.5 : 1.0
 		percent_y: f32 = selected ? 0.9 : 0.7

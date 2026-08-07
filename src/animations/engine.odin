@@ -3,7 +3,6 @@ package animation
 import "core:fmt"
 import "core:math"
 import "core:math/linalg"
-import "core:time"
 
 @(private = "file")
 lerpAngle :: proc(start, end, t: f32, spin: i8 = 1) -> f32 {
@@ -31,7 +30,7 @@ DrawCommand :: struct {
 
 calculateFrame :: proc(
     animation: AnimationName,
-	time_ms: f32,
+	ptime_ms: f32,
 	root_pos: linalg.Vector2f32,
 	scale: f32,
 ) -> [dynamic]DrawCommand //
@@ -44,7 +43,7 @@ calculateFrame :: proc(
     }
 
     anim := &entity.animations[anim_name]
-	time_ms := math.mod(time_ms, f32(anim.length))
+	time_ms := math.mod(ptime_ms, f32(anim.length))
 
 	root := Transform {
 		x       = root_pos.x,
@@ -73,8 +72,6 @@ calculateFrame :: proc(
 
 	for obj_ref in anim.mainline.obj_refs {
 		trans := getTimelineTransform(anim, obj_ref.timeline, time_ms)
-
-		tl := anim.timelines[obj_ref.timeline]
 
 		final_trans: Transform
 

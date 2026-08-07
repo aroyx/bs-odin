@@ -1,5 +1,6 @@
 package playing
 
+import "base:runtime"
 import hm "core:container/handle_map"
 import "core:math/linalg"
 import "core:math/rand"
@@ -109,7 +110,7 @@ BombData :: struct {
 updateEntitiesPosition :: proc() {
 	it := hm.iterator_make(&entities)
 
-	for entity, handle in hm.iterate(&it) {
+	for entity, _ in hm.iterate(&it) {
 		#partial switch type in entity.data {
 		case FoliageData, BombData:
 			continue
@@ -172,8 +173,6 @@ generateEntities :: proc() {
 	playerShapeDef := box2d.DefaultShapeDef()
 	_ = box2d.CreatePolygonShape(player_physics_id, playerShapeDef, &playerBox)
 
-	cs := camera.state.cs
-
 	p_entity := Entity {
 		pos        = player_pos,
 		data       = player_data,
@@ -185,7 +184,7 @@ generateEntities :: proc() {
 	player_handle = addEntity(&p_entity)
 
 	total_enemies = 0
-	for i in 1 ..< 128 {
+	for _ in 1 ..< 128 {
 		// enemy animation
 		e_pos := getRandomLandPosition()
 
@@ -244,7 +243,7 @@ generateEntities :: proc() {
 getRandomLandPosition :: proc() -> linalg.Vector2f32 {
 	tries := 100
 
-	for i in 0 ..< 100 {
+	for _ in 0 ..< tries {
 		x := rand.float32() * camera.state.cs * utils.MAP_SIZE
 		y := rand.float32() * camera.state.cs * utils.MAP_SIZE
 
@@ -284,7 +283,7 @@ addEntity :: proc(entity: ^Entity) -> EntityHandle {
 
 removeEntity :: proc(handle: EntityHandle) -> bool {
 	ok, err := hm.remove(&entities, handle)
-	if !ok {
+	if !ok || err != runtime.Allocator_Error.None {
 		return false
 	}
 

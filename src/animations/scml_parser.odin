@@ -6,7 +6,6 @@ import "core:strings"
 import "core:encoding/xml"
 import "core:fmt"
 import "core:strconv"
-import "core:time"
 import "vendor:raylib"
 
 @(private)

@@ -318,7 +318,6 @@ showSaveDiagloge :: proc() {
 		},
 	)
 
-	br: f32 = 10
 	{
 		orui.container(
 			orui.id("upper texts"),

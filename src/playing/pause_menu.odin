@@ -248,7 +248,6 @@ showSaveDiagloge :: proc() {
 		},
 	)
 
-	br: f32 = 10
 	{
 		orui.container(
 			orui.id("upper texts"),
@@ -305,9 +304,6 @@ showSaveDiagloge :: proc() {
 			show_save_diag = false
 			audio.playMenuClickedSound()
 
-			if !utils.global.options.on_mobile {
-				ui.hideCursor()
-			}
 		}
 
 		if diaglogueButton("cancel", "\u0078", "Cancel", WHITE) {

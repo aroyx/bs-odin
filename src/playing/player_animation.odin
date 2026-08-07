@@ -56,7 +56,8 @@ drawAnimate :: proc(
 	}
 
 	cs := camera.state.cs
-	tex_w, tex_h: f32 = 230, 500
+	// tex_w, tex_h: f32 = 230, 500
+	tex_w: f32 = 230
 
 	draw_x := pos.x - camTopLeft.x + camera.state.x_offset
 	draw_y := pos.y - camTopLeft.y + camera.state.y_offset + (cs * 0.25)
