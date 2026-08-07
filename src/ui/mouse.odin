@@ -66,7 +66,9 @@ updateMouseOnInteract :: proc() {
 renderMouse :: proc() {
 	if hidden {
 		w, h := rl.GetScreenWidth(), rl.GetScreenHeight()
-		rl.SetMousePosition(w / 2, h / 2)
+		when ODIN_OS != .JS {
+			rl.SetMousePosition(w / 2, h / 2)
+		}
 		return
 	}
 
