@@ -1,3 +1,6 @@
+> [!NOTE]
+> This game is not dead, and is under active development in '[work](https://github.com/aroyx/bs-odin/tree/work)' branch for the time being. You can check out latest build in [preview.bs-odin.pages.dev](https://preview.bs-odin.pages.dev/)
+
 # BS-Odin
 A stupidly simple game. Where you either kill or die. A game focused on performance, resource utilisation and being cool!
 
