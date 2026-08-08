@@ -33,6 +33,8 @@ enter :: proc() {
 	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)
 	bomb_tex = rl.LoadTexture("res/images/misc/bomb.png")
 	rl.SetTextureFilter(bomb_tex, .BILINEAR)
+	blast_tex = rl.LoadTexture("res/images/misc/explosion_pirated.png")
+	rl.SetTextureFilter(blast_tex, .BILINEAR)
 
 	loadFoliage()
 
