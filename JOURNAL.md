@@ -1357,3 +1357,21 @@ Okay so today was a fun day! I spent a lot of my time drawing this cool bomb spr
 Also I implemented this bomb working in my game too!
 
 https://github.com/user-attachments/assets/910775fb-5cb8-4629-8d35-038765d57e33
+
+# Devlog #31
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 2h 16m       |
+| Total Time     | 187h 50m 1s  |
+| Date           | 9th Aug 2026 |
+
+
+This devlog is over the span of 3 days.
+
+Okay so I added the bomb last time, I added the blast this time! Pulled an rendreing fix in `orui` from the upstream [orui#13](https://github.com/andzdroid/orui/issues/13). Fixed some errors that are thrown by the `-vet` flag - this just makes the code more robust.
+
+And that's about it, lately I've been switching to enjoying my time with family and friends. College is around the corner so I am trying to enjoy the last bits of time I have. Also I am working on another project with @Shibam. It's something completely new to me - Object detection model to simulation. I'll not discuss it here anymore.
+
+Next day, I'll probably work on that or adding a `custom-keymap` thingy in options menu to let the user pick the keymaps they want.
+I also have plans to build an APK and run the app in my Android. I wonder how that'll be like. Anyway, until then bye!
