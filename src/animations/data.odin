@@ -22,10 +22,14 @@ CharacterType :: enum u8 {
 	SKELETON,
 	ZOMBIE_VILLAGER,
 	GOBLIN,
+	BLOODY_ALCHEMIST,
 	MINOTAUR,
+	FOREST_RANGER,
 	REAPER,
+	VALKYRIE,
 	FALLEN_ANGEL,
 	SEER,
+	DARK_ORACLE,
 	GOLEM,
 }
 
@@ -97,14 +101,18 @@ part_lookup := [BodyPart]string {
 
 @(private)
 type_lookup := [CharacterType]string {
-	.SKELETON        = "skeleton",
-	.GOBLIN          = "goblin",
-	.GOLEM           = "golem",
-	.MINOTAUR        = "minotaur",
-	.REAPER          = "reaper",
-	.SEER            = "seer",
-	.ZOMBIE_VILLAGER = "zombievillager",
-	.FALLEN_ANGEL    = "fallenangel",
+	.SKELETON         = "skeleton",
+	.GOBLIN           = "goblin",
+	.GOLEM            = "golem",
+	.MINOTAUR         = "minotaur",
+	.REAPER           = "reaper",
+	.SEER             = "seer",
+	.ZOMBIE_VILLAGER  = "zombie_villager",
+	.FALLEN_ANGEL     = "fallen_angel",
+	.BLOODY_ALCHEMIST = "bloody_alchemist",
+	.DARK_ORACLE      = "dark_oracle",
+	.FOREST_RANGER    = "forest_ranger",
+	.VALKYRIE         = "valkyrie",
 }
 
 @(private)
