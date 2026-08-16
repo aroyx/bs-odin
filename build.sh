@@ -77,6 +77,8 @@ if [[ "$EXE" == "wasm" ]]; then
 
     ODIN_PATH=$(odin root)
     cp $ODIN_PATH/core/sys/wasm/js/odin.js $OUT_DIR
+    cp res/images/misc/icon.ico $OUT_DIR/favicon.ico
+
 
     echo "odin build $SRC_DIR $COLLECTION $FLAGS -out:\"$OUT_DIR/game.wasm.obj\""
     odin build $SRC_DIR $COLLECTION $FLAGS -out:"$OUT_DIR/game.wasm.obj"
