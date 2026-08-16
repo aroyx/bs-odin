@@ -17,7 +17,7 @@ Entity :: struct {
 	handle:     EntityHandle,
 	id:         int, // a unique number per entity for animation and shii
 	health:     f32,
-	pos:        linalg.Vector2f32,
+	pos:        [2]f32,
 	physics_id: box2d.BodyId,
 	data:       EntityData,
 	size:       [2]f32,
@@ -72,7 +72,7 @@ EnemyData :: struct {
 	state:           EnemyState,
 	skin:            CharacterSkin,
 	animation:       AnimationState,
-	target_pos:      linalg.Vector2f32,
+	target_pos:      [2]f32,
 	attack_landed:   bool,
 	target_time:     f32,
 	stun_cooldown:   f32,
@@ -240,7 +240,7 @@ generateEntities :: proc() {
 }
 
 @(private = "file")
-getRandomLandPosition :: proc() -> linalg.Vector2f32 {
+getRandomLandPosition :: proc() -> [2]f32 {
 	tries := 100
 
 	for _ in 0 ..< tries {

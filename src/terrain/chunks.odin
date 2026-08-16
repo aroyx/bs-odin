@@ -141,7 +141,7 @@ vertices_pos: [dynamic]rl.Vector3
 vertices_col: [dynamic]rl.Color
 
 @(private)
-pushTriangle :: proc(a, b, c: linalg.Vector2f32, color: rl.Color) {
+pushTriangle :: proc(a, b, c: [2]f32, color: rl.Color) {
 	append(
 		&vertices_pos,
 		rl.Vector3{a.x, a.y, 0.0},

@@ -88,7 +88,7 @@ blend_start_time: time.Time
 @(private = "file")
 blend_dur :: 250 // ms
 
-runAnimation :: proc(pos: linalg.Vector2f32, scale: f32) -> [dynamic]anim.DrawCommand {
+runAnimation :: proc(pos: [2]f32, scale: f32) -> [dynamic]anim.DrawCommand {
 	animation_elapsed := f32(
 		time.duration_milliseconds(time.diff(animation_start_time, time.now())),
 	)

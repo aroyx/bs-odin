@@ -31,7 +31,7 @@ DrawCommand :: struct {
 calculateFrame :: proc(
     animation: AnimationName,
 	ptime_ms: f32,
-	root_pos: linalg.Vector2f32,
+	root_pos: [2]f32,
 	scale: f32,
 ) -> [dynamic]DrawCommand //
 {

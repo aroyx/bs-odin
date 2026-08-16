@@ -36,7 +36,7 @@ drawPhysics :: proc() {
 
 	debug_draw_config.useDrawingBounds = true
 
-	camTopLeft: linalg.Vector2f32 = {
+	camTopLeft: [2]f32 = {
 		math.clamp(
 			camera.camPos.x - (cs * camera.state.hcc * 0.5),
 			0,
