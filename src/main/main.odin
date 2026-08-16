@@ -22,6 +22,12 @@ init :: proc() {
 	rl.InitWindow(1280, 720, "BS-Odin")
 	rl.InitAudioDevice()
 
+	when ODIN_OS != .JS {
+		icon := rl.LoadImage("res/images/misc/icon.png")
+		rl.SetWindowIcon(icon)
+		rl.UnloadImage(icon)
+	}
+
 	when ODIN_OS == .JS {
 		rl.SetAudioStreamBufferSizeDefault(128)
 	}
