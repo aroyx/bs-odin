@@ -7,7 +7,7 @@ This game was made during the [Horizons](https://horizons.hackclub.com/) event b
 
 <img width="960" height="540" alt="Frame 1" src="https://github.com/user-attachments/assets/0254c3e5-eae3-4d10-9979-c4f6b1c8fae4" />
 
-https://github.com/user-attachments/assets/c38ef5e9-cfac-4bb5-8c4c-cdc9ea83750a
+https://github.com/user-attachments/assets/094f4847-ea5a-4db2-9a7c-6e8909de0658
 
 ## Controls
 - `WASD`  to move
