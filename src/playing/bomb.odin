@@ -215,8 +215,6 @@ drawBomb :: proc(data: ^BombData, pos, camTopLeft: [2]f32) {
 
 @(private)
 drawBombTrajectory :: proc(data: ^PlayerData, p_pos, camTopLeft: [2]f32) {
-	if data.state != .BOMB_AIM do return
-
 	m_pos := rl.GetMousePosition() + {32, 32}
 
 	cs := camera.state.cs

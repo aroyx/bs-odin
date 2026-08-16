@@ -61,6 +61,7 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	p_data.attack_cooldown -= dt
 	p_data.stun_cooldown -= dt
 	p_data.bomb_cooldown -= dt
+	p_data.arrow_cooldown -= dt
 
 	regen_wait -= dt
 	footstep_timer -= dt
@@ -229,6 +230,13 @@ updatePlayerMovement :: proc(p_data: ^PlayerData) {
 			}
 		}
 
+		if rl.IsKeyPressed(.E) {
+			if p_data.arrow_cooldown <= 0 {
+				changePlayerState(p_data, .ARROW_AIM)
+				return
+			}
+		}
+
 		speed: f32 = running ? 10 : 5
 		force: box2d.Vec2 = dir * speed
 		p_entity := hm.get(&entities, player_handle)
@@ -341,10 +349,10 @@ updatePlayerBombAim :: proc(p_data: ^PlayerData) {
 
 		if p_pos.x > t_pos.x {
 			p_data.animation.flip_x = -1
-		}; if p_pos.x < t_pos.x {
+		}
+		if p_pos.x < t_pos.x {
 			p_data.animation.flip_x = 1
 		}
-
 	}
 }
 
@@ -359,6 +367,79 @@ updatePlayerBombThrow :: proc(p_data: ^PlayerData) {
 @(private = "file")
 updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
 	// implement the animation of aiming towards the cursor somehow...
+	if rl.IsMouseButtonPressed(.RIGHT) || rl.IsKeyPressed(.E) {
+		changePlayerState(p_data, .IDLE)
+		return
+	}
+
+	speed: f32 = 5
+	force: box2d.Vec2 = dir * speed
+	p_entity := hm.get(&entities, player_handle)
+
+	box2d.Body_ApplyForceToCenter(p_entity.physics_id, force, true)
+
+	if dir.x != 0 || dir.y != 0 {
+		camera.startTagAlong(p_entity.pos)
+
+		// there is no running when aiming arrow
+		if p_data.animation.current_animation != .WALKING {
+			changeAnimation(&p_data.animation, .WALKING)
+		}
+		if footstep_timer <= 0 {
+			footstep_timer = 0.5
+			playSound(.FOOTSTEP)
+		}
+	} else {
+		if p_data.animation.current_animation != .IDLE {
+			changeAnimation(&p_data.animation, .IDLE)
+		}
+	}
+
+	if dir.x < 0 {
+		p_data.animation.flip_x = -1
+	} else if dir.x > 0 {
+		p_data.animation.flip_x = 1
+	}
+
+	if attacking {
+		changePlayerState(p_data, .ARROW_THROW)
+
+		p_pos := p_entity.pos
+		m_pos := rl.GetMousePosition()
+
+		cs := camera.state.cs
+		cp := camera.camPos
+
+		camTopLeft: linalg.Vector2f32 = {
+			math.clamp(
+				cp.x - (cs * camera.state.hcc * 0.5),
+				0,
+				cs * (utils.MAP_SIZE - camera.state.hcc),
+			),
+			math.clamp(
+				cp.y - (cs * camera.state.vcc * 0.5),
+				0,
+				cs * (utils.MAP_SIZE - camera.state.vcc),
+			),
+		}
+
+		t_pos: [2]f32 = {
+			camTopLeft.x + m_pos.x - camera.state.x_offset,
+			camTopLeft.y + m_pos.y - camera.state.y_offset,
+		}
+
+		p_pos.y -= (cs * 2)
+
+		spawnArrow(p_pos, t_pos)
+
+		if p_pos.x > t_pos.x {
+			p_data.animation.flip_x = -1
+		}
+		if p_pos.x < t_pos.x {
+			p_data.animation.flip_x = 1
+		}
+
+	}
 }
 
 @(private = "file")
@@ -427,7 +508,11 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 	case .ARROW_AIM:
 	// cursor will be still invisible, the rotation of the bow will be the cue
 	case .ARROW_THROW:
-	// arrow shoot animation. idk how to implement it but we have to make a new animation for it...
+		// arrow shoot animation. idk how to implement it but we have to make a new animation for it...
+		data.arrow_cooldown = 7
+		attack_landed = false
+		regen_wait = 5
+		breathed = false
 	}
 }
 
@@ -435,7 +520,7 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 drawWeaponTrajectory :: proc(data: ^PlayerData, p_pos, camTopLeft: [2]f32) {
 	if data.state == .BOMB_AIM {
 		drawBombTrajectory(data, p_pos, camTopLeft)
-	} else if data.state == .BOMB_AIM {
+	} else if data.state == .ARROW_AIM {
 		drawArrowTrajectory(data, p_pos, camTopLeft)
 	} else do return
 }

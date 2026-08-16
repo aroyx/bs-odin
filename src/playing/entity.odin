@@ -52,6 +52,7 @@ PlayerData :: struct {
 	stun_cooldown:   f32,
 	attack_cooldown: f32,
 	bomb_cooldown:   f32,
+	arrow_cooldown:  f32,
 }
 
 PlayerState :: enum u8 {
@@ -63,8 +64,8 @@ PlayerState :: enum u8 {
 	DEAD,
 	BOMB_AIM,
 	BOMB_THROW,
-    ARROW_AIM,
-    ARROW_THROW,
+	ARROW_AIM,
+	ARROW_THROW,
 }
 
 EnemyData :: struct {

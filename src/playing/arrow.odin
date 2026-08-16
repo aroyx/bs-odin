@@ -1,6 +1,10 @@
 package playing
 
 @(private)
+spawnArrow :: proc(p_pos, t_pos: [2]f32) {
+}
+
+@(private)
 updateArrow :: proc() {
 
 }
