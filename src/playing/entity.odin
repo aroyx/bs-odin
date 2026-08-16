@@ -42,6 +42,7 @@ EntityData :: union {
 	EnemyData,
 	FoliageData,
 	BombData,
+	ArrowData,
 }
 
 PlayerData :: struct {
@@ -62,6 +63,8 @@ PlayerState :: enum u8 {
 	DEAD,
 	BOMB_AIM,
 	BOMB_THROW,
+    ARROW_AIM,
+    ARROW_THROW,
 }
 
 EnemyData :: struct {
@@ -92,19 +95,15 @@ FoliageData :: struct {
 
 BombData :: struct {
 	start, dest: [2]f32,
-	dur, height:         f32,
+	dur, height: f32,
 	start_time:  time.Time,
 }
 
-// HealthRegenerate :: union {
-// 	NoRegenerate,
-// 	YesRegenerate,
-// }
-
-// NoRegenerate :: struct {}
-// YesRegenerate :: struct {
-// 	wait_for: f32, // time to rest before can regenerate
-// }
+ArrowData :: struct {
+	start_pos, dir: [2]f32,
+	strength:       f32,
+	shooter:        EntityHandle,
+}
 
 @(private)
 updateEntitiesPosition :: proc() {
@@ -112,7 +111,7 @@ updateEntitiesPosition :: proc() {
 
 	for entity, _ in hm.iterate(&it) {
 		#partial switch type in entity.data {
-		case FoliageData, BombData:
+		case FoliageData, BombData, ArrowData:
 			continue
 		}
 

@@ -122,6 +122,10 @@ playerStateMachineUpdate :: proc(dt: f32) {
 		updatePlayerBombAim(p_data)
 	case .BOMB_THROW:
 		updatePlayerBombThrow(p_data)
+	case .ARROW_AIM:
+		updatePlayerArrowAim(p_data)
+	case .ARROW_THROW:
+		updatePlayerArrowThrow(p_data)
 	}
 
 	if p_data.stun_cooldown > 0 && p_data.state != .HURT {
@@ -203,7 +207,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 
 				playSound(.CUT_FOLIAGE)
 				attack_hit = true
-			case BombData:
+			case BombData, ArrowData:
 			}
 		}
 
@@ -350,7 +354,15 @@ updatePlayerBombThrow :: proc(p_data: ^PlayerData) {
 		changePlayerState(p_data, .IDLE)
 		return
 	}
+}
 
+@(private = "file")
+updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
+	// implement the animation of aiming towards the cursor somehow...
+}
+
+@(private = "file")
+updatePlayerArrowThrow :: proc(p_data: ^PlayerData) {
 }
 
 @(private)
@@ -412,5 +424,18 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		attack_landed = false
 		regen_wait = 5
 		breathed = false
+	case .ARROW_AIM:
+	// cursor will be still invisible, the rotation of the bow will be the cue
+	case .ARROW_THROW:
+	// arrow shoot animation. idk how to implement it but we have to make a new animation for it...
 	}
+}
+
+@(private)
+drawWeaponTrajectory :: proc(data: ^PlayerData, p_pos, camTopLeft: [2]f32) {
+	if data.state == .BOMB_AIM {
+		drawBombTrajectory(data, p_pos, camTopLeft)
+	} else if data.state == .BOMB_AIM {
+		drawArrowTrajectory(data, p_pos, camTopLeft)
+	} else do return
 }

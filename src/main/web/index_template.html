@@ -132,6 +132,10 @@
 				}
 
 				window.requestAnimationFrame(do_main_update);
+
+                document.getElementById('canvas').addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                });
 			},
 			print: (function() {
 				var element = document.getElementById("output");

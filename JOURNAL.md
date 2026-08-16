@@ -1376,5 +1376,4 @@ And that's about it, lately I've been switching to enjoying my time with family 
 Next day, I'll probably work on that or adding a `custom-keymap` thingy in options menu to let the user pick the keymaps they want.
 I also have plans to build an APK and run the app in my Android. I wonder how that'll be like. Anyway, until then bye!
 
-
 https://github.com/user-attachments/assets/94074f66-359c-4942-a0cf-c416121060b0

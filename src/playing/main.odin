@@ -117,6 +117,8 @@ update :: proc(dt: f32) {
 			foliageStateMachineUpdate(e, handle, dt)
 		case BombData:
 			updateBomb(e, handle, dt)
+		case ArrowData:
+			updateArrow()
 		}
 	}
 
@@ -217,11 +219,13 @@ render :: proc() -> bool {
 		case PlayerData:
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
 			renderHealthBar(health, e.id, pos, camTopLeft, G1, G2)
-            drawBombTrajectory(&d, p_pos, camTopLeft)
+			drawWeaponTrajectory(&d, p_pos, camTopLeft)
 		case FoliageData:
 			drawFoliage(&d, pos, camTopLeft, p_pos, bounding_box)
 		case BombData:
 			drawBomb(&d, pos, camTopLeft)
+		case ArrowData:
+			drawArrow()
 		}
 	}
 

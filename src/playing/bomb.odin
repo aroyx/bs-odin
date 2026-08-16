@@ -139,7 +139,7 @@ explode :: proc(data: ^BombData, handle: EntityHandle, e: ^Entity) {
 			odata.time_left = 0.5
 
 			playSound(.CUT_FOLIAGE)
-		case BombData:
+		case BombData, ArrowData:
 		//wtf
 		}
 	}

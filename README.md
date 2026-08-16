@@ -100,6 +100,7 @@ and tbh, that should be it, lemme know if you face any problems
 1. Terrain (not camera) shakes when moving in some Android devices (specifically on slower devices) on Web Build
 2. Multi-Touch doesn't work in WASM (Library issue, I am pretty sure I am doing everything alr, I spent like more 3hrs trying to fix this on 2nd Aug)
 3. In WASM the audio doesn't start until you press the screen once. (This is a wasm limitation can't do anything)
+4. In firefox sprinting (Shift) and trying to throw bomb (Right click) opens context menu. This is a firefox keybind and I can't do anything about it. You may change it from settings.
 
 ## Libraries used
 - Odin Core Library (`linalg`, `math`, `fmt`, etc)
