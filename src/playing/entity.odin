@@ -2,7 +2,6 @@ package playing
 
 import "base:runtime"
 import hm "core:container/handle_map"
-import "core:math/linalg"
 import "core:math/rand"
 import "core:time"
 
@@ -53,6 +52,7 @@ PlayerData :: struct {
 	attack_cooldown: f32,
 	bomb_cooldown:   f32,
 	arrow_cooldown:  f32,
+	arrow_dir:       [2]f32,
 }
 
 PlayerState :: enum u8 {

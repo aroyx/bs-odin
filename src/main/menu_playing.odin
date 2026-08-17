@@ -20,7 +20,7 @@ on_enter :: proc() {
 @(private = "file")
 on_exit :: proc() {
 	playing.exit()
-    ui.showCursor()
+	ui.showCursor()
 }
 
 @(private = "file")

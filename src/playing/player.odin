@@ -364,7 +364,7 @@ updatePlayerBombThrow :: proc(p_data: ^PlayerData) {
 
 @(private = "file")
 updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
-	// implement the animation of aiming towards the cursor somehow...
+	// cancel the arrow aiming
 	if rl.IsMouseButtonPressed(.RIGHT) || rl.IsKeyPressed(.E) {
 		changePlayerState(p_data, .IDLE)
 		return
@@ -396,6 +396,14 @@ updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
 	if dir.x < 0 {
 		p_data.animation.flip_x = -1
 	} else if dir.x > 0 {
+		p_data.animation.flip_x = 1
+	}
+
+	p_data.arrow_dir = linalg.normalize0(p_data.arrow_dir + (rl.GetMouseDelta() * 0.008))
+
+	if p_data.arrow_dir.x < 0 {
+		p_data.animation.flip_x = -1
+	} else if p_data.arrow_dir.x > 0 {
 		p_data.animation.flip_x = 1
 	}
 
@@ -441,6 +449,7 @@ updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
 			p_data.animation.flip_x = 1
 		}
 
+		p_data.attack_cooldown = 0.5
 		changePlayerState(p_data, .IDLE)
 	}
 }
@@ -505,7 +514,6 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		regen_wait = 5
 		breathed = false
 	case .ARROW_AIM:
-	// cursor will be still invisible, the rotation of the bow will be the cue
 	}
 }
 

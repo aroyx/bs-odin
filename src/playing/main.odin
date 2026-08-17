@@ -227,7 +227,7 @@ render :: proc() -> bool {
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
 			renderHealthBar(health, e.id, pos, camTopLeft, R1, R2)
 		case PlayerData:
-			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
+			drawAnimate(&d.animation, &d.skin, pos, camTopLeft, d.state == .ARROW_AIM, d.arrow_dir)
 			renderHealthBar(health, e.id, pos, camTopLeft, G1, G2)
 			drawWeaponTrajectory(&d, p_pos, camTopLeft)
 		case FoliageData:
