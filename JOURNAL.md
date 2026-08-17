@@ -1377,3 +1377,17 @@ Next day, I'll probably work on that or adding a `custom-keymap` thingy in optio
 I also have plans to build an APK and run the app in my Android. I wonder how that'll be like. Anyway, until then bye!
 
 https://github.com/user-attachments/assets/94074f66-359c-4942-a0cf-c416121060b0
+
+# Devlog #32
+
+|                |               |
+| -------------- | ------------  |
+| Time           | 1h 48m        |
+| Total Time     | 189h 38m 1s   |
+| Date           | 16th Aug 2026 |
+
+HOLY! Okay, it's been a long time now, I was busy with my clg admission. It went well. I was also distracted by my other project which we named PicToSim. 
+
+Today I worked on making the arrow thingy. It doesn't work, but I've made the outer skeleton of the arrow, I've only got to make the body, It shouldn't be that hard, I can use bomb's code for reference. I also made a new release for it! Also made the icon work in desktop. And that's about it. I am taking it pretty chill rn, but I plan to get back to my previous pace, it is really hard to work on two things at once!
+
+Anyway, my plans for tmrw is to make the arrow work. Let's just hope it goes well, later I'll implement sliding and other cool things too!
