@@ -125,8 +125,6 @@ playerStateMachineUpdate :: proc(dt: f32) {
 		updatePlayerBombThrow(p_data)
 	case .ARROW_AIM:
 		updatePlayerArrowAim(p_data)
-	case .ARROW_THROW:
-		updatePlayerArrowThrow(p_data)
 	}
 
 	if p_data.stun_cooldown > 0 && p_data.state != .HURT {
@@ -402,7 +400,11 @@ updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
 	}
 
 	if attacking {
-		changePlayerState(p_data, .ARROW_THROW)
+		// shoot the thing!
+		p_data.arrow_cooldown = 7
+		attack_landed = false
+		regen_wait = 5
+		breathed = false
 
 		p_pos := p_entity.pos
 		m_pos := rl.GetMousePosition()
@@ -439,11 +441,8 @@ updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
 			p_data.animation.flip_x = 1
 		}
 
+		changePlayerState(p_data, .IDLE)
 	}
-}
-
-@(private = "file")
-updatePlayerArrowThrow :: proc(p_data: ^PlayerData) {
 }
 
 @(private)
@@ -507,12 +506,6 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		breathed = false
 	case .ARROW_AIM:
 	// cursor will be still invisible, the rotation of the bow will be the cue
-	case .ARROW_THROW:
-		// arrow shoot animation. idk how to implement it but we have to make a new animation for it...
-		data.arrow_cooldown = 7
-		attack_landed = false
-		regen_wait = 5
-		breathed = false
 	}
 }
 

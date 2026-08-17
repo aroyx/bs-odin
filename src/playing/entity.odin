@@ -65,7 +65,6 @@ PlayerState :: enum u8 {
 	BOMB_AIM,
 	BOMB_THROW,
 	ARROW_AIM,
-	ARROW_THROW,
 }
 
 EnemyData :: struct {

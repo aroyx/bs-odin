@@ -38,6 +38,16 @@ enter :: proc() {
 
 	loadFoliage()
 
+	bow_textures[.BOW_1] = rl.LoadTexture("res/images/character/bows/Bow_1.png")
+	bow_textures[.BOW_2] = rl.LoadTexture("res/images/character/bows/Bow_2.png")
+
+	arrow_textures[.BOW_1] = rl.LoadTexture("res/images/character/bows/Arrow_1.png")
+	arrow_textures[.BOW_2] = rl.LoadTexture("res/images/character/bows/Arrow_2.png")
+
+	for b in bow_textures {
+		rl.SetTextureFilter(b, .BILINEAR)
+	}
+
 	attack_button_data.texture = anim.getPartTex(
 		player_skin.type[.WEAPON],
 		player_skin.tier[.WEAPON],

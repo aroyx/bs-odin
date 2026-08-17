@@ -5,15 +5,26 @@ import "../camera"
 
 import "core:fmt"
 import "core:math"
-import "core:math/linalg"
 import "core:math/rand"
 import "core:time"
 
 import rl "vendor:raylib"
 
+@(private)
+BowType :: enum u8 {
+	BOW_1,
+	BOW_2,
+}
+
+@(private)
+bow_textures: [BowType]rl.Texture
+@(private)
+arrow_textures: [BowType]rl.Texture
+
 CharacterSkin :: struct {
 	type: [anim.BodyPart]anim.CharacterType,
 	tier: [anim.BodyPart]anim.CharacterTier,
+	bow:  BowType,
 }
 
 AnimationState :: struct {
@@ -28,17 +39,14 @@ randomSkin :: proc(skin: ^CharacterSkin) {
 		type := anim.CharacterType(rand.int_max(len(anim.CharacterType)))
 		tier := anim.CharacterTier(rand.int_max(len(anim.CharacterTier)))
 
-        setPartType(part, type, skin)
-        setPartTier(part, tier, skin)
+		setPartType(part, type, skin)
+		setPartTier(part, tier, skin)
 	}
+
+	skin.bow = BowType(rand.int_max(len(BowType)))
 }
 
-drawAnimate :: proc(
-	anim_state: ^AnimationState,
-	skin: ^CharacterSkin,
-	pos: linalg.Vector2f32,
-	camTopLeft: linalg.Vector2f32,
-) {
+drawAnimate :: proc(anim_state: ^AnimationState, skin: ^CharacterSkin, pos, camTopLeft: [2]f32) {
 	if anim_state.current_animation_length < 0 {
 		return
 	}
