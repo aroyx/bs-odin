@@ -433,14 +433,11 @@ updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
 			),
 		}
 
-		t_pos: [2]f32 = {
-			camTopLeft.x + m_pos.x - camera.state.x_offset,
-			camTopLeft.y + m_pos.y - camera.state.y_offset,
-		}
 
-		p_pos.y -= (cs * 2)
+		p_pos.y -= (cs * 1.5)
+		t_pos := p_pos + p_data.arrow_dir
 
-		spawnArrow(p_pos, t_pos)
+		spawnArrow(p_pos, t_pos, player_handle)
 
 		if p_pos.x > t_pos.x {
 			p_data.animation.flip_x = -1

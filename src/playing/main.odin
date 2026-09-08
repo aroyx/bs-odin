@@ -128,7 +128,7 @@ update :: proc(dt: f32) {
 		case BombData:
 			updateBomb(e, handle, dt)
 		case ArrowData:
-			updateArrow()
+			updateArrow(e, handle, dt)
 		}
 	}
 
@@ -235,7 +235,7 @@ render :: proc() -> bool {
 		case BombData:
 			drawBomb(&d, pos, camTopLeft)
 		case ArrowData:
-			drawArrow()
+			drawArrow(&d, pos, camTopLeft)
 		}
 	}
 

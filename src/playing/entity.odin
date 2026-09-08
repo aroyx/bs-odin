@@ -101,7 +101,7 @@ BombData :: struct {
 
 ArrowData :: struct {
 	start_pos, dir: [2]f32,
-	strength:       f32,
+	strength, collision_timer:       f32,
 	shooter:        EntityHandle,
 }
 
