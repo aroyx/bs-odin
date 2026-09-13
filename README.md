@@ -27,22 +27,25 @@ The entire process of making this game has been journal-ed in [JOURNAL.md](https
     - Keyboard inputs
     - Animations
     - Customisation
+    - Attacks
+        - Sword (left click)
+        - Bomb (right click to plant bomb, right click again to cancel, left click to shoot the bomb)
+        - Arrow (Press 'E' to aim and left click to shoot, right click to cancel aim)
 - Enemies
     - Randomly generate their skin
     - Enemy AI
 - Performant (The desktop version always stays under 5ms in a pretty washed laptop)
 - Resource efficient (Under 120mb ram usage)
 - Foliage
+    - Persistent Foliage removal
 - Touch Screen Inputs for Android and IOS (Multi Touch doesn't work)
 - Automatic building for MacOS, Linux and ~~Windows~~
 
 ## Features to be added
 - Progression
 - Modifiers related to the weapons, and other wardrobe
-- Persistent Foliage removal
 - Slide
-- Arrows (ARCHER enemies!!!)
-- Bombs - high priority when the game is stable
+- Make enemies that can shoot arrows and throw bombs
 
 ## Running The Game
 
