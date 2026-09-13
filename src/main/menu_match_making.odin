@@ -66,7 +66,24 @@ on_render :: proc() {
 					padding = orui.padding(20),
 				},
 			)
+
+			{orui.container(
+					orui.id("instructions"),
+					{
+						width = orui.grow(),
+						height = orui.fit(),
+						padding = orui.padding(10),
+						border = {left = 4, right = 4},
+						border_color = rl.BLACK,
+						direction = .TopToBottom,
+						gap = 10,
+					},
+				)
+
+				displayInstructions()
+			}
 		}
+
 		{
 			orui.container(
 				orui.id("lower buttons"),
@@ -75,7 +92,7 @@ on_render :: proc() {
 					width = orui.fit(),
 					height = {type = .Percent, value = 0.2, min = 40},
 					align_main = .Center,
-                    gap = 20,
+					gap = 20,
 				},
 			)
 
@@ -88,3 +105,33 @@ on_render :: proc() {
 		}
 	}
 }
+
+@(private = "file")
+displayInstructions :: proc() {
+	orui.label(
+		orui.id("head"),
+		"Instructions",
+		{
+			font = utils.getFont(.LARGE),
+			font_size = utils.getFontSize(.LARGE),
+			width = orui.grow(),
+			height = orui.fit(),
+			color = rl.BLACK,
+			align = {.Center, .Center},
+		},
+	)
+
+	orui.label(
+		orui.id("shit"),
+		"'Right Click' to plant Bomb/Cancel Bomb or Arrow\n\n'Left Click' to sword slash/bomb throw/arrow release\n\nPress 'E' for arrow\n\nWASD to move\n\nShift to sprint",
+		{
+			font = utils.getFont(.MEDIUM),
+			font_size = utils.getFontSize(.MEDIUM),
+			width = orui.grow(),
+			height = orui.fit(),
+			color = rl.BLACK,
+			align = {.Center, .Center},
+		},
+	)
+}
+

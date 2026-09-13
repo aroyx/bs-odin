@@ -46,7 +46,7 @@ updateArrow :: proc(e: ^Entity, handle: EntityHandle, dt: f32) {
 	data, ok := &e.data.(ArrowData)
 	if !ok do return
 
-	data.strength -= 0.2 * dt
+	data.strength -= 0.5 * dt
 
 	if data.strength <= 0 {
 		removeEntity(handle)
@@ -81,6 +81,7 @@ check_collision_arrow_with_other_people_this_is_a_big_name_yeah_idc_this_is_fun_
 
 	for oe, o_handle in hm.iterate(&it) {
 		if o_handle == data.shooter do continue
+        if oe.health <= 0 do continue
 
 		dx := oe.pos.x - e.pos.x
 		if linalg.abs(dx) > hit_radius do continue
@@ -116,7 +117,7 @@ check_collision_arrow_with_other_people_this_is_a_big_name_yeah_idc_this_is_fun_
 			force: f32 = 5
 			impulse: box2d.Vec2 = {knock_dir.x * force, knock_dir.y * force}
 
-			box2d.Body_ApplyLinearImpulseToCenter(e.physics_id, impulse, true)
+			box2d.Body_ApplyLinearImpulseToCenter(oe.physics_id, impulse, true)
 
             hit = true
 		case FoliageData:
@@ -130,6 +131,7 @@ check_collision_arrow_with_other_people_this_is_a_big_name_yeah_idc_this_is_fun_
         
         if hit {
             removeEntity(e.handle)
+            break
         }
 	}
 }
@@ -163,9 +165,4 @@ drawArrow :: proc(data: ^ArrowData, pos, camTopLeft: [2]f32) {
 	rotation := linalg.to_degrees(linalg.atan2(data.dir.y, data.dir.x))
 
 	rl.DrawTexturePro(tex, src, dst, origin, rotation, rl.WHITE)
-}
-
-@(private)
-drawArrowTrajectory :: proc(data: ^PlayerData, p_pos, camTopLeft: [2]f32) {
-
 }

@@ -433,7 +433,6 @@ updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
 			),
 		}
 
-
 		p_pos.y -= (cs * 1.5)
 		t_pos := p_pos + p_data.arrow_dir
 
@@ -518,7 +517,5 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 drawWeaponTrajectory :: proc(data: ^PlayerData, p_pos, camTopLeft: [2]f32) {
 	if data.state == .BOMB_AIM {
 		drawBombTrajectory(data, p_pos, camTopLeft)
-	} else if data.state == .ARROW_AIM {
-		drawArrowTrajectory(data, p_pos, camTopLeft)
-	} else do return
+	}
 }
