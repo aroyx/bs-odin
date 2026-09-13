@@ -1391,3 +1391,15 @@ HOLY! Okay, it's been a long time now, I was busy with my clg admission. It went
 Today I worked on making the arrow thingy. It doesn't work, but I've made the outer skeleton of the arrow, I've only got to make the body, It shouldn't be that hard, I can use bomb's code for reference. I also made a new release for it! Also made the icon work in desktop. And that's about it. I am taking it pretty chill rn, but I plan to get back to my previous pace, it is really hard to work on two things at once!
 
 Anyway, my plans for tmrw is to make the arrow work. Let's just hope it goes well, later I'll implement sliding and other cool things too!
+
+# Devlog #33
+
+Okay, I don't think I'll do the time thingy anymore from now.
+
+Today the game was reviewed and all my hours were approved. I am eligible for $850 laptop grant and my happiness is out of this world. 
+Today, I checked the game, fixed the arrow, made a few tweaks and then merged the 'work' branch to main (finally!). Now that the code is upstream, I also made a release with the game. I am happy :) and I couldn't be more happy
+
+I love this prject a lot and it hurts to not play this anymore.
+
+This game still has a lot of features that I want to work on, but not now anymore. I will come back to this project later again, maybe when I grow up and am layed off from my job due to ai or smth
+Till then bye!
