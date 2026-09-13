@@ -1,5 +1,3 @@
-# IF YOU WANT TO PLAY THE LATEST VERSION, PLAY HERE: [preview.bs-odin.pages.dev](https://preview3.bs-odin.pages.dev/) 
-
 # BS-Odin
 A stupidly simple game. Where you either kill or die. A game focused on performance, resource utilisation and being cool!
 
