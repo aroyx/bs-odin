@@ -82,7 +82,7 @@ calculateNoise :: proc(x: int, y: int) -> f32 {
 	amplitude := terrain_gen_data.start_amplitude
 	frequency: f32 = terrain_gen_data.start_frequency
 
-	for i in 0 ..< terrain_gen_data.iterations {
+	for _ in 0 ..< terrain_gen_data.iterations {
 		sx := f64(x) * f64(terrain_gen_data.scale * frequency)
 		sy := f64(y) * f64(terrain_gen_data.scale * frequency)
 

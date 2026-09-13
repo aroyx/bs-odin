@@ -8,6 +8,7 @@ import "thirdparty:tracy"
 import anim "../animations"
 import "../audio"
 import "../playing"
+import "../ui"
 import "../utils"
 
 import "thirdparty:orui"
@@ -214,6 +215,8 @@ uiSetSelector :: proc() {
 		audio.playMenuClickedSound()
 	}
 
+	ui.updateMouseOnInteract()
+
 	{
 		prev_index := (current_set_index - 1 + total_options) % total_options
 		next_index := (current_set_index + 1) % total_options
@@ -265,6 +268,7 @@ uiSetSelector :: proc() {
 		playing.setSet(new_type, new_tier)
 		audio.playMenuClickedSound()
 	}
+	ui.updateMouseOnInteract()
 }
 
 @(private = "file")
@@ -322,9 +326,9 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		set_enabled = false
 		audio.playMenuClickedSound()
 	}
+	ui.updateMouseOnInteract()
 
 	{
-		current_index := (int(curr_type) * num_tiers) + int(curr_tier)
 		prev_index := (current_index - 1 + total_options) % total_options
 		next_index := (current_index + 1) % total_options
 
@@ -378,6 +382,7 @@ uiTypeSelector :: proc(group: playing.CharacterPartGroup) {
 		set_enabled = false
 		audio.playMenuClickedSound()
 	}
+	ui.updateMouseOnInteract()
 }
 
 @(private = "file")
@@ -439,7 +444,6 @@ displaySetImage :: proc(prev_tex, curr_tex, next_tex: rl.Texture) {
 	for i in 0 ..< 3 {
 		selected := i == 1
 
-		size := selected ? 120 : 100
 		alpha: u8 = selected && set_enabled ? 255 : 200
 		weight: f32 = selected ? 1.5 : 1.0
 		percent_y: f32 = selected ? 0.9 : 0.7
@@ -485,7 +489,6 @@ displayPartImages :: proc(prev_tex, curr_tex, next_tex: rl.Texture) {
 	for i in 0 ..< 3 {
 		selected := i == 1
 
-		size := selected ? 120 : 100
 		alpha: u8 = selected && !set_enabled ? 255 : 200
 		weight: f32 = selected ? 1.5 : 1.0
 		percent_y: f32 = selected ? 0.9 : 0.7

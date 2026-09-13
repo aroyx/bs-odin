@@ -44,7 +44,7 @@ renderTerrain :: proc() {
 	cs := camera.state.cs
 	cp := camera.camPos
 
-	camTopLeft: linalg.Vector2f32 = {
+	camTopLeft: [2]f32 = {
 		math.clamp(
 			cp.x - (cs * camera.state.hcc * 0.5),
 			0,

@@ -1,6 +1,3 @@
-> [!NOTE]
-> This game is not dead, and is under active development in '[work](https://github.com/aroyx/bs-odin/tree/work)' branch for the time being. You can check out latest build in [preview.bs-odin.pages.dev](https://preview.bs-odin.pages.dev/)
-
 # BS-Odin
 A stupidly simple game. Where you either kill or die. A game focused on performance, resource utilisation and being cool!
 
@@ -8,13 +5,13 @@ This game was made during the [Horizons](https://horizons.hackclub.com/) event b
 
 <img width="960" height="540" alt="Frame 1" src="https://github.com/user-attachments/assets/0254c3e5-eae3-4d10-9979-c4f6b1c8fae4" />
 
-https://github.com/user-attachments/assets/e6a52292-9994-4728-8318-c3a1fb2e6908
+https://github.com/user-attachments/assets/094f4847-ea5a-4db2-9a7c-6e8909de0658
 
 ## Controls
-- `C` to sprint
-- `X` to attack
-- `WASD or UP/Down/Left/Right`  to move
-- Mouse to navigate around
+- `WASD`  to move
+- `Left Shift` to sprint
+- `Mouse Left click` to attack
+- Mouse to navigate around (in mobile)
 
 ## Journal
 The entire process of making this game has been journal-ed in [JOURNAL.md](https://github.com/aroyx/bs-odin/blob/main/JOURNAL.md), all the resources used to make this game has been documented in [ATTRIBUTION.md](https://github.com/aroyx/bs-odin/blob/main/ATTRIBUTION.md) 
@@ -76,7 +73,7 @@ git clone --depth=1 https://github.com/aroyx/bs-odin && cd bs-odin
 
 2. Install Dependencies
 
-- [Odin vdev-2026-05 installation](https://github.com/odin-lang/Odin/releases/tag/dev-2026-05), [Odin Install Help](https://odin-lang.org/docs/install/)
+- [Odin vdev-2026-07 installation](https://github.com/odin-lang/Odin/releases/tag/dev-2026-07), [Odin Install Help](https://odin-lang.org/docs/install/)
 - [Raylib v5.5](https://github.com/raysan5/raylib/releases#release-5.5)
 - [Python 3](https://www.python.org/downloads/) - Required for imgui bindings
 
@@ -101,6 +98,7 @@ and tbh, that should be it, lemme know if you face any problems
 1. Terrain (not camera) shakes when moving in some Android devices (specifically on slower devices) on Web Build
 2. Multi-Touch doesn't work in WASM (Library issue, I am pretty sure I am doing everything alr, I spent like more 3hrs trying to fix this on 2nd Aug)
 3. In WASM the audio doesn't start until you press the screen once. (This is a wasm limitation can't do anything)
+4. In firefox sprinting (Shift) and trying to throw bomb (Right click) opens context menu. This is a firefox keybind and I can't do anything about it. You may change it from settings.
 
 ## Libraries used
 - Odin Core Library (`linalg`, `math`, `fmt`, etc)

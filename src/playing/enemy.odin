@@ -124,10 +124,6 @@ updateEnemyAttack :: proc(entity: ^Entity, p_pos: [2]f32) -> bool {
 	e_pos := entity.pos
 	data := &entity.data.(EnemyData)
 
-	dist := linalg.length(p_pos - e_pos)
-	cs := camera.state.cs
-	speed: f32 = 5.0
-
 	anim_length := f32(data.animation.current_animation_length / 1000)
 	land_hit_stall := anim_length * 0.3
 
@@ -175,7 +171,7 @@ changeEnemyState :: proc(data: ^EnemyData, new_state: EnemyState) {
 		data.target_time = 0
 	case .CHASE:
 		changeAnimation(&data.animation, .RUNNING)
-        playSound(.ROAR)
+		playSound(.ROAR)
 	case .ATTACK:
 		data.state = .ATTACK
 		data.attack_cooldown = 1
@@ -185,12 +181,12 @@ changeEnemyState :: proc(data: ^EnemyData, new_state: EnemyState) {
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 	case .HURT:
 		changeAnimation(&data.animation, .HURT)
-        playSound(.HURT)
+		playSound(.HURT)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 	case .DEAD:
 		playSound(.DYING)
 		changeAnimation(&data.animation, .DYING)
 		data.stun_cooldown = data.animation.current_animation_length / 1000
-        total_enemies -= 1
+		total_enemies -= 1
 	}
 }

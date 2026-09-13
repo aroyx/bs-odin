@@ -14,7 +14,7 @@ initPhysics :: proc() {
 
 	phyWorld = box2d.CreateWorld(_phyWorld)
 
-	debug_draw := box2d.DefaultDebugDraw()
+	_ = box2d.DefaultDebugDraw()
 	initDebugDraw()
 
 	{

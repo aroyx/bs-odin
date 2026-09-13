@@ -9,7 +9,7 @@ last_time: time.Time
 total_time, frame_time, fps, dt: f64 = 0, 0, 0, 0
 
 when ODIN_OS == .JS {
-	initTimer :: proc() {
+	startTimer :: proc() {
 		last_time = time.now()
 	}
 
@@ -31,7 +31,7 @@ when ODIN_OS == .JS {
 	@(private = "file")
 	TARGET_FRAME_DUR :: time.Duration(time.Second / TARGET_FPS)
 
-	initTimer :: proc() {
+	startTimer :: proc() {
 		last_time = time.now()
 	}
 

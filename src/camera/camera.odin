@@ -58,13 +58,10 @@ updateVariables :: proc() {
 	}
 }
 
-camPos: linalg.Vector2f32
+camPos: [2]f32
 
 @(private = "file")
-startPos: linalg.Vector2f32
-
-@(private = "file")
-targetPos: linalg.Vector2f32
+startPos, targetPos: [2]f32
 
 @(private = "file")
 elapsed: f32 = 0.0
@@ -72,7 +69,7 @@ elapsed: f32 = 0.0
 @(private = "file")
 dur: f32 = 0.5 // sec
 
-startTagAlong :: proc(pos: linalg.Vector2f32, pDur: f32 = 0.5) {
+startTagAlong :: proc(pos: [2]f32, pDur: f32 = 0.5) {
 	dur = pDur
 	elapsed = 0
 	startPos = camPos

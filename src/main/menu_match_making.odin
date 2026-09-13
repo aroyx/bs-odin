@@ -66,7 +66,24 @@ on_render :: proc() {
 					padding = orui.padding(20),
 				},
 			)
+
+			{orui.container(
+					orui.id("instructions"),
+					{
+						width = orui.grow(),
+						height = orui.fit(),
+						padding = orui.padding(10),
+						border = {left = 4, right = 4},
+						border_color = rl.BLACK,
+						direction = .TopToBottom,
+						gap = 10,
+					},
+				)
+
+				displayInstructions()
+			}
 		}
+
 		{
 			orui.container(
 				orui.id("lower buttons"),
@@ -75,6 +92,7 @@ on_render :: proc() {
 					width = orui.fit(),
 					height = {type = .Percent, value = 0.2, min = 40},
 					align_main = .Center,
+					gap = 20,
 				},
 			)
 
@@ -89,45 +107,31 @@ on_render :: proc() {
 }
 
 @(private = "file")
-last_hovered := -1
-
-@(private = "file")
-menuButton :: proc(id: int, text: string, col: rl.Color = rl.DARKGRAY) -> bool {
-	clicked := orui.label(
-		orui.id(id),
-		text,
+displayInstructions :: proc() {
+	orui.label(
+		orui.id("head"),
+		"Instructions",
 		{
+			font = utils.getFont(.LARGE),
+			font_size = utils.getFontSize(.LARGE),
 			width = orui.grow(),
 			height = orui.fit(),
-			margin = orui.margin(10, 20),
-			padding = orui.padding(20, 10),
-			font_size = 20,
-			align = {.Center, .Center},
-			background_color = orui.animate(
-				"bg-color",
-				orui.active() ? rl.ColorLerp(col, rl.WHITE, 0.20) : col,
-			),
 			color = rl.BLACK,
-			corner_radius = orui.corner(4),
-			border = getBorder(),
-			border_color = rl.BLACK,
+			align = {.Center, .Center},
 		},
 	)
 
-	if clicked {
-		audio.playMenuClickedSound()
-	}
-
-	if orui.hovered(orui.to_id(id)) {
-		if last_hovered != id {
-			audio.playMenuHoveredSound()
-			last_hovered = id
-		}
-	} else {
-		if last_hovered == id {
-			last_hovered = -1
-		}
-	}
-
-	return clicked
+	orui.label(
+		orui.id("shit"),
+		"'Right Click' to plant Bomb/Cancel Bomb or Arrow\n\n'Left Click' to sword slash/bomb throw/arrow release\n\nPress 'E' for arrow\n\nWASD to move\n\nShift to sprint",
+		{
+			font = utils.getFont(.MEDIUM),
+			font_size = utils.getFontSize(.MEDIUM),
+			width = orui.grow(),
+			height = orui.fit(),
+			color = rl.BLACK,
+			align = {.Center, .Center},
+		},
+	)
 }
+

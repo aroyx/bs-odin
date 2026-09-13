@@ -1265,3 +1265,129 @@ Notes for tmrw:
 - Clean the mess of code I created while in the rush
 - Fix architecture, performance, resource utilisation
 - Bombs, I need to make a plan on how I will do that
+
+https://github.com/user-attachments/assets/e6a52292-9994-4728-8318-c3a1fb2e6908
+
+# Devlog #27
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 3h 27m       |
+| Total Time     | 178h 45m 1s  |
+| Date           | 3rd Aug 2026 |
+
+Today was a easy going day. I worked a little then I watched "Iron Lung" and relaxed a bit. BUT AT NIGHT I PLANNED ON FIXING THE DAMN MULTI-TOUCH BUG. I even made a new account in Claude to try to fix it using that AI, damn it didn't work either. The problem seemed so simple that I was reluctant to ask the author of raylib for help, now I gotta do it. May god have mercy on me :pray:
+
+Other than that I worked on code-cleanup today. 
+Added custom mouse images
+Upgraded the Odin version to July of 2026. This change fixed one bug related to WASM Raylib which was also introduced today. [Pretty much this issue](https://github.com/raysan5/raylib/issues/4940)
+
+Right now, I've made my mind, mobile support can go eat bitter gourd, I will not be worrying about Android/iOS support anymore. I might work on them when other fun stuff about my game are done.
+
+Right now I want to make the bombs a reality...
+
+Things to do tmrw:
+- Do not break the streak. I'll be going to my aunt's so I won't be able to do much. I just don't want to break the streak I am working on.
+- See for more architectureal and performatical fixes
+- Try out the bombs for now in box2d only
+
+# Devlog #28
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 1h 5m        |
+| Total Time     | 179h 50m 1s  |
+| Date           | 4th Aug 2026 |
+
+## Offtopic
+Okay, so I went to my aunt's, had a great time. Saw some peace and the greenest grass of my life! Here's some pictures of them.
+
+## Ontopic
+Updated the "shitty" player controls that most people did not like when they tested my game. 
+
+| Action   | Old Mapping             | New Mapping  |
+| -------- | ----------------------- | ------------ |
+| Movement | WASD/Up-Down-Left-Right | WASD         |
+| Sprint   | C                       | Left Shift   |
+| Attack   | X                       | Left Click   |
+
+
+Some new actions
+
+| Action                             | Old Mapping | New Mapping  |
+| ----------                         | ----------- | ------------ |
+| Aim Bomb                           | -           | Right click  |
+| Cancel Bomb (When Aiming the bomb) | -           | Right click  |
+| Throw Bomb (When Aiming the bomb)  | -           | Left click   |
+
+## Bombs
+Okay so you might've guessed. I am working on the bombs <(-u-)>
+Next day I will probably make a working version!, can't wait to see what happens
+
+Anyway here' a video of working bomb aiming!
+
+https://github.com/user-attachments/assets/29087582-7262-4646-b633-71d34b96dbde
+
+# Devlog #29
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 3h 32m       |
+| Total Time     | 183h 22m 1s  |
+| Date           | 5th Aug 2026 |
+
+There's nothing much to talk about, I just banged my head again and again until the bomb throwing worked, now I will need to just use appropriate sprites for them.
+
+https://github.com/user-attachments/assets/c38ef5e9-cfac-4bb5-8c4c-cdc9ea83750a
+
+# Devlog #30
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 2h 12m       |
+| Total Time     | 185h 34m 1s  |
+| Date           | 6th Aug 2026 |
+
+Okay so today was a fun day! I spent a lot of my time drawing this cool bomb sprite! I am quite proud of it :)
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/9006a5de-a7b6-4b2e-bfa7-d701dd3f9625" alt="gif of an animated bomb, the bomb is of black colour with a big thread like thing poking out of it that is burnt and the sparkles are flying all over the place. the bomb looks meh. but i made it, so it looks waow!" /><br>
+</p>
+
+Also I implemented this bomb working in my game too!
+
+https://github.com/user-attachments/assets/910775fb-5cb8-4629-8d35-038765d57e33
+
+# Devlog #31
+
+|                |              |
+| -------------- | ------------ |
+| Time           | 2h 16m       |
+| Total Time     | 187h 50m 1s  |
+| Date           | 9th Aug 2026 |
+
+
+This devlog is over the span of 3 days.
+
+Okay so I added the bomb last time, I added the blast this time! Pulled an rendreing fix in `orui` from the upstream [orui#13](https://github.com/andzdroid/orui/issues/13). Fixed some errors that are thrown by the `-vet` flag - this just makes the code more robust.
+
+And that's about it, lately I've been switching to enjoying my time with family and friends. College is around the corner so I am trying to enjoy the last bits of time I have. Also I am working on another project with @Shibam. It's something completely new to me - Object detection model to simulation. I'll not discuss it here anymore.
+
+Next day, I'll probably work on that or adding a `custom-keymap` thingy in options menu to let the user pick the keymaps they want.
+I also have plans to build an APK and run the app in my Android. I wonder how that'll be like. Anyway, until then bye!
+
+https://github.com/user-attachments/assets/94074f66-359c-4942-a0cf-c416121060b0
+
+# Devlog #32
+
+|                |               |
+| -------------- | ------------  |
+| Time           | 1h 48m        |
+| Total Time     | 189h 38m 1s   |
+| Date           | 16th Aug 2026 |
+
+HOLY! Okay, it's been a long time now, I was busy with my clg admission. It went well. I was also distracted by my other project which we named PicToSim. 
+
+Today I worked on making the arrow thingy. It doesn't work, but I've made the outer skeleton of the arrow, I've only got to make the body, It shouldn't be that hard, I can use bomb's code for reference. I also made a new release for it! Also made the icon work in desktop. And that's about it. I am taking it pretty chill rn, but I plan to get back to my previous pace, it is really hard to work on two things at once!
+
+Anyway, my plans for tmrw is to make the arrow work. Let's just hope it goes well, later I'll implement sliding and other cool things too!

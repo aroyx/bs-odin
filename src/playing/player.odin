@@ -6,6 +6,8 @@ import "core:math/linalg"
 import "core:time"
 
 import "../camera"
+import "../ui"
+import "../utils"
 
 import "vendor:box2d"
 import rl "vendor:raylib"
@@ -40,18 +42,27 @@ playerStateMachineUpdate :: proc(dt: f32) {
 	running = false
 	attacking = false
 
-	if rl.IsKeyDown(.W) || rl.IsKeyDown(.UP) do dir.y = -1
-	if rl.IsKeyDown(.S) || rl.IsKeyDown(.DOWN) do dir.y = 1
-	if rl.IsKeyDown(.A) || rl.IsKeyDown(.LEFT) do dir.x = -1
-	if rl.IsKeyDown(.D) || rl.IsKeyDown(.RIGHT) do dir.x = 1
+	if rl.IsKeyDown(.W) do dir.y = -1
+	if rl.IsKeyDown(.S) do dir.y = 1
+	if rl.IsKeyDown(.A) do dir.x = -1
+	if rl.IsKeyDown(.D) do dir.x = 1
 
 	dir = linalg.normalize0(dir)
 
-	running = rl.IsKeyDown(.C) || ui_run
-	attacking = rl.IsKeyDown(.X) || ui_attack
+	running = rl.IsKeyDown(.LEFT_SHIFT) || ui_run
+	attacking = ui_attack
+
+	if !utils.global.options.on_mobile {
+		attacking = attacking || rl.IsMouseButtonDown(.LEFT)
+	} else {
+		attacking = attacking || rl.IsKeyDown(.X)
+	}
 
 	p_data.attack_cooldown -= dt
 	p_data.stun_cooldown -= dt
+	p_data.bomb_cooldown -= dt
+	p_data.arrow_cooldown -= dt
+
 	regen_wait -= dt
 	footstep_timer -= dt
 	heartbeat_timer -= dt
@@ -108,9 +119,12 @@ playerStateMachineUpdate :: proc(dt: f32) {
 		if diff >= 3000 {
 			playing_end = true
 		}
-
-	case .JUMP:
-	// revive? idk
+	case .BOMB_AIM:
+		updatePlayerBombAim(p_data)
+	case .BOMB_THROW:
+		updatePlayerBombThrow(p_data)
+	case .ARROW_AIM:
+		updatePlayerArrowAim(p_data)
 	}
 
 	if p_data.stun_cooldown > 0 && p_data.state != .HURT {
@@ -164,7 +178,6 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 
 			if !rl.CheckCollisionPointRec(e_pos, attak_box) do continue
 
-			// can be flowers too!
 			switch &data in &e.data {
 			case PlayerData:
 				continue // wtf
@@ -193,6 +206,7 @@ updatePlayerAttack :: proc(p_data: ^PlayerData) {
 
 				playSound(.CUT_FOLIAGE)
 				attack_hit = true
+			case BombData, ArrowData:
 			}
 		}
 
@@ -207,6 +221,20 @@ updatePlayerMovement :: proc(p_data: ^PlayerData) {
 	if attacking && p_data.attack_cooldown <= 0 {
 		changePlayerState(p_data, .ATTACK)
 	} else {
+		if rl.IsMouseButtonPressed(.RIGHT) {
+			if p_data.bomb_cooldown <= 0 {
+				changePlayerState(p_data, .BOMB_AIM)
+				return
+			}
+		}
+
+		if rl.IsKeyPressed(.E) {
+			if p_data.arrow_cooldown <= 0 {
+				changePlayerState(p_data, .ARROW_AIM)
+				return
+			}
+		}
+
 		speed: f32 = running ? 10 : 5
 		force: box2d.Vec2 = dir * speed
 		p_entity := hm.get(&entities, player_handle)
@@ -241,30 +269,216 @@ updatePlayerMovement :: proc(p_data: ^PlayerData) {
 	}
 }
 
+@(private = "file")
+updatePlayerBombAim :: proc(p_data: ^PlayerData) {
+	if rl.IsMouseButtonPressed(.RIGHT) {
+		changePlayerState(p_data, .IDLE)
+		return
+	}
+
+	speed: f32 = running ? 10 : 5
+	force: box2d.Vec2 = dir * speed
+	p_entity := hm.get(&entities, player_handle)
+
+	box2d.Body_ApplyForceToCenter(p_entity.physics_id, force, true)
+
+	if dir.x != 0 || dir.y != 0 {
+		camera.startTagAlong(p_entity.pos)
+
+		if running {
+			if p_data.animation.current_animation != .RUNNING {
+				changeAnimation(&p_data.animation, .RUNNING)
+			}
+			if footstep_timer <= 0 {
+				footstep_timer = 0.25
+				playSound(.FOOTSTEP)
+			}
+		} else {
+			if p_data.animation.current_animation != .WALKING {
+				changeAnimation(&p_data.animation, .WALKING)
+			}
+			if footstep_timer <= 0 {
+				footstep_timer = 0.5
+				playSound(.FOOTSTEP)
+			}
+		}
+	} else {
+		if p_data.animation.current_animation != .IDLE {
+			changeAnimation(&p_data.animation, .IDLE)
+		}
+	}
+
+	if dir.x < 0 {
+		p_data.animation.flip_x = -1
+	} else if dir.x > 0 {
+		p_data.animation.flip_x = 1
+	}
+
+	if attacking { 	// attaking in bomb_aim means we throw bomb
+		changePlayerState(p_data, .BOMB_THROW)
+
+		p_pos := p_entity.pos
+		m_pos := rl.GetMousePosition()
+
+		cs := camera.state.cs
+		cp := camera.camPos
+
+		camTopLeft: [2]f32 = {
+			math.clamp(
+				cp.x - (cs * camera.state.hcc * 0.5),
+				0,
+				cs * (utils.MAP_SIZE - camera.state.hcc),
+			),
+			math.clamp(
+				cp.y - (cs * camera.state.vcc * 0.5),
+				0,
+				cs * (utils.MAP_SIZE - camera.state.vcc),
+			),
+		}
+
+		t_pos: [2]f32 = {
+			camTopLeft.x + m_pos.x - camera.state.x_offset,
+			camTopLeft.y + m_pos.y - camera.state.y_offset,
+		}
+
+		p_pos.y -= (cs * 2)
+
+		spawnBomb(p_pos, t_pos)
+
+		if p_pos.x > t_pos.x {
+			p_data.animation.flip_x = -1
+		}
+		if p_pos.x < t_pos.x {
+			p_data.animation.flip_x = 1
+		}
+	}
+}
+
+@(private = "file")
+updatePlayerBombThrow :: proc(p_data: ^PlayerData) {
+	if p_data.stun_cooldown <= 0 {
+		changePlayerState(p_data, .IDLE)
+		return
+	}
+}
+
+@(private = "file")
+updatePlayerArrowAim :: proc(p_data: ^PlayerData) {
+	// cancel the arrow aiming
+	if rl.IsMouseButtonPressed(.RIGHT) || rl.IsKeyPressed(.E) {
+		changePlayerState(p_data, .IDLE)
+		return
+	}
+
+	speed: f32 = 5
+	force: box2d.Vec2 = dir * speed
+	p_entity := hm.get(&entities, player_handle)
+
+	box2d.Body_ApplyForceToCenter(p_entity.physics_id, force, true)
+
+	if dir.x != 0 || dir.y != 0 {
+		camera.startTagAlong(p_entity.pos)
+
+		// there is no running when aiming arrow
+		if p_data.animation.current_animation != .WALKING {
+			changeAnimation(&p_data.animation, .WALKING)
+		}
+		if footstep_timer <= 0 {
+			footstep_timer = 0.5
+			playSound(.FOOTSTEP)
+		}
+	} else {
+		if p_data.animation.current_animation != .IDLE {
+			changeAnimation(&p_data.animation, .IDLE)
+		}
+	}
+
+	if dir.x < 0 {
+		p_data.animation.flip_x = -1
+	} else if dir.x > 0 {
+		p_data.animation.flip_x = 1
+	}
+
+	p_data.arrow_dir = linalg.normalize0(p_data.arrow_dir + (rl.GetMouseDelta() * 0.008))
+
+	if p_data.arrow_dir.x < 0 {
+		p_data.animation.flip_x = -1
+	} else if p_data.arrow_dir.x > 0 {
+		p_data.animation.flip_x = 1
+	}
+
+	if attacking {
+		// shoot the thing!
+		p_data.arrow_cooldown = 7
+		attack_landed = false
+		regen_wait = 5
+		breathed = false
+
+		p_pos := p_entity.pos
+		m_pos := rl.GetMousePosition()
+
+		cs := camera.state.cs
+		cp := camera.camPos
+
+		camTopLeft: [2]f32 = {
+			math.clamp(
+				cp.x - (cs * camera.state.hcc * 0.5),
+				0,
+				cs * (utils.MAP_SIZE - camera.state.hcc),
+			),
+			math.clamp(
+				cp.y - (cs * camera.state.vcc * 0.5),
+				0,
+				cs * (utils.MAP_SIZE - camera.state.vcc),
+			),
+		}
+
+		p_pos.y -= (cs * 1.5)
+		t_pos := p_pos + p_data.arrow_dir
+
+		spawnArrow(p_pos, t_pos, player_handle)
+
+		if p_pos.x > t_pos.x {
+			p_data.animation.flip_x = -1
+		}
+		if p_pos.x < t_pos.x {
+			p_data.animation.flip_x = 1
+		}
+
+		p_data.attack_cooldown = 0.5
+		changePlayerState(p_data, .IDLE)
+	}
+}
+
 @(private)
 changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 	if data.state == new_state do return
+
+	if data.state == .BOMB_AIM {
+		ui.changeMouseState(.NORMAL)
+
+		if utils.global.options.on_mobile {
+			ui.showCursor()
+		} else {
+			ui.hideCursor()
+		}
+	}
 
 	data.state = new_state
 
 	switch data.state {
 	case .IDLE:
-		// playSound(.PLAYER_IDLE)
 		if data.animation.current_animation != .IDLE {
 			changeAnimation(&data.animation, .IDLE)
 		}
 	case .WALK:
-		// playSound(.PLAYER_IDLE)
 		if data.animation.current_animation != .WALKING {
 			changeAnimation(&data.animation, .WALKING)
 		}
 	case .RUN:
-		// playSound(.PLAYER_IDLE)
 		if data.animation.current_animation != .RUNNING {
 			changeAnimation(&data.animation, .RUNNING)
 		}
-	case .JUMP:
-	//idk man
 	case .ATTACK:
 		changeAnimation(&data.animation, .SLASHING)
 		data.attack_cooldown = 1
@@ -285,5 +499,23 @@ changePlayerState :: proc(data: ^PlayerData, new_state: PlayerState) {
 		data.stun_cooldown = data.animation.current_animation_length / 1000
 		camera.startShake(300)
 		death_time = time.now()
+	case .BOMB_AIM:
+		ui.showCursor()
+		ui.changeMouseState(.TARGET)
+	case .BOMB_THROW:
+		changeAnimation(&data.animation, .THROWING)
+		data.stun_cooldown = data.animation.current_animation_length / 1000
+		data.bomb_cooldown = 3
+		attack_landed = false
+		regen_wait = 5
+		breathed = false
+	case .ARROW_AIM:
+	}
+}
+
+@(private)
+drawWeaponTrajectory :: proc(data: ^PlayerData, p_pos, camTopLeft: [2]f32) {
+	if data.state == .BOMB_AIM {
+		drawBombTrajectory(data, p_pos, camTopLeft)
 	}
 }

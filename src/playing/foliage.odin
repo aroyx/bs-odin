@@ -106,7 +106,7 @@ generateFoliageChunk :: proc(i, j: int) {
 	r := rand.create(seed)
 	gen := rand.default_random_generator(&r)
 
-	for k in 0 ..< 30 {
+	for _ in 0 ..< 30 {
 		x := start_x + (cnk_sz * rand.float32(gen) * cs)
 		y := start_y + (cnk_sz * rand.float32(gen) * cs)
 
@@ -141,4 +141,42 @@ deleteFoliageChunk :: proc(i, j: int) {
 	}
 
 	clear(&foliage_handles_chunk[i][j])
+}
+
+@(private)
+drawFoliage :: proc(
+	data: ^FoliageData,
+	pos, camTopLeft, p_pos: [2]f32,
+	bounding_box: rl.Rectangle,
+) {
+	tex := foliage_textures[data.plant_type]
+
+	if tex.id == 0 do return
+
+	cs := camera.state.cs
+	tex_w, tex_h := f32(tex.width), f32(tex.height)
+
+	draw_x := pos.x - camTopLeft.x + camera.state.x_offset
+	draw_y := pos.y - camTopLeft.y + camera.state.y_offset
+
+	scale := cs * 0.015
+
+	offset_y := 0.08 * cs * 4.0
+	x := draw_x - (tex_w * scale * 0.5)
+	y := draw_y - (tex_h * scale) + offset_y
+
+	if !data.is_dying {
+		p_pos_screen: [2]f32 = {
+			p_pos.x - camTopLeft.x + camera.state.x_offset,
+			p_pos.y - camTopLeft.y + camera.state.y_offset,
+		}
+
+		if rl.CheckCollisionPointRec(p_pos_screen, bounding_box) {
+			data.alpha = 150
+		} else {
+			data.alpha = 255
+		}
+	}
+
+	rl.DrawTextureEx(tex, {x, y}, 0.0, scale, {255, 255, 255, data.alpha})
 }

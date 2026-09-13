@@ -9,7 +9,7 @@ import "core:math/linalg"
 import rl "vendor:raylib"
 
 @(private = "file")
-points: [8]linalg.Vector2f32
+points: [8][2]f32
 
 @(private = "file")
 Points :: enum i32 {
@@ -63,15 +63,15 @@ marchingSquares :: proc(x, y, threshold: f32, i, j: int, color: rl.Color) {
 
 	cs := camera.state.cs
 
-	a: linalg.Vector2f32 = {x + li(tl, tr, threshold) * cs, y}
-	b: linalg.Vector2f32 = {x + cs, y + li(tr, br, threshold) * cs}
-	c: linalg.Vector2f32 = {x + li(bl, br, threshold) * cs, y + cs}
-	d: linalg.Vector2f32 = {x, y + li(tl, bl, threshold) * cs}
+	a: [2]f32 = {x + li(tl, tr, threshold) * cs, y}
+	b: [2]f32 = {x + cs, y + li(tr, br, threshold) * cs}
+	c: [2]f32 = {x + li(bl, br, threshold) * cs, y + cs}
+	d: [2]f32 = {x, y + li(tl, bl, threshold) * cs}
 
-	c1: linalg.Vector2f32 = {x, y}
-	c2: linalg.Vector2f32 = {x + cs, y}
-	c3: linalg.Vector2f32 = {x + cs, y + cs}
-	c4: linalg.Vector2f32 = {x, y + cs}
+	c1: [2]f32 = {x, y}
+	c2: [2]f32 = {x + cs, y}
+	c3: [2]f32 = {x + cs, y + cs}
+	c4: [2]f32 = {x, y + cs}
 
 	points = {a, b, c, d, c1, c2, c3, c4}
 

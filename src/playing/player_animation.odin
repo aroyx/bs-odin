@@ -5,15 +5,26 @@ import "../camera"
 
 import "core:fmt"
 import "core:math"
-import "core:math/linalg"
 import "core:math/rand"
 import "core:time"
 
 import rl "vendor:raylib"
 
+@(private)
+BowType :: enum u8 {
+	BOW_1,
+	BOW_2,
+}
+
+@(private)
+bow_textures: [BowType]rl.Texture
+@(private)
+arrow_textures: [BowType]rl.Texture
+
 CharacterSkin :: struct {
 	type: [anim.BodyPart]anim.CharacterType,
 	tier: [anim.BodyPart]anim.CharacterTier,
+	bow:  BowType,
 }
 
 AnimationState :: struct {
@@ -28,16 +39,19 @@ randomSkin :: proc(skin: ^CharacterSkin) {
 		type := anim.CharacterType(rand.int_max(len(anim.CharacterType)))
 		tier := anim.CharacterTier(rand.int_max(len(anim.CharacterTier)))
 
-        setPartType(part, type, skin)
-        setPartTier(part, tier, skin)
+		setPartType(part, type, skin)
+		setPartTier(part, tier, skin)
 	}
+
+	skin.bow = BowType(rand.int_max(len(BowType)))
 }
 
 drawAnimate :: proc(
 	anim_state: ^AnimationState,
 	skin: ^CharacterSkin,
-	pos: linalg.Vector2f32,
-	camTopLeft: linalg.Vector2f32,
+	pos, camTopLeft: [2]f32,
+	is_arrow_aiming := false,
+	bow_dir := [2]f32{0, 0},
 ) {
 	if anim_state.current_animation_length < 0 {
 		return
@@ -56,7 +70,8 @@ drawAnimate :: proc(
 	}
 
 	cs := camera.state.cs
-	tex_w, tex_h: f32 = 230, 500
+	// tex_w, tex_h: f32 = 230, 500
+	tex_w: f32 = 230
 
 	draw_x := pos.x - camTopLeft.x + camera.state.x_offset
 	draw_y := pos.y - camTopLeft.y + camera.state.y_offset + (cs * 0.25)
@@ -97,6 +112,52 @@ drawAnimate :: proc(
 		color: rl.Color = {255, 255, 255, u8(cmd.alpha * 255)}
 		rl.DrawTexturePro(tex, source, dest, {origin_x, 0}, cmd.angle * anim_state.flip_x, color)
 	}
+
+	if is_arrow_aiming {
+		arrow_tex := arrow_textures[skin.bow]
+		bow_tex := bow_textures[skin.bow]
+
+		angle := math.atan2(bow_dir.y, bow_dir.x) * 180.0 / math.PI
+
+		x := draw_x
+		y := draw_y - (0.545 * cs)
+
+		arrow_src: rl.Rectangle = {
+			x      = 0,
+			y      = 0,
+			width  = f32(arrow_tex.width),
+			height = f32(arrow_tex.height),
+		}
+
+		arrow_dest: rl.Rectangle = {
+			x      = x,
+			y      = y,
+			width  = f32(arrow_tex.width) * scale,
+			height = f32(arrow_tex.height) * scale,
+		}
+
+		arrow_origin: [2]f32 = {arrow_dest.width * -0.132, arrow_dest.height / 2}
+
+		bow_src: rl.Rectangle = {
+			x      = 0,
+			y      = 0,
+			width  = f32(bow_tex.width),
+			height = f32(bow_tex.height),
+		}
+
+		bow_dest: rl.Rectangle = {
+			x      = x,
+			y      = y,
+			width  = f32(bow_tex.width) * scale,
+			height = f32(bow_tex.height) * scale,
+		}
+
+		bow_origin: [2]f32 = {bow_dest.width * -0.545, bow_dest.height / 2}
+
+		rl.DrawTexturePro(bow_tex, bow_src, bow_dest, bow_origin, angle, rl.WHITE)
+		rl.DrawTexturePro(arrow_tex, arrow_src, arrow_dest, arrow_origin, angle, rl.WHITE)
+	}
+
 }
 
 changeAnimation :: proc(anim_state: ^AnimationState, anime: anim.AnimationName) {

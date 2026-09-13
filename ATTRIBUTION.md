@@ -15,6 +15,7 @@ The character Sprites are taken from [craftpix](https://craftpix.net/)
 7. [Skeleton](https://craftpix.net/freebies/chibi-skeleton-warrior-character-sprites/)
 8. [Zombievillager](https://craftpix.net/freebies/free-zombie-villager-chibi-character-sprites/)
 
+The cursor sprites were taken from [Kenny](https://kenney.nl) from this [Cursor pack](https://kenney.nl/assets/cursor-pack)
 The foliage were taken from [Kenny](https://kenney.nl) in this [Foliage Pack](https://kenney.nl/assets/foliage-pack)
 
 ## Audio

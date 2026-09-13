@@ -4,10 +4,11 @@ import anim "../animations"
 import "../camera"
 import "../physics"
 import "../terrain"
+import "../ui"
 import "../utils"
-import "core:fmt"
 
 import hm "core:container/handle_map"
+import "core:fmt"
 import "core:math"
 import "core:math/ease"
 import "core:math/linalg"
@@ -16,9 +17,6 @@ import "thirdparty:orui"
 import "thirdparty:tracy"
 import "vendor:box2d"
 import rl "vendor:raylib"
-
-@(private = "file")
-lock_camera := false
 
 player_skin: CharacterSkin
 
@@ -31,11 +29,24 @@ rotate_phone_texture: rl.Texture
 pause_menu := false
 
 enter :: proc() {
-	rotate_phone_img := rl.LoadImage("res/images/rotate_phone.png")
-	rotate_phone_texture = rl.LoadTextureFromImage(rotate_phone_img)
+	rotate_phone_texture = rl.LoadTexture("res/images/rotate_phone.png")
 	rl.SetTextureFilter(rotate_phone_texture, .BILINEAR)
-	rl.UnloadImage(rotate_phone_img)
+	bomb_tex = rl.LoadTexture("res/images/misc/bomb.png")
+	rl.SetTextureFilter(bomb_tex, .BILINEAR)
+	blast_tex = rl.LoadTexture("res/images/misc/explosion_pirated.png")
+	rl.SetTextureFilter(blast_tex, .BILINEAR)
+
 	loadFoliage()
+
+	bow_textures[.BOW_1] = rl.LoadTexture("res/images/character/bows/Bow_1.png")
+	bow_textures[.BOW_2] = rl.LoadTexture("res/images/character/bows/Bow_2.png")
+
+	arrow_textures[.BOW_1] = rl.LoadTexture("res/images/character/bows/Arrow_1.png")
+	arrow_textures[.BOW_2] = rl.LoadTexture("res/images/character/bows/Arrow_2.png")
+
+	for b in bow_textures {
+		rl.SetTextureFilter(b, .BILINEAR)
+	}
 
 	attack_button_data.texture = anim.getPartTex(
 		player_skin.type[.WEAPON],
@@ -45,11 +56,18 @@ enter :: proc() {
 
 	playing_end = false
 	pause_menu = false
-    local_global = utils.global
+	local_global = utils.global
+
+	ui.setCallBack(call_back)
+
+	if utils.global.options.on_mobile {
+		ui.showCursor()
+	}
 }
 
 exit :: proc() {
 	rl.UnloadTexture(rotate_phone_texture)
+	rl.UnloadTexture(bomb_tex)
 	terrain.destroyChunks()
 	box2d.DestroyBody(hm.get(&entities, player_handle).physics_id)
 	physics.closePhysics()
@@ -62,6 +80,18 @@ exit :: proc() {
 }
 
 update :: proc(dt: f32) {
+	if rl.IsKeyPressed(.ESCAPE) || rl.IsKeyPressed(.P) {
+		if pause_menu {
+			if !utils.global.options.on_mobile {
+				ui.hideCursor()
+			}
+		} else {
+			ui.showCursor()
+		}
+
+		pause_menu = !pause_menu
+	}
+
 	if pause_menu {
 		return
 	}
@@ -95,6 +125,10 @@ update :: proc(dt: f32) {
 			playerStateMachineUpdate(dt)
 		case FoliageData:
 			foliageStateMachineUpdate(e, handle, dt)
+		case BombData:
+			updateBomb(e, handle, dt)
+		case ArrowData:
+			updateArrow(e, handle, dt)
 		}
 	}
 
@@ -133,7 +167,7 @@ render :: proc() -> bool {
 	cs := camera.state.cs
 	cp := camera.camPos
 
-	camTopLeft: linalg.Vector2f32 = {
+	camTopLeft: [2]f32 = {
 		math.clamp(
 			cp.x - (cs * camera.state.hcc * 0.5),
 			0,
@@ -193,10 +227,15 @@ render :: proc() -> bool {
 			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
 			renderHealthBar(health, e.id, pos, camTopLeft, R1, R2)
 		case PlayerData:
-			drawAnimate(&d.animation, &d.skin, pos, camTopLeft)
+			drawAnimate(&d.animation, &d.skin, pos, camTopLeft, d.state == .ARROW_AIM, d.arrow_dir)
 			renderHealthBar(health, e.id, pos, camTopLeft, G1, G2)
+			drawWeaponTrajectory(&d, p_pos, camTopLeft)
 		case FoliageData:
 			drawFoliage(&d, pos, camTopLeft, p_pos, bounding_box)
+		case BombData:
+			drawBomb(&d, pos, camTopLeft)
+		case ArrowData:
+			drawArrow(&d, pos, camTopLeft)
 		}
 	}
 
@@ -273,44 +312,6 @@ renderHealthBar :: proc(health: f32, id: int, pos, camTopLeft: [2]f32, color1, c
 }
 
 @(private = "file")
-drawFoliage :: proc(
-	data: ^FoliageData,
-	pos, camTopLeft, p_pos: [2]f32,
-	bounding_box: rl.Rectangle,
-) {
-	tex := foliage_textures[data.plant_type]
-
-	if tex.id == 0 do return
-
-	cs := camera.state.cs
-	tex_w, tex_h := f32(tex.width), f32(tex.height)
-
-	draw_x := pos.x - camTopLeft.x + camera.state.x_offset
-	draw_y := pos.y - camTopLeft.y + camera.state.y_offset
-
-	scale := cs * 0.015
-
-	offset_y := 0.08 * cs * 4.0
-	x := draw_x - (tex_w * scale * 0.5)
-	y := draw_y - (tex_h * scale) + offset_y
-
-	if !data.is_dying {
-		p_pos_screen: [2]f32 = {
-			p_pos.x - camTopLeft.x + camera.state.x_offset,
-			p_pos.y - camTopLeft.y + camera.state.y_offset,
-		}
-
-		if rl.CheckCollisionPointRec(p_pos_screen, bounding_box) {
-			data.alpha = 150
-		} else {
-			data.alpha = 255
-		}
-	}
-
-	rl.DrawTextureEx(tex, {x, y}, 0.0, scale, {255, 255, 255, data.alpha})
-}
-
-@(private = "file")
 drawNumEnemyAlive :: proc() {
 	win_w, win_h := f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())
 	sz := utils.FontSize.MEDIUM
@@ -320,7 +321,7 @@ drawNumEnemyAlive :: proc() {
 	txt_size := rl.MeasureTextEx(utils.getFont(sz)^, txt, fs, 1)
 
 	x := (win_w - txt_size.x) * 0.5
-    y := win_h - max(win_h * 0.1, txt_size.y)
+	y := win_h - max(win_h * 0.1, txt_size.y)
 
-    utils.drawText(txt, sz, {x, y}, rl.WHITE)
+	utils.drawText(txt, sz, {x, y}, rl.WHITE)
 }

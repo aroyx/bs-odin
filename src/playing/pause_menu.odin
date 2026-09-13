@@ -1,6 +1,7 @@
 package playing
 
 import "../audio"
+import "../ui"
 import "../utils"
 
 import "thirdparty:orui"
@@ -42,12 +43,11 @@ showPauseMenu :: proc() {
 		},
 	)
 
-	{
-		orui.container(
+	{orui.container(
 			orui.id("checkboxes container"),
 			{
 				width = orui.grow(),
-				height = orui.grow(),
+				height = orui.fit(),
 				direction = .TopToBottom,
 				border = {top = 4, left = 4, right = 4},
 				border_color = rl.BLACK,
@@ -62,7 +62,53 @@ showPauseMenu :: proc() {
 		displayMenuShow()
 	}
 
+	{orui.container(
+			orui.id("instructions"),
+			{
+				width = orui.grow(),
+				height = orui.grow(),
+				background_color = CYAN,
+				padding = orui.padding(10),
+				border = {left = 4, right = 4},
+				border_color = rl.BLACK,
+				direction = .TopToBottom,
+				gap = 10,
+			},
+		)
+
+		displayInstructions()
+	}
+
 	bottomButtons()
+}
+
+@(private = "file")
+displayInstructions :: proc() {
+	orui.label(
+		orui.id("head"),
+		"Instructions",
+		{
+			font = utils.getFont(.LARGE),
+			font_size = utils.getFontSize(.LARGE),
+			width = orui.grow(),
+			height = orui.fit(),
+			color = rl.BLACK,
+			align = {.Center, .Center},
+		},
+	)
+
+	orui.label(
+		orui.id("shit"),
+		"'Right Click' to plant Bomb/Cancel Bomb or Arrow\n\n'Left Click' to sword slash/bomb throw/arrow release\n\nPress 'E' for arrow\n\nWASD to move\n\nShift to sprint",
+		{
+			font = utils.getFont(.MEDIUM),
+			font_size = utils.getFontSize(.MEDIUM),
+			width = orui.grow(),
+			height = orui.fit(),
+			color = rl.BLACK,
+			align = {.Center, .Center},
+		},
+	)
 }
 
 @(private = "file")
@@ -92,6 +138,8 @@ uiCheckbox :: proc(id: string, text: string, var: ^bool) {
 			align_cross = .Center,
 		},
 	)
+
+	ui.updateMouseOnInteract()
 
 	if orui.clicked(id) {
 		var^ = !var^
@@ -155,15 +203,17 @@ bottomButtons :: proc() {
 			show_save_diag = true
 		} else {
 			pause_menu = false
+			if !utils.global.options.on_mobile {
+				ui.hideCursor()
+			}
 		}
 
 		audio.playMenuClickedSound()
 	}
 
-
 	if bottomButtonsFn("quit button", "\u0078", " Quit", RED) {
 		utils.global = local_global
-        playing_end = true
+		playing_end = true
 		audio.playMenuClickedSound()
 	}
 }
@@ -198,6 +248,8 @@ iconWithText :: proc(id: string, icon: string, text: string, config: orui.Elemen
 	ctn_config.gap = 10
 
 	orui.container(orui.id(id, 1), ctn_config)
+
+	ui.updateMouseOnInteract()
 
 	orui.label(
 		orui.id(id, 2),
@@ -241,7 +293,6 @@ showSaveDiagloge :: proc() {
 		},
 	)
 
-	br: f32 = 10
 	{
 		orui.container(
 			orui.id("upper texts"),
@@ -286,6 +337,10 @@ showSaveDiagloge :: proc() {
 			pause_menu = false
 			show_save_diag = false
 			audio.playMenuClickedSound()
+
+			if !utils.global.options.on_mobile {
+				ui.hideCursor()
+			}
 		}
 
 		if diaglogueButton("save btn", "\ue14d", "Save", CYAN) {
@@ -293,6 +348,7 @@ showSaveDiagloge :: proc() {
 			pause_menu = false
 			show_save_diag = false
 			audio.playMenuClickedSound()
+
 		}
 
 		if diaglogueButton("cancel", "\u0078", "Cancel", WHITE) {

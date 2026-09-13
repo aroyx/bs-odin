@@ -1,8 +1,9 @@
 package playing
 
+import "base:runtime"
 import hm "core:container/handle_map"
-import "core:math/linalg"
 import "core:math/rand"
+import "core:time"
 
 import "../camera"
 import "../physics"
@@ -15,7 +16,7 @@ Entity :: struct {
 	handle:     EntityHandle,
 	id:         int, // a unique number per entity for animation and shii
 	health:     f32,
-	pos:        linalg.Vector2f32,
+	pos:        [2]f32,
 	physics_id: box2d.BodyId,
 	data:       EntityData,
 	size:       [2]f32,
@@ -39,31 +40,38 @@ EntityData :: union {
 	PlayerData,
 	EnemyData,
 	FoliageData,
+	BombData,
+	ArrowData,
 }
 
 PlayerData :: struct {
 	state:           PlayerState,
 	skin:            CharacterSkin,
 	animation:       AnimationState,
-	attack_cooldown: f32,
 	stun_cooldown:   f32,
+	attack_cooldown: f32,
+	bomb_cooldown:   f32,
+	arrow_cooldown:  f32,
+	arrow_dir:       [2]f32,
 }
 
 PlayerState :: enum u8 {
 	IDLE,
 	WALK,
 	RUN,
-	JUMP,
 	ATTACK,
 	HURT,
 	DEAD,
+	BOMB_AIM,
+	BOMB_THROW,
+	ARROW_AIM,
 }
 
 EnemyData :: struct {
 	state:           EnemyState,
 	skin:            CharacterSkin,
 	animation:       AnimationState,
-	target_pos:      linalg.Vector2f32,
+	target_pos:      [2]f32,
 	attack_landed:   bool,
 	target_time:     f32,
 	stun_cooldown:   f32,
@@ -85,23 +93,25 @@ FoliageData :: struct {
 	time_left:  f32,
 }
 
-// HealthRegenerate :: union {
-// 	NoRegenerate,
-// 	YesRegenerate,
-// }
+BombData :: struct {
+	start, dest: [2]f32,
+	dur, height: f32,
+	start_time:  time.Time,
+}
 
-// NoRegenerate :: struct {}
-// YesRegenerate :: struct {
-// 	wait_for: f32, // time to rest before can regenerate
-// }
+ArrowData :: struct {
+	start_pos, dir: [2]f32,
+	strength, collision_timer:       f32,
+	shooter:        EntityHandle,
+}
 
 @(private)
 updateEntitiesPosition :: proc() {
 	it := hm.iterator_make(&entities)
 
-	for entity, handle in hm.iterate(&it) {
+	for entity, _ in hm.iterate(&it) {
 		#partial switch type in entity.data {
-		case FoliageData:
+		case FoliageData, BombData, ArrowData:
 			continue
 		}
 
@@ -160,9 +170,7 @@ generateEntities :: proc() {
 
 	playerBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 	playerShapeDef := box2d.DefaultShapeDef()
-	_ = box2d.CreatePolygonShape(player_physics_id, playerShapeDef, playerBox)
-
-	cs := camera.state.cs
+	_ = box2d.CreatePolygonShape(player_physics_id, playerShapeDef, &playerBox)
 
 	p_entity := Entity {
 		pos        = player_pos,
@@ -174,8 +182,8 @@ generateEntities :: proc() {
 
 	player_handle = addEntity(&p_entity)
 
-    total_enemies = 0
-	for i in 1 ..< 128 {
+	total_enemies = 0
+	for _ in 1 ..< 128 {
 		// enemy animation
 		e_pos := getRandomLandPosition()
 
@@ -198,7 +206,7 @@ generateEntities :: proc() {
 
 		enemyBox := box2d.MakeRoundedBox(0.2, 0.08, 0.1)
 		enemyShapeDef := box2d.DefaultShapeDef()
-		_ = box2d.CreatePolygonShape(e_phy_id, enemyShapeDef, enemyBox)
+		_ = box2d.CreatePolygonShape(e_phy_id, enemyShapeDef, &enemyBox)
 
 		e_entity := Entity {
 			pos        = e_pos,
@@ -231,10 +239,10 @@ generateEntities :: proc() {
 }
 
 @(private = "file")
-getRandomLandPosition :: proc() -> linalg.Vector2f32 {
+getRandomLandPosition :: proc() -> [2]f32 {
 	tries := 100
 
-	for i in 0 ..< 100 {
+	for _ in 0 ..< tries {
 		x := rand.float32() * camera.state.cs * utils.MAP_SIZE
 		y := rand.float32() * camera.state.cs * utils.MAP_SIZE
 
@@ -266,7 +274,7 @@ addEntity :: proc(entity: ^Entity) -> EntityHandle {
 	append(&render_list, handle)
 
 	if _, ok := entity.data.(EnemyData); ok {
-        total_enemies += 1
+		total_enemies += 1
 	}
 
 	return handle
@@ -274,7 +282,7 @@ addEntity :: proc(entity: ^Entity) -> EntityHandle {
 
 removeEntity :: proc(handle: EntityHandle) -> bool {
 	ok, err := hm.remove(&entities, handle)
-	if !ok {
+	if !ok || err != runtime.Allocator_Error.None {
 		return false
 	}
 

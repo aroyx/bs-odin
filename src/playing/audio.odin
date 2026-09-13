@@ -15,6 +15,7 @@ SoundType :: enum u8 {
     FOOTSTEP,
     BREATHE,
     HEARTBEAT,
+    EXPLOSION,
 }
 
 @(private = "file") // each soundtype can have multiple sound (variations)
@@ -76,6 +77,8 @@ loadSounds :: proc() {
 	loadSound(.BREATHE, "res/audio/character/breathe.wav")
 
 	loadSound(.HEARTBEAT, "res/audio/character/heartbeat.wav")
+
+	loadSound(.EXPLOSION, "res/audio/misc/explosion.wav")
 }
 
 @(private)
