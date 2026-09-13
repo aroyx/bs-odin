@@ -10,8 +10,10 @@ https://github.com/user-attachments/assets/094f4847-ea5a-4db2-9a7c-6e8909de0658
 ## Controls
 - `WASD`  to move
 - `Left Shift` to sprint
-- `Mouse Left click` to attack
-- Mouse to navigate around (in mobile)
+- Attacking:
+    - Sword (left click)
+    - Bomb (right click to plant bomb, right click again to cancel, left click to shoot the bomb)
+    - Arrow (Press 'E' to aim and left click to shoot, right click to cancel aim)
 
 ## Journal
 The entire process of making this game has been journal-ed in [JOURNAL.md](https://github.com/aroyx/bs-odin/blob/main/JOURNAL.md), all the resources used to make this game has been documented in [ATTRIBUTION.md](https://github.com/aroyx/bs-odin/blob/main/ATTRIBUTION.md) 
